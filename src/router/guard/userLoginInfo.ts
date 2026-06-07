@@ -4,6 +4,7 @@ import NProgress from 'nprogress'; // progress bar
 import { useUserStore } from '@/store';
 import { isLogin } from '@/utils/auth';
 import { shouldForceLogout } from '@/utils/session';
+import { DEFAULT_ROUTE_NAME } from '../constants';
 
 function redirectToLogin(
   to: { fullPath: string; query: Record<string, unknown> },
@@ -24,6 +25,27 @@ export default function setupUserLoginInfoGuard(router: Router) {
     const userStore = useUserStore();
 
     if (to.name === 'login') {
+      if (isLogin() && !shouldForceLogout()) {
+        // 应用内跳转：取消导航，留在当前页
+        if (from.matched.length > 0 && from.path !== to.path) {
+          NProgress.done();
+          next(false);
+          return;
+        }
+
+        // 地址栏直接打开 /login：已登录则去首页（或 redirect 目标）
+        const redirect = to.query.redirect;
+        if (
+          typeof redirect === 'string' &&
+          redirect.startsWith('/') &&
+          redirect !== '/login'
+        ) {
+          next({ path: redirect, replace: true });
+          return;
+        }
+        next({ name: DEFAULT_ROUTE_NAME, replace: true });
+        return;
+      }
       next();
       return;
     }
