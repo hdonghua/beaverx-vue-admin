@@ -9,7 +9,12 @@
     >
       <div class="icon-preview">
         <component :is="currentIcon" />
-        <span>{{ modelValue || '请选择图标' }}</span>
+        <span class="icon-preview-text">{{ modelValue || '请选择图标' }}</span>
+        <icon-close
+          v-if="allowClear && modelValue"
+          class="clear-icon"
+          @click.stop="clearIcon"
+        />
         <icon-down class="arrow-icon" :class="{ expanded: popoverVisible }" />
       </div>
       <template #content>
@@ -53,9 +58,11 @@
     defineProps<{
       modelValue?: string;
       readonly?: boolean;
+      allowClear?: boolean;
     }>(),
     {
       readonly: false,
+      allowClear: true,
     }
   );
 
@@ -399,11 +406,40 @@
     emit('update:modelValue', icon);
     popoverVisible.value = false;
   };
+
+  const clearIcon = () => {
+    emit('update:modelValue', '');
+    popoverVisible.value = false;
+  };
 </script>
 
 <style scoped lang="less">
   .icon-selector {
     width: 100%;
+
+    &.readonly {
+      width: auto;
+      display: inline-flex;
+    }
+  }
+
+  .icon-preview-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .clear-icon {
+    flex-shrink: 0;
+    color: var(--color-text-3);
+    font-size: 14px;
+    cursor: pointer;
+
+    &:hover {
+      color: rgb(var(--danger-6));
+    }
   }
 
   .icon-preview {

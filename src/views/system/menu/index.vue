@@ -26,6 +26,20 @@
         <template #index="{ rowIndex }">
           {{ rowIndex + 1 }}
         </template>
+        <template #name="{ record }">
+          <span class="menu-name-cell">
+            <span class="menu-name-text">{{ record.name }}</span>
+            <a-tooltip
+              v-if="showMenuVisibilityIcon(record)"
+              :content="record.isVisible ? '菜单显示' : '菜单隐藏'"
+            >
+              <icon-eye-invisible
+                v-if="!record.isVisible"
+                class="menu-visibility-icon hidden"
+              />
+            </a-tooltip>
+          </span>
+        </template>
         <template #menuType="{ record }">
           <a-space>
             <span>{{ menuTypeLabel(record.menuType) }}</span>
@@ -35,7 +49,14 @@
           </a-space>
         </template>
         <template #icon="{ record }">
-          <IconSelector :model-value="record.icon" readonly />
+          <div class="menu-icon-cell">
+            <IconSelector
+              v-if="record.icon"
+              :model-value="record.icon"
+              readonly
+            />
+            <span v-else class="menu-icon-empty">-</span>
+          </div>
         </template>
         <template #isVisible="{ record }">
           {{ record.isVisible ? '是' : '否' }}
@@ -216,6 +237,10 @@
     return item?.label || '-';
   };
 
+  const showMenuVisibilityIcon = (record: MenuDto) =>
+    record.menuType === MenuType.Directory ||
+    record.menuType === MenuType.Menu;
+
   const { loading, setLoading } = useLoading(true);
   const { t } = useI18n();
   const renderData = ref<MenuDto[]>([]);
@@ -231,12 +256,13 @@
     {
       title: '菜单名称',
       dataIndex: 'name',
+      slotName: 'name',
     },
     {
       title: '类型',
       dataIndex: 'menuType',
       slotName: 'menuType',
-      width: 90,
+      width: 120,
     },
     {
       title: '路径',
@@ -250,7 +276,8 @@
       title: '图标',
       dataIndex: 'icon',
       slotName: 'icon',
-      width: 100,
+      width: 80,
+      align: 'center',
     },
     {
       title: '排序',
@@ -521,6 +548,41 @@
         margin-left: 16px;
       }
     }
+  }
+
+  .menu-name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .menu-name-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .menu-visibility-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: rgb(var(--primary-6));
+
+    &.hidden {
+      color: var(--color-text-3);
+    }
+  }
+
+  .menu-icon-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .menu-icon-empty {
+    color: var(--color-text-4);
   }
 
   .action-icon {
