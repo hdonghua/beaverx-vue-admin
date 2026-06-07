@@ -6,6 +6,20 @@ export interface MenuTreeNode {
   children?: MenuTreeNode[];
 }
 
+export function collectAllMenuIds(menus: MenuDto[]): number[] {
+  const ids: number[] = [];
+  const walk = (items: MenuDto[]) => {
+    items.forEach((menu) => {
+      ids.push(menu.id);
+      if (menu.children?.length) {
+        walk(menu.children);
+      }
+    });
+  };
+  walk(menus);
+  return ids;
+}
+
 /** 转为 Arco Tree 节点（剔除 icon 等非渲染函数字段，避免 renderFunc 报错） */
 export function toMenuTreeNodes(menus: MenuDto[]): MenuTreeNode[] {
   return menus.map((menu) => {

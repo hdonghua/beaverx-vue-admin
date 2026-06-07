@@ -12,6 +12,12 @@ import localeSettings from './zh-CN/settings';
 export default {
   'searchTable.form.search': '搜索',
   'searchTable.form.reset': '重置',
+  'searchTable.actions.density': '密度',
+  'searchTable.size.mini': '窄',
+  'searchTable.size.small': '小',
+  'searchTable.size.medium': '中',
+  'searchTable.size.large': '大',
+  'searchTable.actions.columnSetting': '列设置',
   'searchTable.operation.create': '新增',
   'searchTable.columns.index': '序号',
   'searchTable.columns.operations': '操作',

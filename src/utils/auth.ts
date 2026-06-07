@@ -2,8 +2,23 @@ const TOKEN_KEY = 'token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const TOKEN_EXPIRES_AT_KEY = 'token_expires_at';
 
+const isAccessTokenExpired = () => {
+  const expiresAt = getTokenExpiresAt();
+  if (!expiresAt) {
+    return false;
+  }
+  return Date.now() >= expiresAt;
+};
+
+/** 是否存在可用登录态（access 未过期，或仍可用 refresh 续期） */
 const isLogin = () => {
-  return !!localStorage.getItem(TOKEN_KEY);
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    return false;
+  }
+  if (!isAccessTokenExpired()) {
+    return true;
+  }
+  return !!localStorage.getItem(REFRESH_TOKEN_KEY);
 };
 
 const getToken = () => {
@@ -57,6 +72,7 @@ const isTokenExpiringSoon = (thresholdMs = 5 * 60 * 1000) => {
 
 export {
   isLogin,
+  isAccessTokenExpired,
   getToken,
   getRefreshToken,
   getTokenExpiresAt,

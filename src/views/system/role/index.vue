@@ -39,6 +39,9 @@
         </a-col>
       </a-row>
       <a-divider style="margin-top: 0" />
+      <a-alert class="role-page-tip" type="info" show-icon>
+        角色编码 <strong>super_admin</strong> 为超级管理员，默认拥有全部菜单权限（含后续新增菜单），无需手动分配。
+      </a-alert>
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
@@ -177,6 +180,9 @@
           :rules="[{ required: true, message: '角色编码不能为空' }]"
         >
           <a-input v-model="operationForm.code" placeholder="如 editor" />
+          <template #extra>
+            请勿随意使用 super_admin，该编码为超级管理员专用。
+          </template>
         </a-form-item>
         <a-form-item
           field="name"
@@ -205,6 +211,14 @@
       @before-ok="handleMenuBeforeOk"
     >
       <div class="menu-assign-body">
+        <a-alert
+          v-if="isSuperAdminRole"
+          type="info"
+          show-icon
+          class="menu-assign-tip"
+        >
+          超级管理员（super_admin）默认拥有全部菜单权限，含后续新增菜单，无需手动分配。
+        </a-alert>
         <div v-if="menuTreeLoading" class="menu-assign-loading">
           <icon-loading spin />
           <span>加载中...</span>
@@ -219,6 +233,7 @@
             :data="menuTreeNodes"
             checkable
             :check-strictly="!menuCheckLinked"
+            :disabled="isSuperAdminRole"
             checked-strategy="all"
             default-expand-all
             block-node
@@ -251,7 +266,10 @@
     toMenuTreeNodes,
     normalizeCheckedMenuIds,
     collectMenuIdsForSave,
+    collectAllMenuIds,
   } from '@/utils/menu-tree';
+
+  const SUPER_ADMIN_ROLE_CODE = 'super_admin';
   import { clearFormValidate } from '@/utils/form';
   import { Pagination } from '@/types/global';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
@@ -334,6 +352,10 @@
   ]);
   const menuModalVisible = ref(false);
   const menuTreeLoading = ref(false);
+  const currentRoleCode = ref('');
+  const isSuperAdminRole = computed(
+    () => currentRoleCode.value.toLowerCase() === SUPER_ADMIN_ROLE_CODE
+  );
   const menuTreeData = ref<MenuDto[]>([]);
   const menuTreeNodes = computed(() => toMenuTreeNodes(menuTreeData.value));
   const menuCheckLinked = ref(false);
@@ -437,16 +459,25 @@
     menuTreeLoading.value = false;
     menuForm.menuIds = [];
     currentRoleId.value = null;
+    currentRoleCode.value = '';
     menuCheckLinked.value = true;
+  };
+
+  const resolveRoleMenuIds = (record: RoleDto) => {
+    if (record.code?.toLowerCase() === SUPER_ADMIN_ROLE_CODE) {
+      return collectAllMenuIds(menuTreeData.value);
+    }
+    return (record.menuIds || []).map((id) => Number(id));
   };
 
   const handleAssignMenu = async (record: RoleDto) => {
     const token = (menuLoadToken += 1);
     currentRoleId.value = record.id;
+    currentRoleCode.value = record.code || '';
     menuModalVisible.value = true;
 
     if (menuTreeData.value.length) {
-      applyMenuCheckedIds((record.menuIds || []).map((id) => Number(id)));
+      applyMenuCheckedIds(resolveRoleMenuIds(record));
       menuTreeLoading.value = false;
       return;
     }
@@ -459,7 +490,7 @@
       }
       menuTreeData.value = Array.isArray(data) ? data : [];
       await nextTick();
-      applyMenuCheckedIds((record.menuIds || []).map((id) => Number(id)));
+      applyMenuCheckedIds(resolveRoleMenuIds(record));
     } catch {
       if (token !== menuLoadToken) {
         return;
@@ -492,6 +523,11 @@
     }
     if (!currentRoleId.value) {
       done(false);
+      return;
+    }
+    if (isSuperAdminRole.value) {
+      done(true);
+      handleMenuCancel();
       return;
     }
     try {
@@ -641,6 +677,14 @@
       margin-left: 12px;
       cursor: pointer;
     }
+  }
+
+  .role-page-tip {
+    margin-bottom: 16px;
+  }
+
+  .menu-assign-tip {
+    margin-bottom: 12px;
   }
 
   .menu-assign-body {

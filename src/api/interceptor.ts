@@ -57,10 +57,10 @@ function promptReLogin() {
   }
   logoutModalVisible = true;
   Modal.error({
-    title: 'Confirm logout',
+    title: '确认登出',
     content:
-      'You have been logged out, you can cancel to stay on this page, or log in again',
-    okText: 'Re-Login',
+      '您已退出登录，您可以取消操作以继续留在此页面，或重新登录。',
+    okText: '重新登录',
     async onOk() {
       const userStore = useUserStore();
       await userStore.logout();

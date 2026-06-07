@@ -41,24 +41,9 @@
           </template>
         </a-input-password>
       </a-form-item>
-      <a-space :size="16" direction="vertical">
-        <div class="login-form-password-actions">
-          <a-checkbox
-            checked="rememberPassword"
-            :model-value="loginConfig.rememberPassword"
-            @change="setRememberPassword as any"
-          >
-            {{ $t('login.form.rememberPassword') }}
-          </a-checkbox>
-          <a-link>{{ $t('login.form.forgetPassword') }}</a-link>
-        </div>
-        <a-button type="primary" html-type="submit" long :loading="loading">
-          {{ $t('login.form.login') }}
-        </a-button>
-        <a-button type="text" long class="login-form-register-btn">
-          {{ $t('login.form.register') }}
-        </a-button>
-      </a-space>
+      <a-button type="primary" html-type="submit" long :loading="loading">
+        {{ $t('login.form.login') }}
+      </a-button>
     </a-form>
   </div>
 </template>
@@ -69,7 +54,6 @@
   import { Message } from '@arco-design/web-vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
   import { useI18n } from 'vue-i18n';
-  import { useStorage } from '@vueuse/core';
   import { useUserStore, useAppStore, useTabBarStore } from '@/store';
   import useLoading from '@/hooks/loading';
   import { LoginRequest } from '@/api/server/auth';
@@ -82,14 +66,9 @@
   const appStore = useAppStore();
   const tabBarStore = useTabBarStore();
 
-  const loginConfig = useStorage('login-config', {
-    rememberPassword: true,
-    userName: 'admin',
-    password: 'admin123',
-  });
   const userInfo = reactive({
-    userName: loginConfig.value.userName,
-    password: loginConfig.value.password,
+    userName: '',
+    password: '',
   });
 
   const handleSubmit = async ({
@@ -122,21 +101,12 @@
           });
         }
         Message.success(t('login.form.login.success'));
-        const { rememberPassword } = loginConfig.value;
-        const { userName, password } = values;
-        // 实际生产环境需要进行加密存储。
-        // The actual production environment requires encrypted storage.
-        loginConfig.value.userName = rememberPassword ? userName : '';
-        loginConfig.value.password = rememberPassword ? password : '';
       } catch (err) {
         errorMessage.value = (err as Error).message;
       } finally {
         setLoading(false);
       }
     }
-  };
-  const setRememberPassword = (value: boolean) => {
-    loginConfig.value.rememberPassword = value;
   };
 </script>
 
@@ -163,15 +133,6 @@
       height: 32px;
       color: rgb(var(--red-6));
       line-height: 32px;
-    }
-
-    &-password-actions {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    &-register-btn {
-      color: var(--color-text-3) !important;
     }
   }
 </style>
