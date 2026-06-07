@@ -27,12 +27,12 @@
   import { ref, reactive, toRefs, computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
-    queryMessageList,
-    setMessageStatus,
+    getMessageList,
+    markMessagesRead,
     markAllMessagesRead,
     MessageRecord,
     MessageListType,
-  } from '@/api/message';
+  } from '@/api/server/message';
   import useLoading from '@/hooks/loading';
   import useMessageUnread from '@/hooks/message-unread';
   import List from './list.vue';
@@ -67,7 +67,7 @@
   async function fetchSourceData() {
     setLoading(true);
     try {
-      const { data } = await queryMessageList();
+      const { data } = await getMessageList();
       messageData.messageList = data;
     } catch (err) {
       // you can report use errorHandler or other
@@ -77,7 +77,7 @@
   }
   async function readMessage(data: MessageListType) {
     const ids = data.map((item) => item.id);
-    await setMessageStatus({ ids });
+    await markMessagesRead(ids);
     await fetchSourceData();
     await refreshUnreadCount();
   }

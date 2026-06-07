@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
   import { PropType } from 'vue';
-  import { ChatRecord } from '@/api/message';
+  import { ChatRecord } from '../api';
   import ChatItem from './chat-item.vue';
 
   defineProps({

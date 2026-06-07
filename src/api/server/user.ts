@@ -1,8 +1,6 @@
 import { PagedResultDto, QueryPageRequest } from '@/types/page';
 import axios from 'axios';
 import { ApiResponse } from '@/api/interceptor';
-import { OrganOption } from './type';
-
 export interface CreateUserRequest {
   userName: string;
   password: string;
@@ -80,28 +78,3 @@ export function resetPassword(req: ResetPasswordRequest) {
   );
 }
 
-export interface GetUserDetailsResponse {
-  id: string;
-  name: string;
-}
-
-/** 用户选项（工作流等模块使用） */
-export async function getUserOptions() {
-  const { data } = await queryUserPage({ current: 1, pageSize: 1000 });
-  const options: OrganOption[] = data.items.map((item) => ({
-    id: String(item.id),
-    name: item.nickName || item.userName,
-  }));
-  return { data: options };
-}
-
-/** 获取用户详情（工作流等模块使用） */
-export async function getUserDetails(userId: string) {
-  const { data } = await getUserById(Number(userId));
-  return {
-    data: {
-      id: String(data.id),
-      name: data.nickName || data.userName,
-    } satisfies GetUserDetailsResponse,
-  };
-}

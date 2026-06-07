@@ -6,7 +6,6 @@ import router from './router';
 import store from './store';
 import i18n from './locale';
 import directive from './directive';
-// import './mock';
 import App from './App.vue';
 import Vue3Dragscroll from "vue3-dragscroll";
 import "@/styles/index.less";
