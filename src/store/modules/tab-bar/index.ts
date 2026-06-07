@@ -1,4 +1,4 @@
-import type { RouteLocationNormalized } from 'vue-router';
+import type { LocationQuery, RouteLocationNormalized } from 'vue-router';
 import { defineStore } from 'pinia';
 import {
   DEFAULT_ROUTE,
@@ -10,11 +10,17 @@ import { TabBarState, TagProps } from './types';
 
 const formatTag = (route: RouteLocationNormalized): TagProps => {
   const { name, meta, fullPath, query } = route;
+  const isExternal = Boolean(meta.isExternal);
+  const frameSrc = String(meta.frameSrc || query?.frameSrc || '');
   return {
-    title: meta.locale || '',
+    title: String(meta.title || meta.locale || name || ''),
     name: String(name),
     fullPath,
-    query,
+    query: (isExternal && frameSrc
+      ? { ...query, frameSrc }
+      : query) as LocationQuery | undefined,
+    isExternal,
+    frameSrc: frameSrc || undefined,
     ignoreCache: meta.ignoreCache,
   };
 };
@@ -50,8 +56,18 @@ const useTabBarStore = defineStore('tabBar', {
     updateTabList(route: RouteLocationNormalized) {
       if (BAN_LIST.includes(route.name as string)) return;
       const tag = formatTag(route);
-      if (!this.tagList.some((item) => item.fullPath === tag.fullPath)) {
+      const existingIndex = this.tagList.findIndex(
+        (item) =>
+          item.fullPath === tag.fullPath ||
+          (tag.isExternal && item.name === tag.name)
+      );
+      if (existingIndex === -1) {
         this.tagList.push(tag);
+      } else {
+        this.tagList[existingIndex] = {
+          ...this.tagList[existingIndex],
+          ...tag,
+        };
       }
       this.ensureHomeTab();
       if (!route.meta.ignoreCache) {

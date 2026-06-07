@@ -1,9 +1,13 @@
+import type { LocationQuery } from 'vue-router';
+
 export interface TagProps {
   title: string;
   name: string;
   fullPath: string;
-  query?: any;
+  query?: LocationQuery;
   ignoreCache?: boolean;
+  isExternal?: boolean;
+  frameSrc?: string;
 }
 
 export interface TabBarState {

@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 import appClientMenus from '@/router/app-menus';
 import { DEFAULT_LAYOUT } from '@/router/routes/base';
 import { MenuDto, MenuType } from '@/api/server/menu';
+import { EXTERNAL_ROUTE_FALLBACK_PARENT } from '@/utils/register-server-routes';
 
 /** 后端菜单 path -> 前端路由 name（内部页面权限校验用） */
 const PATH_TO_ROUTE_NAME: Record<string, string> = {
@@ -50,19 +51,38 @@ function isRouterMenu(menu: MenuDto) {
   );
 }
 
-function toExternalRoute(menu: MenuDto): RouteRecordRaw {
+function resolveParentRouteName(
+  staticMatch: RouteRecordRaw | undefined,
+  parentRouteName?: string
+) {
+  if (staticMatch?.name) {
+    const name = String(staticMatch.name);
+    if (!name.startsWith('dir-')) {
+      return name;
+    }
+  }
+  return parentRouteName;
+}
+
+function toExternalRoute(
+  menu: MenuDto,
+  parentRouteName?: string
+): RouteRecordRaw {
   return {
-    path: menu.path || '',
+    path: `external/${menu.id}`,
     name: `external-${menu.id}`,
     meta: {
       requiresAuth: true,
       title: menu.name,
       icon: formatMenuIcon(menu.icon),
       isExternal: true,
+      frameSrc: menu.path || '',
+      externalParentName: parentRouteName || EXTERNAL_ROUTE_FALLBACK_PARENT,
       order: menu.sort,
       roles: ['*'],
+      ignoreCache: true,
     },
-  };
+  } as RouteRecordRaw;
 }
 
 function toVirtualDirectory(
@@ -87,7 +107,8 @@ function toVirtualDirectory(
 
 function buildChildrenFromServer(
   serverChildren: MenuDto[],
-  staticByPath: Map<string, RouteRecordRaw>
+  staticByPath: Map<string, RouteRecordRaw>,
+  parentRouteName?: string
 ): RouteRecordRaw[] {
   return serverChildren
     .filter(isRouterMenu)
@@ -95,7 +116,7 @@ function buildChildrenFromServer(
     .map((menu) => {
       if (menu.menuType === MenuType.Menu) {
         if (menu.isExternal) {
-          return toExternalRoute(menu);
+          return toExternalRoute(menu, parentRouteName);
         }
 
         if (menu.path && staticByPath.has(menu.path)) {
@@ -106,12 +127,16 @@ function buildChildrenFromServer(
       }
 
       if (menu.menuType === MenuType.Directory) {
-        const children = buildChildrenFromServer(menu.children || [], staticByPath);
+        const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
+        const childParent = resolveParentRouteName(staticDir, parentRouteName);
+        const children = buildChildrenFromServer(
+          menu.children || [],
+          staticByPath,
+          childParent
+        );
         if (!children.length) {
           return null;
         }
-
-        const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
         if (staticDir) {
           return {
             ...cloneDeep(staticDir),
@@ -136,8 +161,13 @@ export function transformServerMenus(menus: MenuDto[]): RouteRecordRaw[] {
     .filter((menu) => menu.menuType === MenuType.Directory && isRouterMenu(menu))
     .sort((a, b) => a.sort - b.sort)
     .map((menu) => {
-      const children = buildChildrenFromServer(menu.children || [], staticByPath);
       const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
+      const parentRouteName = resolveParentRouteName(staticDir);
+      const children = buildChildrenFromServer(
+        menu.children || [],
+        staticByPath,
+        parentRouteName
+      );
 
       if (staticDir) {
         return {
@@ -157,14 +187,14 @@ export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
 
   const walk = (items: MenuDto[]) => {
     items.forEach((menu) => {
-      if (
-        menu.menuType !== MenuType.Button &&
-        !menu.isExternal &&
-        menu.path
-      ) {
-        const routeName = PATH_TO_ROUTE_NAME[menu.path];
-        if (routeName) {
-          names.add(routeName);
+      if (menu.menuType !== MenuType.Button) {
+        if (menu.isExternal) {
+          names.add(`external-${menu.id}`);
+        } else if (menu.path) {
+          const routeName = PATH_TO_ROUTE_NAME[menu.path];
+          if (routeName) {
+            names.add(routeName);
+          }
         }
       }
       if (menu.children?.length) {
@@ -248,7 +278,7 @@ export function flattenRouteNames(routes: RouteRecordRaw[]): string[] {
   const names: string[] = [];
   const walk = (items: RouteRecordRaw[]) => {
     items.forEach((route) => {
-      if (route.name && !route.meta?.isExternal) {
+      if (route.name) {
         names.push(String(route.name));
       }
       if (route.children?.length) {

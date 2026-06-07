@@ -105,16 +105,22 @@
       try {
         await userStore.login(values as LoginRequest);
         if (appStore.menuFromServer) {
-          await appStore.fetchServerMenuConfig();
+          await appStore.fetchServerMenuConfig(router);
         }
         tabBarStore.resetTabList();
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
-        router.push({
-          name: (redirect as string) || 'Home',
-          query: {
-            ...othersQuery,
-          },
-        });
+        const redirectTarget = (redirect as string) || '';
+        if (redirectTarget.startsWith('/')) {
+          await router.push({
+            path: redirectTarget,
+            query: othersQuery,
+          });
+        } else {
+          await router.push({
+            name: redirectTarget || 'Home',
+            query: othersQuery,
+          });
+        }
         Message.success(t('login.form.login.success'));
         const { rememberPassword } = loginConfig.value;
         const { userName, password } = values;

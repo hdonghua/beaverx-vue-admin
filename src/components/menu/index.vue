@@ -5,7 +5,7 @@
   import type { RouteMeta } from 'vue-router';
   import { useAppStore } from '@/store';
   import { listenerRouteChange } from '@/utils/route-listener';
-  import { openWindow, regexUrl } from '@/utils';
+  import { ensureExternalRoute } from '@/utils/register-server-routes';
   import useMenuTree from './use-menu-tree';
 
   export default defineComponent({
@@ -31,9 +31,13 @@
       const selectedKey = ref<string[]>([]);
 
       const goto = (item: RouteRecordRaw) => {
-        // Open external link
-        if (regexUrl.test(item.path)) {
-          openWindow(item.path);
+        if (item.meta?.isExternal) {
+          ensureExternalRoute(router, item);
+          const frameSrc = String(item.meta.frameSrc || '');
+          router.push({
+            name: item.name as string,
+            query: frameSrc ? { frameSrc } : undefined,
+          });
           selectedKey.value = [item.name as string];
           return;
         }

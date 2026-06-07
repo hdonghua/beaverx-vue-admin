@@ -10,7 +10,7 @@
       @click="goto(itemData)"
     >
       <span class="tag-link">
-        {{ $t(itemData.title) }}
+        {{ tabTitle }}
       </span>
       <span
         class="arco-icon-hover arco-tag-icon-hover arco-icon-hover-size-medium arco-tag-close-btn"
@@ -58,10 +58,15 @@
 
 <script lang="ts" setup>
   import { PropType, computed } from 'vue';
+  import { useI18n } from 'vue-i18n';
   import { useRouter, useRoute } from 'vue-router';
-  import { useTabBarStore } from '@/store';
+  import { useAppStore, useTabBarStore } from '@/store';
   import type { TagProps } from '@/store/modules/tab-bar/types';
   import { DEFAULT_ROUTE_NAME, REDIRECT_ROUTE_NAME } from '@/router/constants';
+  import {
+    ensureExternalRouteByName,
+    findMenuRouteByName,
+  } from '@/utils/register-server-routes';
 
   // eslint-disable-next-line no-shadow
   enum Eaction {
@@ -88,10 +93,52 @@
 
   const router = useRouter();
   const route = useRoute();
+  const { t } = useI18n();
+  const appStore = useAppStore();
   const tabBarStore = useTabBarStore();
 
+  const isExternalTag = (tag: TagProps) =>
+    Boolean(tag.isExternal || tag.name.startsWith('external-'));
+
+  const resolveExternalTag = (tag: TagProps) => {
+    const menuRoute = findMenuRouteByName(appStore.serverMenu, tag.name);
+    return {
+      title: tag.title || String(menuRoute?.meta?.title || tag.name),
+      frameSrc: tag.frameSrc || String(menuRoute?.meta?.frameSrc || ''),
+    };
+  };
+
+  const tabTitle = computed(() => {
+    const { title } = props.itemData;
+    if (isExternalTag(props.itemData)) {
+      return resolveExternalTag(props.itemData).title;
+    }
+    if (!title) {
+      return '';
+    }
+    if (!title.startsWith('menu.')) {
+      return title;
+    }
+    return t(title);
+  });
+
+  const buildTagLocation = (tag: TagProps) => {
+    if (isExternalTag(tag)) {
+      ensureExternalRouteByName(router, appStore.serverMenu, tag.name);
+      const { frameSrc } = resolveExternalTag(tag);
+      return {
+        name: tag.name,
+        query: frameSrc ? { ...tag.query, frameSrc } : tag.query,
+      };
+    }
+    return {
+      name: tag.name,
+      query: tag.query,
+    };
+  };
+
   const goto = (tag: TagProps) => {
-    router.push({ ...tag });
+    router.push(buildTagLocation(tag));
   };
   const tagList = computed(() => {
     return tabBarStore.getTabList;
@@ -122,8 +169,8 @@
     }
     tabBarStore.deleteTag(idx, tag);
     if (props.itemData.fullPath === route.fullPath) {
-      const latest = tagList.value[idx - 1]; // 获取队列的前一个tab
-      router.push({ name: latest.name });
+      const latest = tagList.value[idx - 1];
+      router.push(buildTagLocation(latest));
     }
   };
 
@@ -141,7 +188,7 @@
 
       tabBarStore.freshTabList(copyTagList);
       if (currentRouteIdx < index) {
-        router.push({ name: itemData.name });
+        router.push(buildTagLocation(itemData));
       }
     } else if (value === Eaction.right) {
       const currentRouteIdx = findCurrentRouteIndex();
@@ -149,14 +196,14 @@
 
       tabBarStore.freshTabList(copyTagList);
       if (currentRouteIdx > index) {
-        router.push({ name: itemData.name });
+        router.push(buildTagLocation(itemData));
       }
     } else if (value === Eaction.others) {
       const filterList = tagList.value.filter((el, idx) => {
         return el.name === DEFAULT_ROUTE_NAME || idx === props.index;
       });
       tabBarStore.freshTabList(filterList);
-      router.push({ name: itemData.name });
+      router.push(buildTagLocation(itemData));
     } else if (value === Eaction.reload) {
       tabBarStore.deleteCache(itemData);
       await router.push({

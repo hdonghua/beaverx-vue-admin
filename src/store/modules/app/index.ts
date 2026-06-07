@@ -1,14 +1,23 @@
 import { defineStore } from 'pinia';
 import { Notification } from '@arco-design/web-vue';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
-import type { RouteRecordRaw } from 'vue-router';
+import type { Router, RouteRecordRaw } from 'vue-router';
 import defaultSettings from '@/config/settings.json';
 import { getUserMenus } from '@/api/server/menu';
 import {
   transformServerMenus,
   getFirstAccessibleRouteName,
 } from '@/utils/server-menu';
+import {
+  registerServerRoutes,
+  unregisterServerRoutes,
+} from '@/utils/register-server-routes';
 import { AppState } from './types';
+
+async function getRouter() {
+  const { default: router } = await import('@/router');
+  return router;
+}
 
 const useAppStore = defineStore('app', {
   state: (): AppState => ({ ...defaultSettings }),
@@ -46,11 +55,28 @@ const useAppStore = defineStore('app', {
     toggleMenu(value: boolean) {
       this.hideMenu = value;
     },
-    async fetchServerMenuConfig() {
+    async fetchServerMenuConfig(routerInstance?: Router) {
       let notifyInstance: NotificationReturn | null = null;
       try {
         const { data } = await getUserMenus();
         this.serverMenu = transformServerMenus(data);
+
+        try {
+          const router = routerInstance ?? (await getRouter());
+          unregisterServerRoutes(
+            router,
+            this.registeredServerRouteNames ?? []
+          );
+          this.registeredServerRouteNames = registerServerRoutes(
+            router,
+            this.serverMenu
+          );
+        } catch (routeError) {
+          // eslint-disable-next-line no-console
+          console.warn('外链路由注册失败，侧边栏菜单不受影响', routeError);
+          this.registeredServerRouteNames = [];
+        }
+
         return data;
       } catch (error) {
         notifyInstance = Notification.error({
@@ -59,6 +85,7 @@ const useAppStore = defineStore('app', {
           closable: true,
         });
         this.serverMenu = [];
+        this.registeredServerRouteNames = [];
         return [];
       }
     },
@@ -68,7 +95,17 @@ const useAppStore = defineStore('app', {
       }
       return getFirstAccessibleRouteName(this.serverMenu);
     },
-    clearServerMenu() {
+    async clearServerMenu() {
+      try {
+        const router = await getRouter();
+        unregisterServerRoutes(
+          router,
+          this.registeredServerRouteNames ?? []
+        );
+      } catch {
+        // ignore cleanup errors during logout
+      }
+      this.registeredServerRouteNames = [];
       this.serverMenu = [];
     },
   },

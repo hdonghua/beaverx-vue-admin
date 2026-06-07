@@ -7,7 +7,9 @@ declare module 'vue-router' {
     icon?: string; // The icon show in the side menu
     locale?: string; // The locale name show in side menu and breadcrumb
     title?: string; // Server menu display title (preferred over locale)
-    isExternal?: boolean; // External link menu item
+    isExternal?: boolean; // External link menu item (opened in iframe)
+    frameSrc?: string; // External URL for iframe page
+    externalParentName?: string; // Vue Router parent name for iframe route
     hideInMenu?: boolean; // If true, it is not displayed in the side menu
     hideChildrenInMenu?: boolean; // if set true, the children are not displayed in the side menu
     activeMenu?: string; // if set name, the menu will be highlighted according to the name you set

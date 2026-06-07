@@ -18,5 +18,6 @@
   "device": "desktop",
   "tabBar": true,
   "menuFromServer": true,
-  "serverMenu": []
+  "serverMenu": [],
+  "registeredServerRouteNames": []
 }

@@ -70,7 +70,7 @@
   import { useRouter } from 'vue-router';
   import type { RouteRecordRaw } from 'vue-router';
   import useMenuTree from '@/components/menu/use-menu-tree';
-  import { openWindow, regexUrl } from '@/utils';
+  import { ensureExternalRoute } from '@/utils/register-server-routes';
   import {
     filterMenuSearchItems,
     flattenMenuForSearch,
@@ -130,12 +130,30 @@
     reset();
   };
 
+  const findMenuRoute = (name: string): RouteRecordRaw | undefined => {
+    let matched: RouteRecordRaw | undefined;
+    const walk = (routes: RouteRecordRaw[]) => {
+      routes.some((route) => {
+        if (String(route.name) === name) {
+          matched = route;
+          return true;
+        }
+        if (route.children?.length) {
+          walk(route.children);
+        }
+        return Boolean(matched);
+      });
+    };
+    walk(menuTree.value as RouteRecordRaw[]);
+    return matched;
+  };
+
   const navigateTo = (item: MenuSearchItem) => {
-    if (regexUrl.test(item.path)) {
-      openWindow(item.path);
-    } else {
-      router.push({ name: item.name });
+    const menuRoute = findMenuRoute(item.name);
+    if (menuRoute?.meta?.isExternal) {
+      ensureExternalRoute(router, menuRoute);
     }
+    router.push({ name: item.name });
     close();
   };
 
