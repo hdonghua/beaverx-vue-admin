@@ -111,8 +111,8 @@
               </a-tag>
             </template>
             <template #listClass="{ record }">
-              <a-tag v-if="record.listClass" :color="record.listClass">
-                {{ record.listClass }}
+              <a-tag v-if="record.listClass" :color="record.listClass" size="small">
+                {{ record.label }}
               </a-tag>
               <span v-else>-</span>
             </template>
@@ -194,7 +194,35 @@
           <a-input-number v-model="dataForm.sort" :min="0" />
         </a-form-item>
         <a-form-item field="listClass" label="标签样式">
-          <a-input v-model="dataForm.listClass" placeholder="如 green、red、blue" />
+          <a-space align="center" wrap>
+            <a-select
+              v-model="dataForm.listClass"
+              allow-clear
+              placeholder="请选择标签样式"
+              style="width: 240px"
+            >
+              <a-option
+                v-for="item in tagStyleOptions"
+                :key="item.value"
+                :value="item.value"
+                :label="item.label"
+              >
+                <a-space>
+                  <a-tag :color="item.value" size="small">{{ item.label }}</a-tag>
+                  <span class="tag-style-code">{{ item.value }}</span>
+                </a-space>
+              </a-option>
+            </a-select>
+            <span class="tag-style-preview-label">效果预览：</span>
+            <a-tag
+              v-if="dataForm.listClass"
+              :color="dataForm.listClass"
+              size="small"
+            >
+              {{ dataForm.label || '示例标签' }}
+            </a-tag>
+            <span v-else class="tag-style-placeholder">未选择</span>
+          </a-space>
         </a-form-item>
         <a-form-item field="remark" label="备注">
           <a-input v-model="dataForm.remark" />
@@ -228,8 +256,11 @@
     deleteDictData,
     DictDataDto,
   } from '@/api/server/dict-data';
+  import { TAG_STYLE_OPTIONS } from '@/constants/tag-style';
 
   defineOptions({ name: 'DictList' });
+
+  const tagStyleOptions = TAG_STYLE_OPTIONS;
 
   const { loading: typeLoading, setLoading: setTypeLoading } = useLoading(true);
   const { loading: dataLoading, setLoading: setDataLoading } = useLoading(false);
@@ -548,5 +579,20 @@
 
   .dict-toolbar {
     margin-bottom: 12px;
+  }
+
+  .tag-style-code {
+    color: var(--color-text-3);
+    font-size: 12px;
+  }
+
+  .tag-style-preview-label {
+    color: var(--color-text-2);
+    font-size: 13px;
+  }
+
+  .tag-style-placeholder {
+    color: var(--color-text-3);
+    font-size: 13px;
   }
 </style>
