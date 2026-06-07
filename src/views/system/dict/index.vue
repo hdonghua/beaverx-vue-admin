@@ -31,6 +31,7 @@
             </a-button>
           </div>
           <a-table
+            class="dict-type-table"
             row-key="id"
             :loading="typeLoading"
             :pagination="typePagination"
@@ -38,6 +39,8 @@
             :data="typeList"
             v-model:selected-keys="selectedTypeKeys"
             :row-selection="{ type: 'radio', showCheckedAll: false }"
+            :row-class="getTypeRowClass"
+            @row-click="handleTypeRowClick"
             @selection-change="handleTypeSelectionChange"
             @page-change="onTypePageChange"
           >
@@ -47,15 +50,15 @@
               </a-tag>
             </template>
             <template #typeOps="{ record }">
-              <a-space>
-                <a-button type="text" size="small" @click="handleEditType(record)">
+              <a-space @click.stop>
+                <a-button type="text" size="small" @click.stop="handleEditType(record)">
                   <template #icon><icon-edit /></template>
                 </a-button>
                 <a-popconfirm
                   content="确定删除该字典类型吗？"
                   @ok="handleDeleteType(record.id)"
                 >
-                  <a-button type="text" size="small" status="danger">
+                  <a-button type="text" size="small" status="danger" @click.stop>
                     <template #icon><icon-delete /></template>
                   </a-button>
                 </a-popconfirm>
@@ -370,6 +373,19 @@
     fetchTypeList();
   };
 
+  const selectType = (record: DictTypeDto) => {
+    if (selectedType.value?.id === record.id) {
+      return;
+    }
+    selectedTypeKeys.value = [record.id];
+    selectedType.value = record;
+    fetchDataList();
+  };
+
+  const handleTypeRowClick = (record: DictTypeDto) => {
+    selectType(record);
+  };
+
   const handleTypeSelectionChange = (rowKeys: (string | number)[]) => {
     const id = Number(rowKeys[0]);
     if (!id) {
@@ -379,9 +395,11 @@
     if (!record) {
       return;
     }
-    selectedType.value = record;
-    fetchDataList();
+    selectType(record);
   };
+
+  const getTypeRowClass = (record: DictTypeDto) =>
+    selectedType.value?.id === record.id ? 'dict-type-row-selected' : 'dict-type-row';
 
   const typeModalVisible = ref(false);
   const typeIsEdit = ref(false);
@@ -579,6 +597,14 @@
 
   .dict-toolbar {
     margin-bottom: 12px;
+  }
+
+  :deep(.dict-type-table .dict-type-row) {
+    cursor: pointer;
+  }
+
+  :deep(.dict-type-table .dict-type-row-selected) {
+    cursor: pointer;
   }
 
   .tag-style-code {
