@@ -19,5 +19,6 @@
   "tabBar": true,
   "menuFromServer": true,
   "serverMenu": [],
+  "allowedRouteNames": [],
   "registeredServerRouteNames": []
 }

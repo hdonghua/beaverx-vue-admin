@@ -64,13 +64,13 @@ export function ensureExternalRoute(
   return true;
 }
 
-export function registerServerRoutes(
+export function registerExternalRoutes(
   router: Router,
-  menus: RouteRecordRaw[]
+  routes: RouteRecordRaw[]
 ): string[] {
   const registeredNames: string[] = [];
 
-  collectExternalMenuRoutes(menus).forEach((route) => {
+  routes.forEach((route) => {
     const routeName = String(route.name);
     try {
       if (ensureExternalRoute(router, route)) {
@@ -83,6 +83,13 @@ export function registerServerRoutes(
   });
 
   return registeredNames;
+}
+
+export function registerServerRoutes(
+  router: Router,
+  menus: RouteRecordRaw[]
+): string[] {
+  return registerExternalRoutes(router, collectExternalMenuRoutes(menus));
 }
 
 export function findMenuRouteByName(

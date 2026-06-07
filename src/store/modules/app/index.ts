@@ -7,9 +7,11 @@ import { getUserMenus } from '@/api/server/menu';
 import {
   transformServerMenus,
   getFirstAccessibleRouteName,
+  collectAllowedRouteNames,
+  collectExternalRoutesFromMenus,
 } from '@/utils/server-menu';
 import {
-  registerServerRoutes,
+  registerExternalRoutes,
   unregisterServerRoutes,
 } from '@/utils/register-server-routes';
 import { AppState } from './types';
@@ -60,6 +62,9 @@ const useAppStore = defineStore('app', {
       try {
         const { data } = await getUserMenus();
         this.serverMenu = transformServerMenus(data);
+        this.allowedRouteNames = [
+          ...collectAllowedRouteNames(data || []),
+        ];
 
         try {
           const router = routerInstance ?? (await getRouter());
@@ -67,9 +72,9 @@ const useAppStore = defineStore('app', {
             router,
             this.registeredServerRouteNames ?? []
           );
-          this.registeredServerRouteNames = registerServerRoutes(
+          this.registeredServerRouteNames = registerExternalRoutes(
             router,
-            this.serverMenu
+            collectExternalRoutesFromMenus(data || [])
           );
         } catch (routeError) {
           // eslint-disable-next-line no-console
@@ -85,6 +90,7 @@ const useAppStore = defineStore('app', {
           closable: true,
         });
         this.serverMenu = [];
+        this.allowedRouteNames = [];
         this.registeredServerRouteNames = [];
         return [];
       }
@@ -107,6 +113,7 @@ const useAppStore = defineStore('app', {
       }
       this.registeredServerRouteNames = [];
       this.serverMenu = [];
+      this.allowedRouteNames = [];
     },
   },
 });

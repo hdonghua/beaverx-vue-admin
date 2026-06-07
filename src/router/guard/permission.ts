@@ -94,11 +94,8 @@ export default function setupPermissionGuard(router: Router) {
       }
 
       const isWhiteListed = ROUTE_ACCESS_WHITE_LIST.includes(routeName);
-      const allowedMenuRoutes = flattenRouteNames(
-        appStore.appAsyncMenus as RouteRecordRaw[]
-      );
       const hasMenuAccess =
-        isWhiteListed || allowedMenuRoutes.includes(routeName);
+        isWhiteListed || appStore.allowedRouteNames.includes(routeName);
 
       if (!permissionsAllow) {
         next(hasMenuAccess ? FORBIDDEN : NOT_FOUND);

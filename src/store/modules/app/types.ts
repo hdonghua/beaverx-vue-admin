@@ -21,6 +21,7 @@ export interface AppState {
   tabBar: boolean;
   menuFromServer: boolean;
   serverMenu: RouteRecordRaw[];
+  allowedRouteNames: string[];
   registeredServerRouteNames: string[];
   [key: string]: unknown;
 }

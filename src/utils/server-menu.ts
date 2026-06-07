@@ -43,12 +43,18 @@ function buildStaticPathMap(routes: RouteRecordRaw[], parentPath = '') {
   return map;
 }
 
-function isRouterMenu(menu: MenuDto) {
+/** 侧边栏展示：启用 + 可见 + 非按钮 */
+function isSidebarMenu(menu: MenuDto) {
   return (
     menu.isEnabled &&
     menu.isVisible &&
     menu.menuType !== MenuType.Button
   );
+}
+
+/** 路由可访问：启用 + 非按钮（隐藏菜单仍可访问） */
+function isAccessibleMenu(menu: MenuDto) {
+  return menu.isEnabled && menu.menuType !== MenuType.Button;
 }
 
 function resolveParentRouteName(
@@ -111,7 +117,7 @@ function buildChildrenFromServer(
   parentRouteName?: string
 ): RouteRecordRaw[] {
   return serverChildren
-    .filter(isRouterMenu)
+    .filter(isSidebarMenu)
     .sort((a, b) => a.sort - b.sort)
     .map((menu) => {
       if (menu.menuType === MenuType.Menu) {
@@ -158,7 +164,7 @@ export function transformServerMenus(menus: MenuDto[]): RouteRecordRaw[] {
   const staticByPath = buildStaticPathMap(staticRoutes);
 
   return menus
-    .filter((menu) => menu.menuType === MenuType.Directory && isRouterMenu(menu))
+    .filter((menu) => menu.menuType === MenuType.Directory && isSidebarMenu(menu))
     .sort((a, b) => a.sort - b.sort)
     .map((menu) => {
       const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
@@ -181,22 +187,57 @@ export function transformServerMenus(menus: MenuDto[]): RouteRecordRaw[] {
     .filter((route) => route.children?.length);
 }
 
-/** 从后端菜单树收集允许展示的前端路由 name（仅内部页面） */
+/** 收集需动态注册的外链路由（含隐藏菜单） */
+export function collectExternalRoutesFromMenus(menus: MenuDto[]): RouteRecordRaw[] {
+  const result: RouteRecordRaw[] = [];
+  const staticByPath = buildStaticPathMap(
+    cloneDeep(appClientMenus) as RouteRecordRaw[]
+  );
+
+  const walk = (items: MenuDto[], parentRouteName?: string) => {
+    items
+      .filter((menu) => menu.isEnabled)
+      .sort((a, b) => a.sort - b.sort)
+      .forEach((menu) => {
+        if (menu.menuType === MenuType.Menu && menu.isExternal) {
+          result.push(toExternalRoute(menu, parentRouteName));
+          return;
+        }
+
+        if (menu.menuType === MenuType.Directory && menu.children?.length) {
+          const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
+          const childParent = resolveParentRouteName(staticDir, parentRouteName);
+          walk(menu.children, childParent);
+        }
+      });
+  };
+
+  walk(menus);
+  return result;
+}
+
+/** 收集可访问路由 name（含隐藏菜单，不含按钮） */
 export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
   const names = new Set<string>();
 
   const walk = (items: MenuDto[]) => {
     items.forEach((menu) => {
-      if (menu.menuType !== MenuType.Button) {
-        if (menu.isExternal) {
-          names.add(`external-${menu.id}`);
-        } else if (menu.path) {
-          const routeName = PATH_TO_ROUTE_NAME[menu.path];
-          if (routeName) {
-            names.add(routeName);
-          }
+      if (!isAccessibleMenu(menu)) {
+        if (menu.children?.length) {
+          walk(menu.children);
+        }
+        return;
+      }
+
+      if (menu.isExternal) {
+        names.add(`external-${menu.id}`);
+      } else if (menu.path) {
+        const routeName = PATH_TO_ROUTE_NAME[menu.path];
+        if (routeName) {
+          names.add(routeName);
         }
       }
+
       if (menu.children?.length) {
         walk(menu.children);
       }
