@@ -347,23 +347,48 @@
       : []
   );
 
-  const clearHiddenFields = () => {
-    if (!showPath.value) operationForm.path = '';
-    if (!showComponent.value) operationForm.component = '';
+  const isExternalUrl = (value?: string) =>
+    Boolean(value?.trim() && regexUrl.test(value.trim()));
+
+  const syncFieldsForMenuType = () => {
+    const { menuType } = operationForm;
+
+    if (menuType !== MenuType.Menu) {
+      operationForm.isExternal = false;
+    }
+
+    if (menuType === MenuType.Button) {
+      operationForm.path = '';
+      operationForm.component = '';
+      operationForm.icon = '';
+      operationForm.isVisible = false;
+    } else if (menuType === MenuType.Directory) {
+      operationForm.component = '';
+      operationForm.perms = '';
+      if (isExternalUrl(operationForm.path)) {
+        operationForm.path = '';
+      }
+    } else if (operationForm.isExternal) {
+      operationForm.component = '';
+    } else if (isExternalUrl(operationForm.path)) {
+      operationForm.path = '';
+    }
+
     if (!showPerms.value) operationForm.perms = '';
     if (!showIcon.value) operationForm.icon = '';
     if (!showVisible.value) operationForm.isVisible = false;
-    if (!showExternalSwitch.value) operationForm.isExternal = false;
   };
 
   const handleMenuTypeChange = () => {
-    clearHiddenFields();
+    syncFieldsForMenuType();
     operationFormRef.value?.clearValidate();
   };
 
   const handleExternalChange = (value: boolean | string | number) => {
     if (value) {
       operationForm.component = '';
+    } else if (isExternalUrl(operationForm.path)) {
+      operationForm.path = '';
     }
     operationFormRef.value?.clearValidate();
   };
@@ -375,25 +400,13 @@
       menuType: operationForm.menuType,
       sort: operationForm.sort,
       isEnabled: operationForm.isEnabled,
+      path: showPath.value ? operationForm.path || '' : '',
+      component: showComponent.value ? operationForm.component || '' : '',
+      perms: showPerms.value ? operationForm.perms || '' : '',
+      icon: showIcon.value ? operationForm.icon || '' : '',
+      isVisible: showVisible.value ? operationForm.isVisible : false,
+      isExternal: showExternalSwitch.value ? operationForm.isExternal : false,
     };
-    if (showPath.value && operationForm.path) {
-      payload.path = operationForm.path;
-    }
-    if (showComponent.value && operationForm.component) {
-      payload.component = operationForm.component;
-    }
-    if (showPerms.value && operationForm.perms) {
-      payload.perms = operationForm.perms;
-    }
-    if (showIcon.value && operationForm.icon) {
-      payload.icon = operationForm.icon;
-    }
-    if (showVisible.value) {
-      payload.isVisible = operationForm.isVisible;
-    }
-    if (showExternalSwitch.value) {
-      payload.isExternal = operationForm.isExternal;
-    }
     return payload;
   };
 
