@@ -17,6 +17,7 @@ export default {
   'menu.system.roleList': 'Role Management',
   'menu.system.menuList': 'Menu Management',
   'menu.system.dictList': 'Dictionary Management',
+  'menu.system.configList': 'Config Management',
   'navbar.action.locale': 'Switch to English',
   ...localeSettings,
   ...localeMessageBox,

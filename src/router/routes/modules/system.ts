@@ -52,6 +52,16 @@ const SYSTEM: AppRouteRecordRaw = {
         roles: ['*'],
       },
     },
+    {
+      path: 'config',
+      name: 'ConfigList',
+      component: () => import('@/views/system/config/index.vue'),
+      meta: {
+        locale: 'menu.system.configList',
+        requiresAuth: true,
+        roles: ['*'],
+      },
+    },
   ],
 };
 

@@ -12,6 +12,7 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
   '/system/role': 'RoleList',
   '/system/menu': 'MenuList',
   '/system/dict': 'DictList',
+  '/system/config': 'ConfigList',
 };
 
 function formatMenuIcon(icon?: string | null) {
@@ -250,7 +251,8 @@ export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
     names.has('UserList') ||
     names.has('RoleList') ||
     names.has('MenuList') ||
-    names.has('DictList')
+    names.has('DictList') ||
+    names.has('ConfigList')
   ) {
     names.add('system');
   }
@@ -287,7 +289,13 @@ export function filterClientMenusByAllowedNames(
 export function getFirstAccessibleRouteName(
   menus: RouteRecordRaw[]
 ): string | null {
-  const preferredOrder = ['UserList', 'RoleList', 'MenuList', 'DictList'];
+  const preferredOrder = [
+    'UserList',
+    'RoleList',
+    'MenuList',
+    'DictList',
+    'ConfigList',
+  ];
   const availableNames = flattenRouteNames(menus);
 
   const preferred = preferredOrder.find((name) => availableNames.includes(name));
