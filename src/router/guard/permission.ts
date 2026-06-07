@@ -5,7 +5,7 @@ import usePermission from '@/hooks/permission';
 import { useUserStore, useAppStore } from '@/store';
 import { flattenRouteNames } from '@/utils/server-menu';
 import { appRoutes } from '../routes';
-import { WHITE_LIST, NOT_FOUND } from '../constants';
+import { WHITE_LIST, NOT_FOUND, MENU_FETCH_SKIP_ROUTES } from '../constants';
 
 const appRouteNames = flattenRouteNames(appRoutes as RouteRecordRaw[]);
 
@@ -26,7 +26,7 @@ export default function setupPermissionGuard(router: Router) {
     if (appStore.menuFromServer) {
       if (
         !appStore.appAsyncMenus.length &&
-        !WHITE_LIST.find((el) => el.name === to.name)
+        !MENU_FETCH_SKIP_ROUTES.includes(String(to.name))
       ) {
         await appStore.fetchServerMenuConfig();
       }
