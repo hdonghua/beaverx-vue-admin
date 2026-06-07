@@ -1,11 +1,16 @@
-import type { Router, RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
+import type { Router, RouteRecordRaw } from 'vue-router';
 import NProgress from 'nprogress';
 
 import usePermission from '@/hooks/permission';
 import { useUserStore, useAppStore } from '@/store';
 import { flattenRouteNames } from '@/utils/server-menu';
 import { appRoutes } from '../routes';
-import { WHITE_LIST, NOT_FOUND, MENU_FETCH_SKIP_ROUTES } from '../constants';
+import {
+  ROUTE_ACCESS_WHITE_LIST,
+  NOT_FOUND,
+  FORBIDDEN,
+  MENU_FETCH_SKIP_ROUTES,
+} from '../constants';
 
 const appRouteNames = flattenRouteNames(appRoutes as RouteRecordRaw[]);
 
@@ -16,45 +21,45 @@ function isRegisteredRoute(router: Router, name: unknown) {
   return router.getRoutes().some((route) => route.name === name);
 }
 
+function isRouteDefinedInApp(router: Router, routeName: string) {
+  return (
+    appRouteNames.includes(routeName) ||
+    isRegisteredRoute(router, routeName)
+  );
+}
+
 export default function setupPermissionGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     const appStore = useAppStore();
     const userStore = useUserStore();
     const Permission = usePermission();
     const permissionsAllow = Permission.accessRouter(to);
+    const routeName = String(to.name);
 
     if (appStore.menuFromServer) {
       if (
         !appStore.appAsyncMenus.length &&
-        !MENU_FETCH_SKIP_ROUTES.includes(String(to.name))
+        !MENU_FETCH_SKIP_ROUTES.includes(routeName)
       ) {
         await appStore.fetchServerMenuConfig();
       }
 
-      const serverMenuConfig = [
-        ...(appStore.appAsyncMenus as RouteRecordRaw[]),
-        ...WHITE_LIST,
-      ];
+      const isWhiteListed = ROUTE_ACCESS_WHITE_LIST.includes(routeName);
+      const allowedMenuRoutes = flattenRouteNames(
+        appStore.appAsyncMenus as RouteRecordRaw[]
+      );
+      const hasMenuAccess =
+        isWhiteListed || allowedMenuRoutes.includes(routeName);
 
-      let existInServerMenu = false;
-      while (serverMenuConfig.length && !existInServerMenu) {
-        const element = serverMenuConfig.shift();
-        if (element?.name === to.name) {
-          existInServerMenu = true;
-        }
-        if (element?.children) {
-          serverMenuConfig.push(
-            ...(element.children as unknown as RouteRecordNormalized[])
-          );
-        }
+      if (!permissionsAllow) {
+        next(hasMenuAccess ? FORBIDDEN : NOT_FOUND);
+        return;
       }
 
-      const existInApp =
-        appRouteNames.includes(String(to.name)) ||
-        isRegisteredRoute(router, to.name);
-
-      if ((existInServerMenu || existInApp) && permissionsAllow) {
+      if (hasMenuAccess) {
         next();
+      } else if (isRouteDefinedInApp(router, routeName)) {
+        next(FORBIDDEN);
       } else {
         next(NOT_FOUND);
       }
@@ -63,7 +68,7 @@ export default function setupPermissionGuard(router: Router) {
     } else {
       const destination =
         Permission.findFirstPermissionRoute(appRoutes, userStore.role) ||
-        NOT_FOUND;
+        FORBIDDEN;
       next(destination);
     }
     NProgress.done();

@@ -1,19 +1,26 @@
 <template>
-  <PageContainer :breadcrumb="['menu.exception', 'menu.exception.403']">
+  <PageContainer>
     <div class="content">
       <a-result
         class="result"
         status="403"
         :subtitle="$t('exception.result.403.description')"
       />
-      <a-button key="back" type="primary">
+      <a-button key="back" type="primary" @click="back">
         {{ $t('exception.result.403.back') }}
       </a-button>
     </div>
   </PageContainer>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  import { useRouter } from 'vue-router';
+
+  const router = useRouter();
+  const back = () => {
+    router.push({ name: 'Home' });
+  };
+</script>
 
 <script lang="ts">
   export default {

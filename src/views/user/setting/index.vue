@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.user', 'menu.user.center']">
+  <PageContainer>
     <a-card class="center-card" :bordered="false">
       <UserPanel ref="userPanelRef" />
       <a-divider :margin="24" />

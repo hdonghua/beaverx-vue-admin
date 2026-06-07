@@ -90,7 +90,7 @@
     () => userStore.role,
     (roleValue) => {
       if (roleValue && !permission.accessRouter(route))
-        router.push({ name: 'notFound' });
+        router.push({ name: '403' });
     }
   );
   const drawerVisible = ref(false);
