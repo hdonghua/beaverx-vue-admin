@@ -12,9 +12,6 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
   '/system/roles': 'RoleList',
   '/system/menu': 'MenuList',
   '/system/menus': 'MenuList',
-  '/dashboard': 'dashboard',
-  '/dashboard/workplace': 'Workplace',
-  '/dashboard/monitor': 'Monitor',
 };
 
 /** 从后端菜单树收集允许展示的前端路由 name */
@@ -43,9 +40,6 @@ export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
     names.has('MenuList')
   ) {
     names.add('system');
-  }
-  if (names.has('Workplace') || names.has('Monitor')) {
-    names.add('dashboard');
   }
 
   return names;
@@ -89,12 +83,7 @@ export function transformServerMenus(menus: MenuDto[]): RouteRecordRaw[] {
 export function getFirstAccessibleRouteName(
   menus: RouteRecordRaw[]
 ): string | null {
-  const preferredOrder = [
-    'Workplace',
-    'UserList',
-    'RoleList',
-    'MenuList',
-  ];
+  const preferredOrder = ['UserList', 'RoleList', 'MenuList'];
   const availableNames = flattenRouteNames(menus);
 
   const preferred = preferredOrder.find((name) => availableNames.includes(name));

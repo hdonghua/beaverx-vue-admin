@@ -8,7 +8,7 @@ const SYSTEM: AppRouteRecordRaw = {
   meta: {
     locale: 'menu.system',
     requiresAuth: true,
-    icon: 'icon-dashboard',
+    icon: 'icon-settings',
     order: 0,
   },
   children: [
