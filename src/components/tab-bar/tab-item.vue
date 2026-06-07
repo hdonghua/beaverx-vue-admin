@@ -102,11 +102,14 @@
   });
 
   const disabledCurrent = computed(() => {
-    return props.index === 0;
+    return props.itemData.name === DEFAULT_ROUTE_NAME;
   });
 
   const disabledLeft = computed(() => {
-    return [0, 1].includes(props.index);
+    const homeIndex = tagList.value.findIndex(
+      (tag) => tag.name === DEFAULT_ROUTE_NAME
+    );
+    return props.index <= Math.max(homeIndex, 0) + 1;
   });
 
   const disabledRight = computed(() => {
@@ -114,6 +117,9 @@
   });
 
   const tagClose = (tag: TagProps, idx: number) => {
+    if (tag.name === DEFAULT_ROUTE_NAME) {
+      return;
+    }
     tabBarStore.deleteTag(idx, tag);
     if (props.itemData.fullPath === route.fullPath) {
       const latest = tagList.value[idx - 1]; // 获取队列的前一个tab
@@ -147,7 +153,7 @@
       }
     } else if (value === Eaction.others) {
       const filterList = tagList.value.filter((el, idx) => {
-        return idx === 0 || idx === props.index;
+        return el.name === DEFAULT_ROUTE_NAME || idx === props.index;
       });
       tabBarStore.freshTabList(filterList);
       router.push({ name: itemData.name });

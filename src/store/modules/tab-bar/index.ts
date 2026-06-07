@@ -6,7 +6,6 @@ import {
   REDIRECT_ROUTE_NAME,
 } from '@/router/constants';
 import { isString } from '@/utils/is';
-import useAppStore from '../app';
 import { TabBarState, TagProps } from './types';
 
 const formatTag = (route: RouteLocationNormalized): TagProps => {
@@ -40,7 +39,11 @@ const useAppStore = defineStore('tabBar', {
   actions: {
     updateTabList(route: RouteLocationNormalized) {
       if (BAN_LIST.includes(route.name as string)) return;
-      this.tagList.push(formatTag(route));
+      const tag = formatTag(route);
+      if (!this.tagList.some((item) => item.fullPath === tag.fullPath)) {
+        this.tagList.push(tag);
+      }
+      this.ensureHomeTab();
       if (!route.meta.ignoreCache) {
         this.cacheTabList.add(route.name as string);
       }
@@ -64,13 +67,21 @@ const useAppStore = defineStore('tabBar', {
         .map((el) => el.name)
         .forEach((x) => this.cacheTabList.add(x));
     },
-    resetTabList() {
-      const appStore = useAppStore();
-      if (appStore.menuFromServer) {
-        this.tagList = [];
-        this.cacheTabList.clear();
+    ensureHomeTab() {
+      const homeIndex = this.tagList.findIndex(
+        (tag) => tag.name === DEFAULT_ROUTE_NAME
+      );
+      if (homeIndex === -1) {
+        this.tagList.unshift(DEFAULT_ROUTE);
+        this.cacheTabList.add(DEFAULT_ROUTE_NAME);
         return;
       }
+      if (homeIndex > 0) {
+        const [homeTab] = this.tagList.splice(homeIndex, 1);
+        this.tagList.unshift(homeTab);
+      }
+    },
+    resetTabList() {
       this.tagList = [DEFAULT_ROUTE];
       this.cacheTabList.clear();
       this.cacheTabList.add(DEFAULT_ROUTE_NAME);

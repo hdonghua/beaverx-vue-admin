@@ -109,10 +109,8 @@
         }
         tabBarStore.resetTabList();
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
-        const defaultRoute =
-          appStore.getDefaultRouteName() || 'UserList';
         router.push({
-          name: (redirect as string) || defaultRoute,
+          name: (redirect as string) || 'Home',
           query: {
             ...othersQuery,
           },
