@@ -10,6 +10,7 @@ import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
+import useTabBarStore from '../tab-bar';
 
 function mapProfileToState(profile: UserProfileDto): Partial<UserState> {
   const isSuperAdmin = profile.roles.some(
@@ -91,10 +92,12 @@ const useUserStore = defineStore('user', {
     },
     logoutCallBack() {
       const appStore = useAppStore();
+      const tabBarStore = useTabBarStore();
       this.resetInfo();
       clearToken();
       removeRouteListener();
       appStore.clearServerMenu();
+      tabBarStore.resetTabList();
     },
     async logout() {
       try {

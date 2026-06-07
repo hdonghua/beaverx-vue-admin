@@ -21,11 +21,21 @@ const formatTag = (route: RouteLocationNormalized): TagProps => {
 
 const BAN_LIST = [REDIRECT_ROUTE_NAME];
 
-const useAppStore = defineStore('tabBar', {
+const useTabBarStore = defineStore('tabBar', {
   state: (): TabBarState => ({
     cacheTabList: new Set([DEFAULT_ROUTE_NAME]),
     tagList: [DEFAULT_ROUTE],
   }),
+
+  persist: {
+    key: 'tab-bar',
+    paths: ['tagList'],
+    afterRestore({ store }) {
+      const tabBarStore = store as ReturnType<typeof useTabBarStore>;
+      tabBarStore.syncCacheFromTagList();
+      tabBarStore.ensureHomeTab();
+    },
+  },
 
   getters: {
     getTabList(): TagProps[] {
@@ -58,14 +68,15 @@ const useAppStore = defineStore('tabBar', {
     deleteCache(tag: TagProps) {
       this.cacheTabList.delete(tag.name);
     },
-    freshTabList(tags: TagProps[]) {
-      this.tagList = tags;
+    syncCacheFromTagList() {
       this.cacheTabList.clear();
-      // 要先判断ignoreCache
       this.tagList
         .filter((el) => !el.ignoreCache)
-        .map((el) => el.name)
-        .forEach((x) => this.cacheTabList.add(x));
+        .forEach((el) => this.cacheTabList.add(el.name));
+    },
+    freshTabList(tags: TagProps[]) {
+      this.tagList = tags;
+      this.syncCacheFromTagList();
     },
     ensureHomeTab() {
       const homeIndex = this.tagList.findIndex(
@@ -89,4 +100,4 @@ const useAppStore = defineStore('tabBar', {
   },
 });
 
-export default useAppStore;
+export default useTabBarStore;
