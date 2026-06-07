@@ -21,6 +21,7 @@ export default {
   'menu.system.userList': '用户管理',
   'menu.system.roleList': '角色管理',
   'menu.system.menuList': '菜单管理',
+  'menu.system.dictList': '字典管理',
   'navbar.action.locale': '切换为中文',
   ...localeSettings,
   ...localeMessageBox,

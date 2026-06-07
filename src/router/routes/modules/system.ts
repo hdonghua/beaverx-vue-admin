@@ -42,6 +42,16 @@ const SYSTEM: AppRouteRecordRaw = {
         roles: ['*'],
       },
     },
+    {
+      path: 'dict',
+      name: 'DictList',
+      component: () => import('@/views/system/dict/index.vue'),
+      meta: {
+        locale: 'menu.system.dictList',
+        requiresAuth: true,
+        roles: ['*'],
+      },
+    },
   ],
 };
 
