@@ -94,6 +94,10 @@
 
   const menuItems = computed(() =>
     flattenMenuForSearch(menuTree.value as RouteRecordRaw[], (route) => {
+      const title = route.meta?.title as string | undefined;
+      if (title) {
+        return title;
+      }
       const localeKey = route.meta?.locale as string | undefined;
       return localeKey ? t(localeKey) : String(route.name || '');
     })

@@ -27,7 +27,12 @@
           {{ rowIndex + 1 }}
         </template>
         <template #menuType="{ record }">
-          {{ menuTypeLabel(record.menuType) }}
+          <a-space>
+            <span>{{ menuTypeLabel(record.menuType) }}</span>
+            <a-tag v-if="record.isExternal" size="small" color="arcoblue">
+              外链
+            </a-tag>
+          </a-space>
         </template>
         <template #icon="{ record }">
           <IconSelector :model-value="record.icon" readonly />
@@ -107,15 +112,27 @@
               />
             </a-form-item>
           </a-col>
+          <a-col v-if="showExternalSwitch" :span="12">
+            <a-form-item field="isExternal" label="是否外链">
+              <a-switch
+                v-model="operationForm.isExternal"
+                @change="handleExternalChange"
+              />
+            </a-form-item>
+          </a-col>
           <a-col v-if="showPath" :span="12">
             <a-form-item
               field="path"
-              label="路由路径"
+              :label="operationForm.isExternal ? '外链地址' : '路由路径'"
               :rules="pathRules"
             >
               <a-input
                 v-model="operationForm.path"
-                placeholder="/system/user"
+                :placeholder="
+                  operationForm.isExternal
+                    ? 'https://www.example.com'
+                    : '/system/user'
+                "
               />
             </a-form-item>
           </a-col>
@@ -184,6 +201,7 @@
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import IconSelector from '@/components/icon-selector/index.vue';
   import { clearFormValidate } from '@/utils/form';
+  import { regexUrl } from '@/utils';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
@@ -274,6 +292,7 @@
     sort: 0,
     isVisible: true,
     isEnabled: true,
+    isExternal: false,
   });
 
   const showPath = computed(
@@ -281,8 +300,12 @@
       operationForm.menuType === MenuType.Directory ||
       operationForm.menuType === MenuType.Menu
   );
-  const showComponent = computed(
+  const showExternalSwitch = computed(
     () => operationForm.menuType === MenuType.Menu
+  );
+  const showComponent = computed(
+    () =>
+      operationForm.menuType === MenuType.Menu && !operationForm.isExternal
   );
   const showPerms = computed(
     () =>
@@ -298,11 +321,26 @@
     () => operationForm.menuType !== MenuType.Button
   );
 
-  const pathRules = computed(() =>
-    operationForm.menuType === MenuType.Menu
-      ? [{ required: true, message: '路由路径不能为空' }]
-      : []
-  );
+  const pathRules = computed(() => {
+    if (operationForm.menuType !== MenuType.Menu) {
+      return [];
+    }
+    if (operationForm.isExternal) {
+      return [
+        { required: true, message: '外链地址不能为空' },
+        {
+          validator: (value: string, callback: (error?: string) => void) => {
+            if (!value || regexUrl.test(value.trim())) {
+              callback();
+              return;
+            }
+            callback('请输入有效的 http/https 外链地址');
+          },
+        },
+      ];
+    }
+    return [{ required: true, message: '路由路径不能为空' }];
+  });
   const permsRules = computed(() =>
     operationForm.menuType === MenuType.Button
       ? [{ required: true, message: '权限标识不能为空' }]
@@ -315,10 +353,18 @@
     if (!showPerms.value) operationForm.perms = '';
     if (!showIcon.value) operationForm.icon = '';
     if (!showVisible.value) operationForm.isVisible = false;
+    if (!showExternalSwitch.value) operationForm.isExternal = false;
   };
 
   const handleMenuTypeChange = () => {
     clearHiddenFields();
+    operationFormRef.value?.clearValidate();
+  };
+
+  const handleExternalChange = (value: boolean | string | number) => {
+    if (value) {
+      operationForm.component = '';
+    }
     operationFormRef.value?.clearValidate();
   };
 
@@ -344,6 +390,9 @@
     }
     if (showVisible.value) {
       payload.isVisible = operationForm.isVisible;
+    }
+    if (showExternalSwitch.value) {
+      payload.isExternal = operationForm.isExternal;
     }
     return payload;
   };
@@ -387,6 +436,7 @@
     operationForm.sort = 0;
     operationForm.isVisible = true;
     operationForm.isEnabled = true;
+    operationForm.isExternal = false;
     clearFormValidate(operationFormRef.value);
   };
 
@@ -415,6 +465,7 @@
     operationForm.sort = record.sort;
     operationForm.isVisible = record.isVisible;
     operationForm.isEnabled = record.isEnabled;
+    operationForm.isExternal = record.isExternal;
     modalVisible.value = true;
     clearFormValidate(operationFormRef.value);
   };

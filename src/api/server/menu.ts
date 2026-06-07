@@ -19,6 +19,7 @@ export interface MenuDto {
   sort: number;
   isVisible: boolean;
   isEnabled: boolean;
+  isExternal: boolean;
   children?: MenuDto[];
 }
 
@@ -33,6 +34,7 @@ export interface CreateMenuRequest {
   sort?: number;
   isVisible?: boolean;
   isEnabled?: boolean;
+  isExternal?: boolean;
 }
 
 export interface UpdateMenuRequest {
@@ -47,6 +49,7 @@ export interface UpdateMenuRequest {
   sort?: number;
   isVisible?: boolean;
   isEnabled?: boolean;
+  isExternal?: boolean;
 }
 
 export interface QueryMenuRequest {
