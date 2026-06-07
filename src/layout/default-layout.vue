@@ -170,9 +170,24 @@
   }
 
   .layout-content {
-    min-height: 100vh;
-    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
     background-color: var(--color-fill-2);
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+
+    :deep(.tab-bar-container),
+    :deep(.footer) {
+      flex-shrink: 0;
+    }
+
+    :deep(.arco-layout-content) {
+      flex: 1;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+    }
   }
 </style>
