@@ -1,7 +1,6 @@
 <template>
-  <div class="container">
-    <Breadcrumb :items="['menu.system', 'menu.system.userList']" />
-    <a-card class="general-card" :title="$t('menu.system.userList')">
+  <PageContainer :breadcrumb="['menu.system', 'menu.system.userList']">
+    <a-card class="general-card">
       <a-row>
         <a-col :flex="1">
           <a-form
@@ -242,7 +241,7 @@
         </a-form-item>
       </a-form>
     </a-modal>
-  </div>
+  </PageContainer>
 </template>
 
 <script lang="ts" setup>
@@ -562,10 +561,6 @@
 </script>
 
 <style scoped lang="less">
-  .container {
-    padding: 0 20px 20px 20px;
-  }
-
   :deep(.arco-table-th) {
     &:last-child {
       .arco-table-th-item-title {

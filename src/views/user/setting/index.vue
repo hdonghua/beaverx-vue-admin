@@ -1,6 +1,5 @@
 <template>
-  <div class="container">
-    <Breadcrumb :items="['menu.user', 'menu.user.center']" />
+  <PageContainer :breadcrumb="['menu.user', 'menu.user.center']">
     <a-card class="center-card" :bordered="false">
       <UserPanel ref="userPanelRef" />
       <a-divider :margin="24" />
@@ -13,7 +12,7 @@
         </a-tab-pane>
       </a-tabs>
     </a-card>
-  </div>
+  </PageContainer>
 </template>
 
 <script lang="ts" setup>
@@ -36,12 +35,12 @@
 </script>
 
 <style scoped lang="less">
-  .container {
-    padding: 0 20px 20px;
-  }
-
   .center-card {
     border-radius: 4px;
+
+    :deep(.arco-card-body) {
+      padding: 20px;
+    }
   }
 
   .center-tabs {

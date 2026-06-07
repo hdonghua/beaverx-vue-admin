@@ -1,6 +1,5 @@
 <template>
-  <div class="container">
-    <Breadcrumb :items="['menu.exception', 'menu.exception.500']" />
+  <PageContainer :breadcrumb="['menu.exception', 'menu.exception.500']">
     <div class="content">
       <a-result
         class="result"
@@ -11,7 +10,7 @@
         {{ $t('exception.result.500.back') }}
       </a-button>
     </div>
-  </div>
+  </PageContainer>
 </template>
 
 <script lang="ts" setup></script>
@@ -23,19 +22,15 @@
 </script>
 
 <style scoped lang="less">
-  .container {
-    padding: 0 20px 20px 20px;
-    height: calc(100% - 40px);
-    :deep(.content) {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      text-align: center;
-      background-color: var(--color-bg-1);
-      border-radius: 4px;
-    }
+  .content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 220px);
+    text-align: center;
+    background-color: var(--color-bg-1);
+    border-radius: 4px;
   }
 </style>
