@@ -2,7 +2,12 @@ import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message, Modal } from '@arco-design/web-vue';
 import { useUserStore } from '@/store';
-import { getToken } from '@/utils/auth';
+import {
+  getToken,
+  getRefreshToken,
+  isTokenExpiringSoon,
+} from '@/utils/auth';
+import { refreshAccessToken } from '@/api/refresh-token';
 
 export interface Msg<T = unknown> {
   code: number;
@@ -21,14 +26,64 @@ interface ProblemDetails {
   title?: string;
 }
 
+type RequestConfig = AxiosRequestConfig & {
+  skipAuth?: boolean;
+  skipRefresh?: boolean;
+  _retry?: boolean;
+};
+
+const AUTH_REFRESH_URL = '/api/Auth/refresh';
+const AUTH_LOGIN_URL = '/api/Auth/login';
+
 if (import.meta.env.VITE_API_BASE_URL) {
   axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 }
 
+function isAuthBypassRequest(config?: RequestConfig) {
+  const url = config?.url || '';
+  return (
+    config?.skipAuth ||
+    config?.skipRefresh ||
+    url.includes(AUTH_REFRESH_URL) ||
+    url.includes(AUTH_LOGIN_URL)
+  );
+}
+
+let logoutModalVisible = false;
+
+function promptReLogin() {
+  if (logoutModalVisible) {
+    return;
+  }
+  logoutModalVisible = true;
+  Modal.error({
+    title: 'Confirm logout',
+    content:
+      'You have been logged out, you can cancel to stay on this page, or log in again',
+    okText: 'Re-Login',
+    async onOk() {
+      const userStore = useUserStore();
+      await userStore.logout();
+      window.location.reload();
+    },
+    onClose() {
+      logoutModalVisible = false;
+    },
+  });
+}
+
 axios.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  async (config: RequestConfig) => {
+    if (!isAuthBypassRequest(config) && isTokenExpiringSoon() && getRefreshToken()) {
+      try {
+        await refreshAccessToken();
+      } catch {
+        // 主动刷新失败时交由后续请求或 401 拦截处理
+      }
+    }
+
     const token = getToken();
-    if (token) {
+    if (token && !config.skipAuth) {
       if (!config.headers) {
         config.headers = {};
       }
@@ -62,8 +117,9 @@ axios.interceptors.response.use(
     }
     return { data: payload };
   },
-  (error) => {
+  async (error) => {
     const status = error.response?.status;
+    const originalRequest = error.config as RequestConfig | undefined;
     const problem = error.response?.data as ProblemDetails | undefined;
     const content =
       problem?.message ||
@@ -71,23 +127,43 @@ axios.interceptors.response.use(
       error.message ||
       'Request Error';
 
+    if (
+      status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !isAuthBypassRequest(originalRequest)
+    ) {
+      if (!getRefreshToken()) {
+        promptReLogin();
+        return Promise.reject(new Error(content));
+      }
+
+      originalRequest._retry = true;
+
+      try {
+        const tokenResult = await refreshAccessToken();
+        if (!originalRequest.headers) {
+          originalRequest.headers = {};
+        }
+        originalRequest.headers.Authorization = `Bearer ${tokenResult.token}`;
+        return axios(originalRequest);
+      } catch {
+        promptReLogin();
+        return Promise.reject(new Error(content));
+      }
+    }
+
     Message.error({
       content,
       duration: 5 * 1000,
     });
 
-    if (status === 401 && error.config?.url !== '/api/Auth/profile') {
-      Modal.error({
-        title: 'Confirm logout',
-        content:
-          'You have been logged out, you can cancel to stay on this page, or log in again',
-        okText: 'Re-Login',
-        async onOk() {
-          const userStore = useUserStore();
-          await userStore.logout();
-          window.location.reload();
-        },
-      });
+    if (
+      status === 401 &&
+      originalRequest?.url !== '/api/Auth/profile' &&
+      isAuthBypassRequest(originalRequest)
+    ) {
+      promptReLogin();
     }
 
     return Promise.reject(new Error(content));

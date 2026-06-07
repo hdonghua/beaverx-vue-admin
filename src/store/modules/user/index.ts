@@ -6,7 +6,7 @@ import {
   getProfile,
   UserProfileDto,
 } from '@/api/server/auth';
-import { setToken, clearToken } from '@/utils/auth';
+import { setTokenPair, clearToken, getRefreshToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
@@ -83,7 +83,7 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginRequest) {
       try {
         const { data } = await userLogin(loginForm);
-        setToken(data.token);
+        setTokenPair(data.token, data.refreshToken, data.expiresIn);
         this.applyProfile(data.user);
       } catch (err) {
         clearToken();
@@ -101,7 +101,7 @@ const useUserStore = defineStore('user', {
     },
     async logout() {
       try {
-        await userLogout();
+        await userLogout(getRefreshToken());
       } finally {
         this.logoutCallBack();
       }

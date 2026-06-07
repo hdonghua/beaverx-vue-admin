@@ -17,10 +17,19 @@ export interface UserProfileDto {
   permissions: string[];
 }
 
-export interface LoginResponse {
+export interface TokenResult {
   token: string;
+  refreshToken: string;
   expiresIn: number;
+  refreshExpiresIn: number;
+}
+
+export interface LoginResponse extends TokenResult {
   user: UserProfileDto;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
 }
 
 /** 登录 */
@@ -28,6 +37,18 @@ export function login(req: LoginRequest) {
   return axios.post<LoginRequest, ApiResponse<LoginResponse>>(
     '/api/Auth/login',
     req
+  );
+}
+
+/** 刷新访问令牌 */
+export function refreshToken(req: RefreshTokenRequest) {
+  return axios.post<RefreshTokenRequest, ApiResponse<TokenResult>>(
+    '/api/Auth/refresh',
+    req,
+    {
+      skipAuth: true,
+      skipRefresh: true,
+    } as Record<string, unknown>
   );
 }
 
@@ -64,7 +85,10 @@ export function changePassword(req: ChangePasswordRequest) {
   );
 }
 
-/** 登出（后端无接口，仅前端清理） */
-export function logout() {
-  return Promise.resolve();
+/** 登出并吊销刷新令牌 */
+export function logout(refreshTokenValue?: string | null) {
+  return axios.post<RefreshTokenRequest | undefined, ApiResponse<void>>(
+    '/api/Auth/logout',
+    refreshTokenValue ? { refreshToken: refreshTokenValue } : undefined
+  );
 }
