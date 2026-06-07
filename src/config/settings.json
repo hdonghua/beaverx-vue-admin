@@ -1,4 +1,6 @@
 {
+  "systemName": "智能管理系统",
+  "footerText": "Copyright © <a href='https://example.com' target='_blank' rel='noopener noreferrer'>BeaverX</a>",
   "theme": "light",
   "colorWeak": false,
   "navbar": true,
@@ -9,6 +11,7 @@
   "hideMenu": false,
   "menuCollapse": false,
   "footer": false,
+  "loginFooter": true,
   "themeColor": "#165DFF",
   "menuWidth": 220,
   "globalSettings": false,

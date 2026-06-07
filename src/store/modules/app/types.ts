@@ -1,6 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router';
 
 export interface AppState {
+  systemName: string;
+  footerText: string;
   theme: string;
   colorWeak: boolean;
   navbar: boolean;
@@ -11,6 +13,7 @@ export interface AppState {
   hideMenu: boolean;
   menuCollapse: boolean;
   footer: boolean;
+  loginFooter: boolean;
   themeColor: string;
   menuWidth: number;
   globalSettings: boolean;

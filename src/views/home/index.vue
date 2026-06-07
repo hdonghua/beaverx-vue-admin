@@ -6,7 +6,7 @@
           <icon-apps />
         </div>
         <a-typography-title :heading="3" class="welcome-title">
-          {{ $t('home.welcome.title') }}
+          {{ welcomeTitle }}
         </a-typography-title>
         <a-typography-paragraph class="welcome-subtitle">
           {{ $t('home.welcome.subtitle') }}
@@ -22,7 +22,18 @@
   };
 </script>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  import { computed } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { useAppStore } from '@/store';
+
+  const { t } = useI18n();
+  const appStore = useAppStore();
+
+  const welcomeTitle = computed(() =>
+    t('home.welcome.title', { name: appStore.systemName })
+  );
+</script>
 
 <style scoped lang="less">
   .home-page {
