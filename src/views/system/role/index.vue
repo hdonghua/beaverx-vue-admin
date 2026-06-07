@@ -336,7 +336,7 @@
   const menuTreeLoading = ref(false);
   const menuTreeData = ref<MenuDto[]>([]);
   const menuTreeNodes = computed(() => toMenuTreeNodes(menuTreeData.value));
-  const menuCheckLinked = ref(true);
+  const menuCheckLinked = ref(false);
   const menuTreeRenderKey = ref(0);
   const currentRoleId = ref<number | null>(null);
   let menuLoadToken = 0;
