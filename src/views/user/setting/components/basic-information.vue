@@ -24,9 +24,6 @@
       <a-form-item field="phone" label="手机号">
         <a-input v-model="formData.phone" placeholder="请输入手机号" />
       </a-form-item>
-      <a-form-item field="avatar" label="头像地址">
-        <a-input v-model="formData.avatar" placeholder="请输入头像 URL" />
-      </a-form-item>
       <a-form-item>
         <a-space>
           <a-button type="primary" :loading="submitting" @click="handleSave">
@@ -57,7 +54,6 @@
     nickName: '',
     email: '',
     phone: '',
-    avatar: '',
   });
 
   const loadProfile = async () => {
@@ -66,7 +62,6 @@
     formData.nickName = data.nickName || '';
     formData.email = data.email || '';
     formData.phone = data.phone || '';
-    formData.avatar = data.avatar || '';
     userStore.applyProfile(data);
   };
 
@@ -80,8 +75,7 @@
       const { data } = await updateProfile({
         nickName: formData.nickName,
         email: formData.email,
-        phone: formData.phone,
-        avatar: formData.avatar,
+        phone: formData.phone
       });
       userStore.applyProfile(data);
       Message.success('保存成功');

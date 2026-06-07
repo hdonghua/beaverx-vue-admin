@@ -150,7 +150,8 @@
             :size="32"
             :style="{ marginRight: '8px', cursor: 'pointer' }"
           >
-            <img alt="avatar" :src="avatar" />
+            <img v-if="hasAvatar" alt="avatar" :src="avatar" />
+            <span v-else>{{ avatarText }}</span>
           </a-avatar>
           <template #content>
             <a-doption>
@@ -192,8 +193,14 @@
   const { changeLocale, currentLocale } = useLocale();
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
   const locales = [...LOCALE_OPTIONS];
-  const avatar = computed(() => {
-    return userStore.avatar;
+  const avatar = computed(() => userStore.avatar?.trim() || '');
+  const hasAvatar = computed(() => Boolean(avatar.value));
+  const avatarText = computed(() => {
+    const label = userStore.name?.trim();
+    if (!label) {
+      return '?';
+    }
+    return label.length <= 2 ? label : label.slice(0, 1);
   });
   const theme = computed(() => {
     return appStore.theme;
