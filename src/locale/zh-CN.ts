@@ -1,4 +1,5 @@
 import localeMessageBox from '@/components/message-box/locale/zh-CN';
+import localeMenuSearch from '@/components/menu-search/locale/zh-CN';
 import localeLogin from '@/views/login/locale/zh-CN';
 
 import localeWorkplace from '@/views/dashboard/workplace/locale/zh-CN';
@@ -51,6 +52,7 @@ export default {
   'menu.system.menuList': '菜单管理',
   ...localeSettings,
   ...localeMessageBox,
+  ...localeMenuSearch,
   ...localeLogin,
   ...localeWorkplace,
   /** simple */

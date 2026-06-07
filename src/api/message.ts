@@ -1,29 +1,26 @@
-import axios from 'axios';
+export type {
+  MessageRecord,
+  MessageListType,
+} from '@/api/server/message';
 
-export interface MessageRecord {
-  id: number;
-  type: string;
-  title: string;
-  subTitle: string;
-  avatar?: string;
-  content: string;
-  time: string;
-  status: 0 | 1;
-  messageType?: number;
-}
-export type MessageListType = MessageRecord[];
+import {
+  getMessageList,
+  markMessagesRead,
+  markAllMessagesRead,
+  getUnreadCount,
+} from '@/api/server/message';
+
+export { markAllMessagesRead, getUnreadCount };
 
 export function queryMessageList() {
-  return axios.post<MessageListType>('/api/message/list');
+  return getMessageList();
 }
 
-interface MessageStatus {
-  ids: number[];
+export function setMessageStatus(data: { ids: number[] }) {
+  return markMessagesRead(data.ids);
 }
 
-export function setMessageStatus(data: MessageStatus) {
-  return axios.post<MessageListType>('/api/message/read', data);
-}
+import axios from 'axios';
 
 export interface ChatRecord {
   id: number;

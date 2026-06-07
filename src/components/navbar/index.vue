@@ -25,12 +25,18 @@
     <ul class="right-side">
       <li>
         <a-tooltip :content="$t('settings.search')">
-          <a-button class="nav-btn" type="outline" :shape="'circle'">
+          <a-button
+            class="nav-btn"
+            type="outline"
+            :shape="'circle'"
+            @click="menuSearchVisible = true"
+          >
             <template #icon>
               <icon-search />
             </template>
           </a-button>
         </a-tooltip>
+        <MenuSearch v-model:visible="menuSearchVisible" />
       </li>
       <li v-if="appStore.navbarLocale">
         <a-tooltip :content="$t('settings.language')">
@@ -85,7 +91,7 @@
       <li>
         <a-tooltip :content="$t('settings.navbar.alerts')">
           <div class="message-box-trigger">
-            <a-badge :count="9" dot>
+            <a-badge :count="unreadCount">
               <a-button
                 class="nav-btn"
                 type="outline"
@@ -186,8 +192,12 @@
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
+  import MenuSearch from '../menu-search/index.vue';
+  import useMessageUnread from '@/hooks/message-unread';
 
   const appStore = useAppStore();
+  const menuSearchVisible = ref(false);
+  const { unreadCount } = useMessageUnread();
   const userStore = useUserStore();
   const { logout } = useUser();
   const { changeLocale, currentLocale } = useLocale();
