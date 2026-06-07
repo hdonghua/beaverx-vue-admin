@@ -162,7 +162,8 @@
     <a-modal
       v-model:visible="modalVisible"
       title="创建用户"
-      @cancel="handleCancel"
+      unmount-on-close
+      @close="resetCreateUserForm"
       @before-ok="handleBeforeOk"
     >
       <a-form ref="operationFormRef" layout="vertical" :model="operationForm">
@@ -206,7 +207,8 @@
     <a-modal
       v-model:visible="passwordModalVisible"
       title="重置密码"
-      @cancel="handlePasswordCancel"
+      unmount-on-close
+      @close="resetPasswordForm"
       @before-ok="handlePasswordBeforeOk"
     >
       <a-form
@@ -264,6 +266,7 @@
   import cloneDeep from 'lodash/cloneDeep';
   import Sortable from 'sortablejs';
   import { FormInstance } from '@arco-design/web-vue/es/form';
+  import { clearFormValidate } from '@/utils/form';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };
@@ -374,6 +377,13 @@
     },
   ];
 
+  const resetCreateUserForm = () => {
+    operationForm.userName = '';
+    operationForm.password = '';
+    operationForm.nickName = '';
+    clearFormValidate(operationFormRef.value);
+  };
+
   const handleBeforeOk = async (done: (closed: boolean) => void) => {
     const validErr = await operationFormRef.value?.validate();
     if (!validErr) {
@@ -385,10 +395,8 @@
       done(false);
     }
   };
-  const handleCancel = () => {
-    modalVisible.value = false;
-  };
   const handleAdd = () => {
+    resetCreateUserForm();
     modalVisible.value = true;
   };
   const handleAssignRole = async (id: number) => {
@@ -423,19 +431,20 @@
     }
   };
 
+  const resetPasswordForm = () => {
+    passwordForm.newPassword = '';
+    passwordForm.confirmPassword = '';
+    resetUserName.value = '';
+    clearFormValidate(passwordFormRef.value);
+  };
+
   const handleResetPassword = (record: UserDto) => {
     currentUserId.value = record.id;
     resetUserName.value = record.nickName || record.userName;
     passwordForm.newPassword = '';
     passwordForm.confirmPassword = '';
     passwordModalVisible.value = true;
-  };
-
-  const handlePasswordCancel = () => {
-    passwordModalVisible.value = false;
-    passwordForm.newPassword = '';
-    passwordForm.confirmPassword = '';
-    passwordFormRef.value?.clearValidate();
+    clearFormValidate(passwordFormRef.value);
   };
 
   const handlePasswordBeforeOk = async (done: (closed: boolean) => void) => {
@@ -451,7 +460,7 @@
       });
       Message.success('密码重置成功');
       done(true);
-      handlePasswordCancel();
+      resetPasswordForm();
     } catch {
       done(false);
     }

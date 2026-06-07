@@ -165,7 +165,8 @@
     <a-modal
       v-model:visible="modalVisible"
       :title="isEdit ? '编辑角色' : '创建角色'"
-      @cancel="handleCancel"
+      unmount-on-close
+      @close="resetRoleForm"
       @before-ok="handleBeforeOk"
     >
       <a-form ref="operationFormRef" layout="vertical" :model="operationForm">
@@ -251,6 +252,7 @@
     normalizeCheckedMenuIds,
     collectMenuIdsForSave,
   } from '@/utils/menu-tree';
+  import { clearFormValidate } from '@/utils/form';
   import { Pagination } from '@/types/global';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import cloneDeep from 'lodash/cloneDeep';
@@ -368,6 +370,16 @@
     isEnabled: true,
   });
 
+  const resetRoleForm = () => {
+    isEdit.value = false;
+    currentEditId.value = null;
+    operationForm.code = '';
+    operationForm.name = '';
+    operationForm.description = '';
+    operationForm.isEnabled = true;
+    clearFormValidate(operationFormRef.value);
+  };
+
   const handleBeforeOk = async (done: (closed: boolean) => void) => {
     const validErr = await operationFormRef.value?.validate();
     if (!validErr) {
@@ -398,20 +410,8 @@
       done(false);
     }
   };
-  const handleCancel = () => {
-    modalVisible.value = false;
-    operationForm.code = '';
-    operationForm.name = '';
-    operationForm.description = '';
-    operationForm.isEnabled = true;
-  };
   const handleAdd = () => {
-    isEdit.value = false;
-    currentEditId.value = null;
-    operationForm.code = '';
-    operationForm.name = '';
-    operationForm.description = '';
-    operationForm.isEnabled = true;
+    resetRoleForm();
     modalVisible.value = true;
   };
   const handleEdit = (record: RoleDto) => {
@@ -421,6 +421,7 @@
     operationForm.description = record.description || '';
     operationForm.isEnabled = record.isEnabled;
     modalVisible.value = true;
+    clearFormValidate(operationFormRef.value);
   };
   const handleDelete = async (id: number) => {
     try {

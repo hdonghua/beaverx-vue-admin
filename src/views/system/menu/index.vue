@@ -73,7 +73,8 @@
       v-model:visible="modalVisible"
       :title="isEdit ? '编辑菜单' : '创建菜单'"
       :width="720"
-      @cancel="handleCancel"
+      unmount-on-close
+      @close="resetForm"
       @before-ok="handleBeforeOk"
     >
       <a-form
@@ -182,6 +183,7 @@
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import IconSelector from '@/components/icon-selector/index.vue';
+  import { clearFormValidate } from '@/utils/form';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
@@ -372,12 +374,9 @@
     }
   };
 
-  const handleCancel = () => {
-    modalVisible.value = false;
-    resetForm();
-  };
-
   const resetForm = () => {
+    isEdit.value = false;
+    currentEditId.value = null;
     operationForm.parentId = null;
     operationForm.name = '';
     operationForm.menuType = MenuType.Menu;
@@ -388,11 +387,10 @@
     operationForm.sort = 0;
     operationForm.isVisible = true;
     operationForm.isEnabled = true;
+    clearFormValidate(operationFormRef.value);
   };
 
   const handleAdd = (record?: MenuDto | null) => {
-    isEdit.value = false;
-    currentEditId.value = null;
     resetForm();
     if (record) {
       operationForm.parentId = record.id;
@@ -418,6 +416,7 @@
     operationForm.isVisible = record.isVisible;
     operationForm.isEnabled = record.isEnabled;
     modalVisible.value = true;
+    clearFormValidate(operationFormRef.value);
   };
 
   const handleDelete = async (id: number) => {
