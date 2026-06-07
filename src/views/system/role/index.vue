@@ -129,21 +129,36 @@
           </a-tag>
         </template>
         <template #operations="{ record }">
-          <a-button type="text" size="small" @click="handleEdit(record)">
-            <template #icon>
-              <icon-edit />
-            </template>
-          </a-button>
-          <a-popconfirm
-            content="确定要删除该角色吗？"
-            @ok="handleDelete(record.id)"
-          >
-            <a-button type="text" size="small" status="danger">
-              <template #icon>
-                <icon-delete />
-              </template>
-            </a-button>
-          </a-popconfirm>
+          <a-space>
+            <a-tooltip content="分配菜单">
+              <a-button
+                type="text"
+                size="small"
+                @click="handleAssignMenu(record)"
+              >
+                <template #icon>
+                  <icon-menu />
+                </template>
+              </a-button>
+            </a-tooltip>
+            <a-tooltip content="编辑">
+              <a-button type="text" size="small" @click="handleEdit(record)">
+                <template #icon>
+                  <icon-edit />
+                </template>
+              </a-button>
+            </a-tooltip>
+            <a-popconfirm
+              content="确定要删除该角色吗？"
+              @ok="handleDelete(record.id)"
+            >
+              <a-button type="text" size="small" status="danger">
+                <template #icon>
+                  <icon-delete />
+                </template>
+              </a-button>
+            </a-popconfirm>
+          </a-space>
         </template>
       </a-table>
     </a-card>
@@ -177,6 +192,40 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <a-modal
+      v-model:visible="menuModalVisible"
+      title="分配菜单"
+      :width="520"
+      unmount-on-close
+      :mask-closable="true"
+      :esc-to-close="true"
+      @cancel="handleMenuCancel"
+      @close="handleMenuCancel"
+      @before-ok="handleMenuBeforeOk"
+    >
+      <div class="menu-assign-body">
+        <div v-if="menuTreeLoading" class="menu-assign-loading">
+          <icon-loading spin />
+          <span>加载中...</span>
+        </div>
+        <template v-else-if="menuTreeNodes.length">
+          <div class="menu-assign-toolbar">
+            <a-checkbox v-model="menuCheckLinked">父子关联</a-checkbox>
+          </div>
+          <a-tree
+            :key="menuTreeRenderKey"
+            v-model:checked-keys="menuForm.menuIds"
+            :data="menuTreeNodes"
+            checkable
+            :check-strictly="!menuCheckLinked"
+            checked-strategy="all"
+            default-expand-all
+            block-node
+          />
+        </template>
+        <a-empty v-else description="暂无菜单" />
+      </div>
+    </a-modal>
   </PageContainer>
 </template>
 
@@ -190,11 +239,18 @@
     addRole,
     updateRole,
     deleteRole,
+    assignRoleMenus,
     QueryRolePageRequest,
     RoleDto,
     CreateRoleRequest,
     UpdateRoleRequest,
   } from '@/api/server/role';
+  import { queryMenus, MenuDto } from '@/api/server/menu';
+  import {
+    toMenuTreeNodes,
+    normalizeCheckedMenuIds,
+    collectMenuIdsForSave,
+  } from '@/utils/menu-tree';
   import { Pagination } from '@/types/global';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import cloneDeep from 'lodash/cloneDeep';
@@ -271,9 +327,34 @@
       title: t('searchTable.columns.operations'),
       dataIndex: 'operations',
       slotName: 'operations',
-      width: 150,
+      width: 180,
     },
   ]);
+  const menuModalVisible = ref(false);
+  const menuTreeLoading = ref(false);
+  const menuTreeData = ref<MenuDto[]>([]);
+  const menuTreeNodes = computed(() => toMenuTreeNodes(menuTreeData.value));
+  const menuCheckLinked = ref(true);
+  const menuTreeRenderKey = ref(0);
+  const currentRoleId = ref<number | null>(null);
+  let menuLoadToken = 0;
+  const menuForm = reactive({
+    menuIds: [] as number[],
+  });
+
+  const applyMenuCheckedIds = (menuIds: number[]) => {
+    const normalized = menuCheckLinked.value
+      ? normalizeCheckedMenuIds(menuTreeData.value, menuIds)
+      : menuIds.map((id) => Number(id));
+    menuForm.menuIds = normalized;
+  };
+
+  watch(menuCheckLinked, () => {
+    menuTreeRenderKey.value += 1;
+    if (menuForm.menuIds.length) {
+      applyMenuCheckedIds(menuForm.menuIds);
+    }
+  });
   const operationFormRef = ref<FormInstance>();
   const modalVisible = ref(false);
   const isEdit = ref(false);
@@ -348,6 +429,83 @@
       fetchData();
     } catch {
       // error
+    }
+  };
+
+  const resetMenuModalState = () => {
+    menuTreeLoading.value = false;
+    menuForm.menuIds = [];
+    currentRoleId.value = null;
+    menuCheckLinked.value = true;
+  };
+
+  const handleAssignMenu = async (record: RoleDto) => {
+    const token = (menuLoadToken += 1);
+    currentRoleId.value = record.id;
+    menuModalVisible.value = true;
+
+    if (menuTreeData.value.length) {
+      applyMenuCheckedIds((record.menuIds || []).map((id) => Number(id)));
+      menuTreeLoading.value = false;
+      return;
+    }
+
+    menuTreeLoading.value = true;
+    try {
+      const { data } = await queryMenus();
+      if (token !== menuLoadToken) {
+        return;
+      }
+      menuTreeData.value = Array.isArray(data) ? data : [];
+      await nextTick();
+      applyMenuCheckedIds((record.menuIds || []).map((id) => Number(id)));
+    } catch {
+      if (token !== menuLoadToken) {
+        return;
+      }
+      Message.warning('菜单树加载失败');
+    } finally {
+      if (token === menuLoadToken) {
+        menuTreeLoading.value = false;
+      }
+    }
+  };
+
+  const handleMenuCancel = () => {
+    menuLoadToken += 1;
+    menuModalVisible.value = false;
+    resetMenuModalState();
+  };
+
+  watch(menuModalVisible, (visible) => {
+    if (!visible) {
+      menuLoadToken += 1;
+      menuTreeLoading.value = false;
+    }
+  });
+
+  const handleMenuBeforeOk = async (done: (closed: boolean) => void) => {
+    if (menuTreeLoading.value) {
+      done(false);
+      return;
+    }
+    if (!currentRoleId.value) {
+      done(false);
+      return;
+    }
+    try {
+      const menuIds = collectMenuIdsForSave(
+        menuTreeData.value,
+        menuForm.menuIds,
+        menuCheckLinked.value
+      );
+      await assignRoleMenus(currentRoleId.value, menuIds);
+      Message.success('菜单分配成功');
+      done(true);
+      handleMenuCancel();
+      fetchData();
+    } catch {
+      done(false);
     }
   };
 
@@ -482,5 +640,28 @@
       margin-left: 12px;
       cursor: pointer;
     }
+  }
+
+  .menu-assign-body {
+    min-height: 280px;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .menu-assign-toolbar {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .menu-assign-loading {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    color: var(--color-text-3);
+    font-size: 14px;
   }
 </style>

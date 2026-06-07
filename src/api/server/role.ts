@@ -39,6 +39,11 @@ export interface UpdateRoleRequest {
   isEnabled?: boolean;
 }
 
+/** 角色详情 */
+export function getRoleById(id: number) {
+  return axios.get<void, ApiResponse<RoleDto>>(`/api/Role/${id}`);
+}
+
 /** 角色列表 */
 export function queryRolePage(req: QueryRolePageRequest) {
   return axios.get<

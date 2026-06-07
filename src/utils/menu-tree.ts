@@ -1,0 +1,70 @@
+import type { MenuDto } from '@/api/server/menu';
+
+export interface MenuTreeNode {
+  key: number;
+  title: string;
+  children?: MenuTreeNode[];
+}
+
+/** 转为 Arco Tree 节点（剔除 icon 等非渲染函数字段，避免 renderFunc 报错） */
+export function toMenuTreeNodes(menus: MenuDto[]): MenuTreeNode[] {
+  return menus.map((menu) => {
+    const node: MenuTreeNode = {
+      key: menu.id,
+      title: menu.name,
+    };
+    if (menu.children?.length) {
+      node.children = toMenuTreeNodes(menu.children);
+    }
+    return node;
+  });
+}
+
+/** 父子关联模式下，补全已全选子节点对应的父级 ID，便于树组件正确勾选 */
+export function normalizeCheckedMenuIds(
+  menus: MenuDto[],
+  menuIds: number[]
+): number[] {
+  const checked = new Set(menuIds.map((id) => Number(id)));
+
+  const visit = (item: MenuDto): boolean => {
+    if (!item.children?.length) {
+      return checked.has(item.id);
+    }
+    const allChildrenChecked = item.children.every((child) => visit(child));
+    if (allChildrenChecked) {
+      checked.add(item.id);
+    }
+    return allChildrenChecked || checked.has(item.id);
+  };
+
+  menus.forEach(visit);
+  return [...checked];
+}
+
+/** 保存时收集菜单 ID（父子关联时自动带上祖先节点） */
+export function collectMenuIdsForSave(
+  menus: MenuDto[],
+  checkedKeys: Array<string | number>,
+  linked: boolean
+): number[] {
+  const result = new Set(checkedKeys.map((id) => Number(id)));
+  if (!linked) {
+    return [...result];
+  }
+
+  const walk = (items: MenuDto[], ancestors: number[]) => {
+    items.forEach((item) => {
+      const path = [...ancestors, item.id];
+      if (result.has(item.id)) {
+        path.forEach((id) => result.add(id));
+      }
+      if (item.children?.length) {
+        walk(item.children, path);
+      }
+    });
+  };
+
+  walk(menus, []);
+  return [...result];
+}
