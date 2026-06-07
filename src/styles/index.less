@@ -1,0 +1,49 @@
+@import "./transition.less";
+@import "./arco.less";
+@import "./app.less";
+
+*,
+*::before,
+*::after {
+  outline: none;
+  box-sizing: border-box;
+  margin: 0;
+  position: relative;
+  font-weight: normal;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+}
+
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  // overflow-y: auto;
+  // overflow: hidden;
+}
+
+@font-face {
+  font-family: iconfont-approval-admin;
+  src: url("@/styles/fonts/approval-admin.woff2") format("woff2"), url("@/styles/fonts/approval-admin.woff") format("woff"),
+    url("@/styles/fonts/approval-admin.ttf") format("truetype");
+}
+
+.iconfont-approval-admin {
+  font-family: iconfont-approval-admin !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 100%;
+}
