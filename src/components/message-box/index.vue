@@ -1,13 +1,10 @@
 <template>
   <a-spin style="display: block" :loading="loading">
-    <a-tabs v-model:activeKey="messageType" type="rounded" destroy-on-hide>
+    <a-tabs v-model:activeKey="messageType" destroy-on-hide>
       <a-tab-pane v-for="item in tabList" :key="item.key">
         <template #title>
           <span> {{ item.title }}{{ formatUnreadLength(item.key) }} </span>
         </template>
-        <a-empty v-if="!renderList.length" class="message-empty">
-          {{ $t('messageBox.noContent') }}
-        </a-empty>
         <List
           :render-list="renderList"
           :unread-count="unreadCount"
@@ -46,7 +43,7 @@
   }
   const { loading, setLoading } = useLoading(true);
   const { refreshUnreadCount } = useMessageUnread();
-  const messageType = ref('message');
+  const messageType = ref('notice');
   const { t } = useI18n();
   const messageData = reactive<{
     renderList: MessageRecord[];
@@ -57,10 +54,10 @@
   });
   toRefs(messageData);
   const tabList: TabItem[] = [
-    {
-      key: 'message',
-      title: t('messageBox.tab.title.message'),
-    },
+    // {
+    //   key: 'message',
+    //   title: t('messageBox.tab.title.message'),
+    // },
     {
       key: 'notice',
       title: t('messageBox.tab.title.notice'),
