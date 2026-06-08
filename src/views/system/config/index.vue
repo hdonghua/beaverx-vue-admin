@@ -8,7 +8,6 @@
             @menu-item-click="handleGroupClick"
           >
             <a-menu-item key="__all__">全部</a-menu-item>
-            <a-menu-item key="__ungrouped__">未分组</a-menu-item>
             <a-menu-item v-for="group in groupList" :key="group">
               {{ group }}
             </a-menu-item>
@@ -56,12 +55,7 @@
               {{ record.group || '未分组' }}
             </template>
             <template #value="{ record }">
-              <a-typography-paragraph
-                :ellipsis="{ rows: 1, showTooltip: true }"
-                style="margin: 0"
-              >
-                {{ record.value }}
-              </a-typography-paragraph>
+              {{ record.value }}
             </template>
             <template #isEnabled="{ record }">
               <a-tag :color="record.isEnabled ? 'green' : 'red'">
@@ -200,9 +194,6 @@
 
   const resolveGroupParam = () => {
     if (selectedGroupKey.value === '__all__') {
-      return undefined;
-    }
-    if (selectedGroupKey.value === '__ungrouped__') {
       return '';
     }
     return selectedGroupKey.value;
