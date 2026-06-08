@@ -46,6 +46,7 @@
 
 <script lang="ts" setup>
   import { ref, computed, watch, provide, onMounted } from 'vue';
+  import useRealtimeHub from '@/hooks/use-realtime-hub';
   import { useRouter, useRoute } from 'vue-router';
   import { useAppStore, useUserStore } from '@/store';
   import NavBar from '@/components/navbar/index.vue';
@@ -63,6 +64,7 @@
   const route = useRoute();
   const permission = usePermission();
   useResponsive(true);
+  useRealtimeHub();
   const navbarHeight = `60px`;
   const navbar = computed(() => appStore.navbar);
   const renderMenu = computed(() => appStore.menu && !appStore.topMenu);

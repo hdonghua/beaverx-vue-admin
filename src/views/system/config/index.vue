@@ -50,6 +50,8 @@
             :columns="columns"
             :data="list"
             @page-change="onPageChange"
+            column-resizable
+            :bordered="{cell:true}"
           >
             <template #group="{ record }">
               {{ record.group || '未分组' }}

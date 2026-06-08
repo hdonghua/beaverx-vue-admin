@@ -1,58 +1,45 @@
 import { onScopeDispose, ref } from 'vue';
 import { getExportActiveCount } from '@/api/server/export-task';
-
-const POLL_INTERVAL_MS = 3000;
+import {
+  RealtimeEvents,
+  type ExportTaskChangedPayload,
+} from '@/api/server/realtime';
+import { onRealtimeEvent } from '@/utils/realtime-hub';
 
 const activeCount = ref(0);
-let pollTimer: ReturnType<typeof setInterval> | null = null;
-let pollConsumers = 0;
+let initialized = false;
 
 async function fetchActiveCount() {
   try {
     const { data } = await getExportActiveCount();
     activeCount.value = data;
-    if (data > 0 && !pollTimer) {
-      startFastPolling();
-    }
-    if (data === 0 && pollTimer) {
-      stopFastPolling();
-    }
   } catch {
-    // ignore polling errors
+    // ignore
   }
 }
 
-function startFastPolling() {
-  if (pollTimer) {
+function ensureRealtimeSubscription() {
+  if (initialized) {
     return;
   }
-  pollTimer = setInterval(fetchActiveCount, POLL_INTERVAL_MS);
-}
 
-function stopFastPolling() {
-  if (pollTimer) {
-    clearInterval(pollTimer);
-    pollTimer = null;
-  }
-}
-
-function startPolling() {
-  pollConsumers += 1;
-  if (pollConsumers === 1) {
-    fetchActiveCount();
-  }
-}
-
-function stopPolling() {
-  pollConsumers = Math.max(0, pollConsumers - 1);
-  if (pollConsumers === 0) {
-    stopFastPolling();
-  }
+  initialized = true;
+  onRealtimeEvent(
+    RealtimeEvents.ExportTaskChanged,
+    (data) => {
+      const payload = data as ExportTaskChangedPayload;
+      activeCount.value = payload.activeCount;
+    }
+  );
 }
 
 export default function useExportTasks() {
-  startPolling();
-  onScopeDispose(stopPolling);
+  ensureRealtimeSubscription();
+  void fetchActiveCount();
+
+  onScopeDispose(() => {
+    // shared subscription lives for app session
+  });
 
   return {
     activeCount,

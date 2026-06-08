@@ -8,6 +8,7 @@ import {
 } from '@/api/server/auth';
 import { setTokenPair, clearToken, getRefreshToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
+import { stopRealtimeHub } from '@/utils/realtime-hub';
 import { UserState } from './types';
 import useAppStore from '../app';
 import useTabBarStore from '../tab-bar';
@@ -85,6 +86,8 @@ const useUserStore = defineStore('user', {
         const { data } = await userLogin(loginForm);
         setTokenPair(data.token, data.refreshToken, data.expiresIn);
         this.applyProfile(data.user);
+        const { startRealtimeHub } = await import('@/utils/realtime-hub');
+        await startRealtimeHub();
       } catch (err) {
         clearToken();
         throw err;
@@ -93,6 +96,7 @@ const useUserStore = defineStore('user', {
     logoutCallBack() {
       const appStore = useAppStore();
       const tabBarStore = useTabBarStore();
+      void stopRealtimeHub();
       this.resetInfo();
       clearToken();
       removeRouteListener();

@@ -1,41 +1,45 @@
 import { onScopeDispose, ref } from 'vue';
 import { getUnreadCount } from '@/api/server/message';
-
-const POLL_INTERVAL_MS = 30_000;
+import {
+  RealtimeEvents,
+  type MessageUnreadChangedPayload,
+} from '@/api/server/realtime';
+import { onRealtimeEvent } from '@/utils/realtime-hub';
 
 const unreadCount = ref(0);
-let pollTimer: ReturnType<typeof setInterval> | null = null;
-let pollConsumers = 0;
+let initialized = false;
 
 async function fetchUnreadCount() {
   try {
     const { data } = await getUnreadCount();
     unreadCount.value = data;
   } catch {
-    // ignore polling errors
+    // ignore
   }
 }
 
-function startPolling() {
-  pollConsumers += 1;
-  if (pollTimer) {
+function ensureRealtimeSubscription() {
+  if (initialized) {
     return;
   }
-  fetchUnreadCount();
-  pollTimer = setInterval(fetchUnreadCount, POLL_INTERVAL_MS);
-}
 
-function stopPolling() {
-  pollConsumers = Math.max(0, pollConsumers - 1);
-  if (pollConsumers === 0 && pollTimer) {
-    clearInterval(pollTimer);
-    pollTimer = null;
-  }
+  initialized = true;
+  onRealtimeEvent(
+    RealtimeEvents.MessageUnreadChanged,
+    (data) => {
+      const payload = data as MessageUnreadChangedPayload;
+      unreadCount.value = payload.unreadCount;
+    }
+  );
 }
 
 export default function useMessageUnread() {
-  startPolling();
-  onScopeDispose(stopPolling);
+  ensureRealtimeSubscription();
+  void fetchUnreadCount();
+
+  onScopeDispose(() => {
+    // shared subscription lives for app session
+  });
 
   return {
     unreadCount,

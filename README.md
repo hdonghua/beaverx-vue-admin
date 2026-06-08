@@ -12,6 +12,7 @@
 | 路由 | Vue Router 4 |
 | 状态 | Pinia |
 | HTTP | Axios |
+| 实时 | SignalR（`@microsoft/signalr`） |
 | 国际化 | vue-i18n |
 
 ## 环境要求
@@ -123,7 +124,24 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 }
 ```
 
-### 4. 登录与跳转
+### 4. 实时通知（SignalR）
+
+登录后 `default-layout` 自动连接 `/hubs/notifications`，JWT 通过 `accessTokenFactory` 传递。
+
+| 文件 | 职责 |
+|------|------|
+| `src/utils/realtime-hub.ts` | 连接管理、`onRealtimeEvent` 订阅 |
+| `src/hooks/use-realtime-hub.ts` | 布局级连接生命周期 |
+| `src/api/server/realtime.ts` | 事件名与 Payload 类型 |
+
+| 事件 | 用途 |
+|------|------|
+| `export.task.changed` | 顶栏导出角标、导出列表状态更新 |
+| `message.unread.changed` | 未读角标、消息列表刷新 |
+
+已移除导出任务与未读消息的 HTTP 轮询。
+
+### 5. 登录与跳转
 
 - 访问 `/`：已登录 → `/home`，未登录 → `/login`
 - 应用内已登录再点登录页：取消跳转，留在当前页

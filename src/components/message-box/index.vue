@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, toRefs, computed } from 'vue';
+  import { ref, reactive, toRefs, computed, onMounted, onUnmounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
     getMessageList,
@@ -35,6 +35,8 @@
   } from '@/api/server/message';
   import useLoading from '@/hooks/loading';
   import useMessageUnread from '@/hooks/message-unread';
+  import { RealtimeEvents } from '@/api/server/realtime';
+  import { onRealtimeEvent } from '@/utils/realtime-hub';
   import List from './list.vue';
 
   interface TabItem {
@@ -107,7 +109,21 @@
     await fetchSourceData();
     await refreshUnreadCount();
   };
-  fetchSourceData();
+  let unsubscribeRealtime: (() => void) | null = null;
+
+  onMounted(() => {
+    unsubscribeRealtime = onRealtimeEvent(
+      RealtimeEvents.MessageUnreadChanged,
+      () => {
+        void fetchSourceData();
+      }
+    );
+    void fetchSourceData();
+  });
+
+  onUnmounted(() => {
+    unsubscribeRealtime?.();
+  });
 </script>
 
 <style scoped lang="less">

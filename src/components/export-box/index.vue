@@ -13,25 +13,32 @@
   import { Message } from '@arco-design/web-vue';
   import {
     ExportTaskDto,
-    ExportTaskStatus,
     getExportDownloadUrl,
     getExportTaskList,
   } from '@/api/server/export-task';
+  import {
+    RealtimeEvents,
+    type ExportTaskChangedPayload,
+  } from '@/api/server/realtime';
   import useLoading from '@/hooks/loading';
   import useExportTasks from '@/hooks/export-tasks';
+  import { onRealtimeEvent } from '@/utils/realtime-hub';
   import List from './list.vue';
 
   const { loading, setLoading } = useLoading(true);
   const { refreshActiveCount } = useExportTasks();
   const taskList = ref<ExportTaskDto[]>([]);
-  let pollTimer: ReturnType<typeof setInterval> | null = null;
+  let unsubscribeRealtime: (() => void) | null = null;
 
-  const hasActiveTask = () =>
-    taskList.value.some(
-      (item) =>
-        item.status === ExportTaskStatus.Pending ||
-        item.status === ExportTaskStatus.Processing
-    );
+  function upsertTask(task: ExportTaskDto) {
+    const index = taskList.value.findIndex((item) => item.id === task.id);
+    if (index >= 0) {
+      taskList.value[index] = task;
+      return;
+    }
+
+    taskList.value = [task, ...taskList.value];
+  }
 
   async function fetchList() {
     try {
@@ -52,25 +59,6 @@
     }
   }
 
-  function startPolling() {
-    if (pollTimer) {
-      return;
-    }
-    pollTimer = setInterval(async () => {
-      await fetchList();
-      if (!hasActiveTask()) {
-        stopPolling();
-      }
-    }, 3000);
-  }
-
-  function stopPolling() {
-    if (pollTimer) {
-      clearInterval(pollTimer);
-      pollTimer = null;
-    }
-  }
-
   async function handleDownload(item: ExportTaskDto) {
     try {
       const { data } = await getExportDownloadUrl(item.id);
@@ -86,21 +74,23 @@
   }
 
   onMounted(async () => {
+    unsubscribeRealtime = onRealtimeEvent(
+      RealtimeEvents.ExportTaskChanged,
+      (data) => {
+        const payload = data as ExportTaskChangedPayload;
+        upsertTask(payload.task);
+        void refreshActiveCount();
+      }
+    );
     await load();
-    if (hasActiveTask()) {
-      startPolling();
-    }
   });
 
-  onUnmounted(stopPolling);
+  onUnmounted(() => {
+    unsubscribeRealtime?.();
+  });
 
   defineExpose({
-    async refresh() {
-      await load();
-      if (hasActiveTask()) {
-        startPolling();
-      }
-    },
+    refresh: load,
   });
 </script>
 
