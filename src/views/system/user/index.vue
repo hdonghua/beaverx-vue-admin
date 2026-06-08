@@ -48,6 +48,12 @@
               </template>
               {{ $t('searchTable.operation.create') }}
             </a-button>
+            <a-button @click="handleExport">
+              <template #icon>
+                <icon-download />
+              </template>
+              导出
+            </a-button>
           </a-space>
         </a-col>
         <a-col
@@ -267,6 +273,11 @@
   import Sortable from 'sortablejs';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import { clearFormValidate } from '@/utils/form';
+  import {
+    createExportTask,
+    ExportTypes,
+  } from '@/api/server/export-task';
+  import useExportTasks from '@/hooks/export-tasks';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };
@@ -278,6 +289,7 @@
   };
   const { loading, setLoading } = useLoading(true);
   const { t } = useI18n();
+  const { refreshActiveCount } = useExportTasks();
   const renderData = ref<UserDto[]>([]);
   const formModel = ref(generateFormModel());
   const cloneColumns = ref<Column[]>([]);
@@ -398,6 +410,20 @@
   const handleAdd = () => {
     resetCreateUserForm();
     modalVisible.value = true;
+  };
+  const handleExport = async () => {
+    try {
+      await createExportTask({
+        exportType: ExportTypes.SystemUser,
+        parameters: {
+          keyword: formModel.value.userName || undefined,
+        },
+      });
+      await refreshActiveCount();
+      Message.success('导出任务已创建，请在顶部文件中心查看');
+    } catch {
+      // error handled by interceptor
+    }
   };
   const handleAssignRole = async (id: number) => {
     currentUserId.value = id;

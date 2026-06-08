@@ -89,6 +89,34 @@
         </a-tooltip>
       </li>
       <li>
+        <a-tooltip :content="$t('exportBox.tooltip')">
+          <div class="message-box-trigger">
+            <a-badge :count="exportActiveCount" :dot="exportActiveCount > 0">
+              <a-button
+                class="nav-btn"
+                type="outline"
+                :shape="'circle'"
+                @click="setExportPopoverVisible"
+              >
+                <icon-file />
+              </a-button>
+            </a-badge>
+          </div>
+        </a-tooltip>
+        <a-popover
+          trigger="click"
+          :arrow-style="{ display: 'none' }"
+          :content-style="{ padding: 0, minWidth: '400px' }"
+          content-class="message-popover"
+          @popup-visible-change="handleExportPopoverVisible"
+        >
+          <div ref="exportRefBtn" class="ref-btn"></div>
+          <template #content>
+            <export-box ref="exportBoxRef" />
+          </template>
+        </a-popover>
+      </li>
+      <li>
         <a-tooltip :content="$t('settings.navbar.alerts')">
           <div class="message-box-trigger">
             <a-badge :count="unreadCount">
@@ -192,12 +220,17 @@
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
+  import ExportBox from '../export-box/index.vue';
   import MenuSearch from '../menu-search/index.vue';
   import useMessageUnread from '@/hooks/message-unread';
+  import useExportTasks from '@/hooks/export-tasks';
 
   const appStore = useAppStore();
   const menuSearchVisible = ref(false);
   const { unreadCount } = useMessageUnread();
+  const { activeCount: exportActiveCount } = useExportTasks();
+  const exportRefBtn = ref();
+  const exportBoxRef = ref<InstanceType<typeof ExportBox>>();
   const userStore = useUserStore();
   const { logout } = useUser();
   const { changeLocale, currentLocale } = useLocale();
@@ -236,6 +269,19 @@
   };
   const refBtn = ref();
   const triggerBtn = ref();
+  const setExportPopoverVisible = () => {
+    const event = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+    exportRefBtn.value.dispatchEvent(event);
+  };
+  const handleExportPopoverVisible = (visible: boolean) => {
+    if (visible) {
+      exportBoxRef.value?.refresh();
+    }
+  };
   const setPopoverVisible = () => {
     const event = new MouseEvent('click', {
       view: window,

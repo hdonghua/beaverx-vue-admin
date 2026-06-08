@@ -1,4 +1,5 @@
 import localeMessageBox from '@/components/message-box/locale/en-US';
+import localeExportBox from '@/components/export-box/locale/en-US';
 import localeMenuSearch from '@/components/menu-search/locale/en-US';
 import localeLogin from '@/views/login/locale/en-US';
 import localeHome from '@/views/home/locale/en-US';
@@ -21,6 +22,7 @@ export default {
   'navbar.action.locale': 'Switch to English',
   ...localeSettings,
   ...localeMessageBox,
+  ...localeExportBox,
   ...localeMenuSearch,
   ...localeLogin,
   ...localeHome,

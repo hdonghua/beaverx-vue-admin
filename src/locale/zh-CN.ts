@@ -1,4 +1,5 @@
 import localeMessageBox from '@/components/message-box/locale/zh-CN';
+import localeExportBox from '@/components/export-box/locale/zh-CN';
 import localeMenuSearch from '@/components/menu-search/locale/zh-CN';
 import localeLogin from '@/views/login/locale/zh-CN';
 import localeHome from '@/views/home/locale/zh-CN';
@@ -32,6 +33,7 @@ export default {
   'navbar.action.locale': '切换为中文',
   ...localeSettings,
   ...localeMessageBox,
+  ...localeExportBox,
   ...localeMenuSearch,
   ...localeLogin,
   ...localeHome,
