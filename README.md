@@ -164,7 +164,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 ### 步骤 6：后端配合
 
-后端需同步提供：菜单种子、权限码、Controller。详见 [BeaverX.Admin README](../BeaverX.Admin/README.md)。
+后端需同步提供：菜单种子、权限码、Controller。详见 [BeaverX.Admin README](https://github.com/hdonghua/BeaverX.Admin)。
 
 ## 布局与全局配置
 
@@ -182,4 +182,4 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 ## 相关仓库
 
-- 后端 API：[BeaverX.Admin](../BeaverX.Admin/README.md)
+- 后端 API：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
