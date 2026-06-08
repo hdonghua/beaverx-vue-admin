@@ -8,6 +8,7 @@ import locale404 from '@/views/exception/404/locale/en-US';
 import locale500 from '@/views/exception/500/locale/en-US';
 import localeUserSetting from '@/views/user/setting/locale/en-US';
 import localeSystem from '@/views/system/locale/en-US';
+import localeSiteMessage from '@/views/system/message/locale/en-US';
 import localeSettings from './en-US/settings';
 
 export default {
@@ -19,6 +20,7 @@ export default {
   'menu.system.menuList': 'Menu Management',
   'menu.system.dictList': 'Dictionary Management',
   'menu.system.configList': 'Config Management',
+  'menu.system.messageSend': 'Send Site Message',
   'navbar.action.locale': 'Switch to English',
   ...localeSettings,
   ...localeMessageBox,
@@ -31,4 +33,5 @@ export default {
   ...locale500,
   ...localeUserSetting,
   ...localeSystem,
+  ...localeSiteMessage,
 };

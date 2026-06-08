@@ -62,6 +62,16 @@ const SYSTEM: AppRouteRecordRaw = {
         roles: ['*'],
       },
     },
+    {
+      path: 'message',
+      name: 'SiteMessageSend',
+      component: () => import('@/views/system/message/send.vue'),
+      meta: {
+        locale: 'menu.system.messageSend',
+        requiresAuth: true,
+        roles: ['*'],
+      },
+    },
   ],
 };
 

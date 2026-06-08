@@ -13,6 +13,7 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
   '/system/menu': 'MenuList',
   '/system/dict': 'DictList',
   '/system/config': 'ConfigList',
+  '/system/message': 'SiteMessageSend',
 };
 
 function formatMenuIcon(icon?: string | null) {

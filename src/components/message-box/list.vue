@@ -35,11 +35,11 @@
         </a-list-item-meta>
       </div>
     </a-list-item>
-    <template v-if="renderList.length && hasUnread" #footer>
+    <!-- <template v-if="renderList.length && hasUnread" #footer>
       <div class="footer-wrap">
         <a-link @click="allRead">{{ $t('messageBox.allRead') }}</a-link>
       </div>
-    </template>
+    </template> -->
   </a-list>
 </template>
 

@@ -8,6 +8,7 @@ import locale404 from '@/views/exception/404/locale/zh-CN';
 import locale500 from '@/views/exception/500/locale/zh-CN';
 import localeUserSetting from '@/views/user/setting/locale/zh-CN';
 import localeSystem from '@/views/system/locale/zh-CN';
+import localeSiteMessage from '@/views/system/message/locale/zh-CN';
 import localeSettings from './zh-CN/settings';
 
 export default {
@@ -30,6 +31,7 @@ export default {
   'menu.system.menuList': '菜单管理',
   'menu.system.dictList': '字典管理',
   'menu.system.configList': '配置管理',
+  'menu.system.messageSend': '发送站内信',
   'navbar.action.locale': '切换为中文',
   ...localeSettings,
   ...localeMessageBox,
@@ -42,4 +44,5 @@ export default {
   ...locale500,
   ...localeUserSetting,
   ...localeSystem,
+  ...localeSiteMessage,
 };
