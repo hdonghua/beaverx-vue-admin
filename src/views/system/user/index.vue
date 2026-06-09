@@ -139,8 +139,8 @@
             @change="(value) => handleToggleEnabled(record, value)"
           />
         </template>
-        <template #creationTime="{ record }"> 
-          {{ dayjs(record.creationTime).format("YYYY-MM-DD HH:mm:ss") }}
+        <template #creationTime="{ record }">
+          {{ dayjs(record.creationTime).format('YYYY-MM-DD HH:mm:ss') }}
         </template>
         <template #operations="{ record }">
           <a-space>
@@ -160,6 +160,7 @@
                 type="text"
                 size="small"
                 @click="handleResetPassword(record)"
+                v-permission="[Permissions.System.User.ResetPassword]"
               >
                 <template #icon>
                   <icon-lock />
@@ -277,6 +278,7 @@
   import { clearFormValidate } from '@/utils/form';
   import { createExportTask, ExportTypes } from '@/api/server/export-task';
   import useExportTasks from '@/hooks/export-tasks';
+  import { Permissions } from '@/constants/permissions';
   import dayjs from 'dayjs';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
