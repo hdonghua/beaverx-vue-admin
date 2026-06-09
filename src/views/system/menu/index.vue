@@ -42,7 +42,11 @@
         </template>
         <template #menuType="{ record }">
           <a-space>
-            <span>{{ menuTypeLabel(record.menuType) }}</span>
+            <DictTag
+              :type-code="DictTypeCodes.SysMenuType"
+              :value="record.menuType"
+              plain
+            />
             <a-tag v-if="record.isExternal" size="small" color="arcoblue">
               外链
             </a-tag>
@@ -126,9 +130,10 @@
               label="菜单类型"
               :rules="[{ required: true, message: '请选择菜单类型' }]"
             >
-              <a-select
+              <DictSelect
                 v-model="operationForm.menuType"
-                :options="menuTypeOptions"
+                :type-code="DictTypeCodes.SysMenuType"
+                value-type="number"
                 @change="handleMenuTypeChange"
               />
             </a-form-item>
@@ -218,6 +223,9 @@
     UpdateMenuRequest,
     MenuType,
   } from '@/api/server/menu';
+  import { DictTypeCodes } from '@/constants/dict-types';
+  import DictSelect from '@/components/dict-select/index.vue';
+  import DictTag from '@/components/dict-tag/index.vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import IconSelector from '@/components/icon-selector/index.vue';
@@ -225,17 +233,6 @@
   import { regexUrl } from '@/utils';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
-
-  const menuTypeOptions = [
-    { label: '目录', value: MenuType.Directory },
-    { label: '菜单', value: MenuType.Menu },
-    { label: '按钮', value: MenuType.Button },
-  ];
-
-  const menuTypeLabel = (type: MenuType) => {
-    const item = menuTypeOptions.find((opt) => opt.value === type);
-    return item?.label || '-';
-  };
 
   const showMenuVisibilityIcon = (record: MenuDto) =>
     record.menuType === MenuType.Directory ||
@@ -524,13 +521,26 @@
     setLoading(true);
     try {
       const { data } = await queryMenus();
-      renderData.value = data || [];
+      renderData.value = normalizeMenuTree(data || []);
     } catch (err) {
       // error handled by interceptor
     } finally {
       setLoading(false);
     }
   };
+
+  /** 兼容 menuType=0（目录）在序列化/渲染中被当作空值的情况 */
+  const normalizeMenuTree = (menus: MenuDto[]): MenuDto[] =>
+    menus.map((menu) => ({
+      ...menu,
+      menuType:
+        menu.menuType === undefined || menu.menuType === null
+          ? MenuType.Directory
+          : Number(menu.menuType),
+      children: menu.children?.length
+        ? normalizeMenuTree(menu.children)
+        : menu.children,
+    }));
 
   fetchData();
 </script>

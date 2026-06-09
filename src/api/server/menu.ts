@@ -1,17 +1,15 @@
 import axios from 'axios';
 import { ApiResponse } from '@/api/interceptor';
+import { SysMenuType } from '@/constants/dict-types';
 
-export enum MenuType {
-  Directory = 0,
-  Menu = 1,
-  Button = 2,
-}
+export { SysMenuType as MenuType } from '@/constants/dict-types';
+export { SysMenuType };
 
 export interface MenuDto {
   id: number;
   parentId?: number | null;
   name: string;
-  menuType: MenuType;
+  menuType: SysMenuType;
   perms?: string | null;
   path?: string | null;
   component?: string | null;
@@ -26,7 +24,7 @@ export interface MenuDto {
 export interface CreateMenuRequest {
   parentId?: number | null;
   name: string;
-  menuType: MenuType;
+  menuType: SysMenuType;
   perms?: string;
   path?: string;
   component?: string;
@@ -41,7 +39,7 @@ export interface UpdateMenuRequest {
   id: number;
   parentId?: number | null;
   name?: string;
-  menuType?: MenuType;
+  menuType?: SysMenuType;
   perms?: string;
   path?: string;
   component?: string;
