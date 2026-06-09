@@ -47,4 +47,23 @@ export const Permissions = {
       Send: 'system:message:send',
     },
   },
+  Payment: {
+    Channel: {
+      List: 'payment:channel:list',
+      Create: 'payment:channel:create',
+      Update: 'payment:channel:update',
+      Delete: 'payment:channel:delete',
+    },
+    Order: {
+      List: 'payment:order:list',
+      Create: 'payment:order:create',
+      Query: 'payment:order:query',
+      Close: 'payment:order:close',
+      Refund: 'payment:order:refund',
+      SandboxPay: 'payment:order:sandbox_pay',
+    },
+    Refund: {
+      List: 'payment:refund:list',
+    },
+  },
 } as const;

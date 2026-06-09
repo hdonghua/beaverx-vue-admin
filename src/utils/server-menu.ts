@@ -14,6 +14,10 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
   '/system/dict': 'DictList',
   '/system/config': 'ConfigList',
   '/system/message': 'SiteMessageSend',
+  '/payment': 'payment',
+  '/payment/channel': 'PaymentChannelList',
+  '/payment/order': 'PaymentOrderList',
+  '/payment/refund': 'PaymentRefundList',
 };
 
 function formatMenuIcon(icon?: string | null) {
@@ -256,6 +260,14 @@ export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
     names.has('ConfigList')
   ) {
     names.add('system');
+  }
+
+  if (
+    names.has('PaymentChannelList') ||
+    names.has('PaymentOrderList') ||
+    names.has('PaymentRefundList')
+  ) {
+    names.add('payment');
   }
 
   return names;
