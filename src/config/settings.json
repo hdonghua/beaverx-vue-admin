@@ -17,6 +17,7 @@
   "globalSettings": false,
   "device": "desktop",
   "tabBar": true,
+  "avatarEnabled": false,
   "menuFromServer": true,
   "serverMenu": [],
   "allowedRouteNames": [],

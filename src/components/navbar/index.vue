@@ -224,6 +224,7 @@
   import MenuSearch from '../menu-search/index.vue';
   import useMessageUnread from '@/hooks/message-unread';
   import useExportTasks from '@/hooks/export-tasks';
+  import { resolveApiUrl } from '@/utils/asset-url';
 
   const appStore = useAppStore();
   const menuSearchVisible = ref(false);
@@ -236,7 +237,7 @@
   const { changeLocale, currentLocale } = useLocale();
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
   const locales = [...LOCALE_OPTIONS];
-  const avatar = computed(() => userStore.avatar?.trim() || '');
+  const avatar = computed(() => resolveApiUrl(userStore.avatar));
   const hasAvatar = computed(() => Boolean(avatar.value));
   const avatarText = computed(() => {
     const label = userStore.name?.trim();

@@ -1,8 +1,28 @@
 <template>
   <div class="user-panel">
     <div class="user-panel-left">
-      <a-avatar :size="72" class="user-avatar">
-        <img v-if="avatar" alt="avatar" :src="avatar" />
+      <a-upload
+        v-if="avatarEnabled"
+        :show-file-list="false"
+        accept="image/*"
+        :disabled="avatarUploading"
+        :custom-request="handleAvatarUpload"
+      >
+        <template #upload-button>
+          <div class="avatar-upload-wrap">
+            <a-avatar :size="72" class="user-avatar">
+              <img v-if="avatarSrc" alt="avatar" :src="avatarSrc" />
+              <icon-user v-else :size="36" />
+            </a-avatar>
+            <div class="avatar-upload-mask">
+              <icon-camera v-if="!avatarUploading" :size="20" />
+              <icon-loading v-else :size="20" spin />
+            </div>
+          </div>
+        </template>
+      </a-upload>
+      <a-avatar v-else :size="72" class="user-avatar">
+        <img v-if="avatarSrc" alt="avatar" :src="avatarSrc" />
         <icon-user v-else :size="36" />
       </a-avatar>
       <div class="user-name">{{ displayName }}</div>
@@ -46,13 +66,31 @@
 
 <script lang="ts" setup>
   import { computed, onMounted, ref } from 'vue';
-  import { useUserStore } from '@/store';
-  import { getProfile, UserProfileDto } from '@/api/server/auth';
+  import { Message } from '@arco-design/web-vue';
+  import type { RequestOption } from '@arco-design/web-vue/es/upload/interfaces';
+  import { useAppStore, useUserStore } from '@/store';
+  import {
+    getProfile,
+    updateProfile,
+    UserProfileDto,
+  } from '@/api/server/auth';
+  import { uploadFile } from '@/api/server/file';
+  import { resolveApiUrl } from '@/utils/asset-url';
 
+  const emit = defineEmits<{ avatarUpdated: [] }>();
+
+  const appStore = useAppStore();
   const userStore = useUserStore();
   const profile = ref<UserProfileDto | null>(null);
+  const avatarUploading = ref(false);
 
-  const avatar = computed(() => profile.value?.avatar || userStore.avatar);
+  const avatarEnabled = computed(() => appStore.avatarEnabled);
+
+  const avatarSrc = computed(() => {
+    const raw = profile.value?.avatar || userStore.avatar;
+    return resolveApiUrl(raw);
+  });
+
   const displayName = computed(
     () => profile.value?.nickName || profile.value?.userName || '用户'
   );
@@ -60,6 +98,50 @@
   const loadProfile = async () => {
     const { data } = await getProfile();
     profile.value = data;
+  };
+
+  const handleAvatarUpload = (option: RequestOption) => {
+    const { fileItem, onError, onSuccess } = option;
+    const file = fileItem.file;
+    if (!file) {
+      onError(new Error('未选择文件'));
+      return { abort: () => {} };
+    }
+
+    avatarUploading.value = true;
+    let aborted = false;
+
+    uploadFile(file, 'avatar')
+      .then(({ data: uploadResult }) =>
+        updateProfile({ avatar: uploadResult.proxyUrl })
+      )
+      .then(({ data }) => {
+        if (aborted) {
+          return;
+        }
+        profile.value = data;
+        userStore.applyProfile(data);
+        Message.success('头像更新成功');
+        emit('avatarUpdated');
+        onSuccess();
+      })
+      .catch((err: Error) => {
+        if (!aborted) {
+          onError(err);
+        }
+      })
+      .finally(() => {
+        if (!aborted) {
+          avatarUploading.value = false;
+        }
+      });
+
+    return {
+      abort: () => {
+        aborted = true;
+        avatarUploading.value = false;
+      },
+    };
   };
 
   onMounted(() => {
@@ -88,6 +170,28 @@
     align-items: center;
     width: 160px;
     padding-top: 4px;
+  }
+
+  .avatar-upload-wrap {
+    position: relative;
+    cursor: pointer;
+
+    &:hover .avatar-upload-mask {
+      opacity: 1;
+    }
+  }
+
+  .avatar-upload-mask {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgb(0 0 0 / 45%);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.2s;
   }
 
   .user-avatar {

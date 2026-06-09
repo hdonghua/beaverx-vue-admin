@@ -1,7 +1,7 @@
 <template>
   <PageContainer>
     <a-card class="center-card" :bordered="false">
-      <UserPanel ref="userPanelRef" />
+      <UserPanel ref="userPanelRef" @avatar-updated="handleProfileSaved" />
       <a-divider :margin="24" />
       <a-tabs default-active-key="basic" type="rounded" class="center-tabs">
         <a-tab-pane key="basic" :title="$t('userSetting.tab.basicInformation')">

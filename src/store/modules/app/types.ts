@@ -19,6 +19,7 @@ export interface AppState {
   globalSettings: boolean;
   device: string;
   tabBar: boolean;
+  avatarEnabled: boolean;
   menuFromServer: boolean;
   serverMenu: RouteRecordRaw[];
   allowedRouteNames: string[];
