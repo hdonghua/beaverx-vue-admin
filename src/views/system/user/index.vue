@@ -137,6 +137,9 @@
             {{ record.isEnabled ? '启用' : '禁用' }}
           </a-tag>
         </template>
+        <template #creationTime="{ record }"> 
+          {{ dayjs(record.creationTime).format("YYYY-MM-DD HH:mm:ss") }}
+        </template>
         <template #operations="{ record }">
           <a-space>
             <a-tooltip content="分配角色">
@@ -217,11 +220,7 @@
       @close="resetPasswordForm"
       @before-ok="handlePasswordBeforeOk"
     >
-      <a-form
-        ref="passwordFormRef"
-        layout="vertical"
-        :model="passwordForm"
-      >
+      <a-form ref="passwordFormRef" layout="vertical" :model="passwordForm">
         <a-form-item label="用户">
           <a-input :model-value="resetUserName" disabled />
         </a-form-item>
@@ -273,11 +272,9 @@
   import Sortable from 'sortablejs';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import { clearFormValidate } from '@/utils/form';
-  import {
-    createExportTask,
-    ExportTypes,
-  } from '@/api/server/export-task';
+  import { createExportTask, ExportTypes } from '@/api/server/export-task';
   import useExportTasks from '@/hooks/export-tasks';
+import dayjs from 'dayjs';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };
@@ -346,6 +343,15 @@
       title: '状态',
       dataIndex: 'isEnabled',
       slotName: 'isEnabled',
+    },
+    {
+      title: '手机',
+      dataIndex: 'phone',
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'creationTime',
+      slotName: 'creationTime',
     },
     {
       title: t('searchTable.columns.operations'),

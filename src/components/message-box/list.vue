@@ -7,8 +7,7 @@
       :class="['message-item', { 'is-read': item.status }]"
     >
       <template #extra>
-        <a-tag v-if="item.messageType === 0" color="gray" size="small">未开始</a-tag>
-        <a-tag v-else-if="item.messageType === 1" color="green" size="small">已开通</a-tag>
+        <a-tag v-if="item.messageType === 1" color="green" size="small">已开通</a-tag>
         <a-tag v-else-if="item.messageType === 2" color="blue" size="small">进行中</a-tag>
         <a-tag v-else-if="item.messageType === 3" color="red" size="small">即将到期</a-tag>
       </template>

@@ -36,9 +36,9 @@
           :rules="[{ required: true, message: $t('siteMessage.typeRequired') }]"
         >
           <a-radio-group v-model="form.type">
-            <a-radio value="message">{{ $t('siteMessage.type.message') }}</a-radio>
+            <!-- <a-radio value="message">{{ $t('siteMessage.type.message') }}</a-radio> -->
             <a-radio value="notice">{{ $t('siteMessage.type.notice') }}</a-radio>
-            <a-radio value="todo">{{ $t('siteMessage.type.todo') }}</a-radio>
+            <!-- <a-radio value="todo">{{ $t('siteMessage.type.todo') }}</a-radio> -->
           </a-radio-group>
         </a-form-item>
 
