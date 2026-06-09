@@ -28,6 +28,14 @@ export interface UserDto {
   roleNames: string[];
 }
 
+export interface UpdateUserRequest {
+  id: number;
+  nickName?: string;
+  email?: string;
+  phone?: string;
+  isEnabled?: boolean;
+}
+
 export interface AssignRoleRequest {
   userId: number;
   roleIds: number[];
@@ -55,6 +63,15 @@ export function queryUserPage(req: QueryUserPageRequest) {
 /** 新增用户 */
 export function addUser(req: CreateUserRequest) {
   return axios.post<CreateUserRequest, ApiResponse<UserDto>>('/api/User', req);
+}
+
+/** 更新用户 */
+export function updateUser(req: UpdateUserRequest) {
+  const { id, ...body } = req;
+  return axios.put<Omit<UpdateUserRequest, 'id'>, ApiResponse<UserDto>>(
+    `/api/User/${id}`,
+    body
+  );
 }
 
 /** 分配角色 */

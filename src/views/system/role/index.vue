@@ -460,7 +460,7 @@
     menuForm.menuIds = [];
     currentRoleId.value = null;
     currentRoleCode.value = '';
-    menuCheckLinked.value = true;
+    menuCheckLinked.value = false;
   };
 
   const resolveRoleMenuIds = (record: RoleDto) => {

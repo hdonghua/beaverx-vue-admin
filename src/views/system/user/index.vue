@@ -133,9 +133,11 @@
           {{ record.roleNames?.join('、') || '-' }}
         </template>
         <template #isEnabled="{ record }">
-          <a-tag :color="record.isEnabled ? 'green' : 'red'">
-            {{ record.isEnabled ? '启用' : '禁用' }}
-          </a-tag>
+          <a-switch
+            :model-value="record.isEnabled"
+            :loading="togglingUserId === record.id"
+            @change="(value) => handleToggleEnabled(record, value)"
+          />
         </template>
         <template #creationTime="{ record }"> 
           {{ dayjs(record.creationTime).format("YYYY-MM-DD HH:mm:ss") }}
@@ -259,6 +261,7 @@
   import {
     queryUserPage,
     addUser,
+    updateUser,
     QueryUserPageRequest,
     UserDto,
     assignRole,
@@ -274,7 +277,7 @@
   import { clearFormValidate } from '@/utils/form';
   import { createExportTask, ExportTypes } from '@/api/server/export-task';
   import useExportTasks from '@/hooks/export-tasks';
-import dayjs from 'dayjs';
+  import dayjs from 'dayjs';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };
@@ -343,6 +346,7 @@ import dayjs from 'dayjs';
       title: '状态',
       dataIndex: 'isEnabled',
       slotName: 'isEnabled',
+      width: 90,
     },
     {
       title: '手机',
@@ -374,6 +378,7 @@ import dayjs from 'dayjs';
   });
   const roleOptions = ref<RoleOptionDto[]>([]);
   const currentUserId = ref<number>(0);
+  const togglingUserId = ref<number | null>(null);
 
   const passwordModalVisible = ref(false);
   const passwordFormRef = ref<FormInstance>();
@@ -495,6 +500,32 @@ import dayjs from 'dayjs';
       resetPasswordForm();
     } catch {
       done(false);
+    }
+  };
+
+  const handleToggleEnabled = async (
+    record: UserDto,
+    value: boolean | string | number
+  ) => {
+    const nextEnabled = Boolean(value);
+    if (nextEnabled === record.isEnabled) {
+      return;
+    }
+
+    const previousEnabled = record.isEnabled;
+    record.isEnabled = nextEnabled;
+    togglingUserId.value = record.id;
+
+    try {
+      await updateUser({
+        id: record.id,
+        isEnabled: nextEnabled,
+      });
+      Message.success(nextEnabled ? '用户已启用' : '用户已禁用');
+    } catch {
+      record.isEnabled = previousEnabled;
+    } finally {
+      togglingUserId.value = null;
     }
   };
 

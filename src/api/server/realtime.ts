@@ -1,6 +1,7 @@
 export const RealtimeEvents = {
   ExportTaskChanged: 'export.task.changed',
   MessageUnreadChanged: 'message.unread.changed',
+  UserDisabled: 'user.disabled',
 } as const;
 
 export type RealtimeEventName =
@@ -18,4 +19,8 @@ export interface ExportTaskChangedPayload {
 
 export interface MessageUnreadChangedPayload {
   unreadCount: number;
+}
+
+export interface UserDisabledPayload {
+  message?: string;
 }
