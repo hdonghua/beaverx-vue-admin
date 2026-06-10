@@ -60,7 +60,6 @@ export const Permissions = {
       Query: 'payment:order:query',
       Close: 'payment:order:close',
       Refund: 'payment:order:refund',
-      SandboxPay: 'payment:order:sandbox_pay',
     },
     Refund: {
       List: 'payment:refund:list',

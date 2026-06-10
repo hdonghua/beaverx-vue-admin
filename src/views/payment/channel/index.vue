@@ -91,7 +91,7 @@
           label="渠道编码"
           :rules="[{ required: true, message: '渠道编码不能为空' }]"
         >
-          <a-input v-model="form.channelCode" placeholder="如 wechat_native" />
+          <a-input v-model="form.channelCode" placeholder="如 wechat_qrcode" />
         </a-form-item>
         <a-form-item
           field="channelName"
@@ -102,9 +102,9 @@
         </a-form-item>
         <a-form-item v-if="!isEdit" field="providerType" label="支付提供商">
           <a-select v-model="form.providerType" @change="handleProviderTypeChange">
-            <a-option :value="PaymentProviderType.Sandbox">沙箱</a-option>
-            <a-option :value="PaymentProviderType.WeChat">微信</a-option>
-            <a-option :value="PaymentProviderType.Alipay">支付宝</a-option>
+            <a-option :value="PaymentProviderType.WeChat">微信二维码</a-option>
+            <a-option :value="PaymentProviderType.Alipay">支付宝二维码</a-option>
+            <a-option :value="PaymentProviderType.AlipayApp">支付宝APP</a-option>
           </a-select>
         </a-form-item>
         <a-form-item v-else label="支付提供商">
@@ -179,7 +179,7 @@
   const form = reactive({
     channelCode: '',
     channelName: '',
-    providerType: PaymentProviderType.Sandbox,
+    providerType: PaymentProviderType.WeChat,
     configJson: '{}',
     notifyUrl: '',
     remark: '',
@@ -198,9 +198,10 @@
   ];
 
   function providerTypeLabel(type: PaymentProviderType) {
-    if (type === PaymentProviderType.WeChat) return '微信';
-    if (type === PaymentProviderType.Alipay) return '支付宝';
-    return '沙箱';
+    if (type === PaymentProviderType.WeChat) return '微信二维码';
+    if (type === PaymentProviderType.Alipay) return '支付宝二维码';
+    if (type === PaymentProviderType.AlipayApp) return '支付宝APP';
+    return '未知';
   }
 
   async function fetchData() {
@@ -238,7 +239,7 @@
   function resetForm() {
     form.channelCode = '';
     form.channelName = '';
-    form.providerType = PaymentProviderType.Sandbox;
+    form.providerType = PaymentProviderType.WeChat;
     form.configJson = '{}';
     form.notifyUrl = '';
     form.remark = '';

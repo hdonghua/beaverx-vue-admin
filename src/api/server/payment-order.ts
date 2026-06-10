@@ -37,6 +37,7 @@ export interface PaymentOrderDto {
   paidTime?: string | null;
   channelOrderNo?: string | null;
   qrCodeUrl?: string | null;
+  appPayOrderString?: string | null;
   refundedAmount: number;
   errorMessage?: string | null;
   creationTime: string;
@@ -63,7 +64,8 @@ export interface CreatePaymentOrderRequest {
 
 export interface CreatePaymentOrderResult {
   order: PaymentOrderDto;
-  qrCodeUrl: string;
+  qrCodeUrl?: string | null;
+  appPayOrderString?: string | null;
 }
 
 export interface CreatePaymentRefundRequest {
@@ -121,9 +123,9 @@ export function getPaymentOrderByOrderNo(orderNo: string) {
   );
 }
 
-export function createNativePaymentOrder(req: CreatePaymentOrderRequest) {
+export function createPaymentOrder(req: CreatePaymentOrderRequest) {
   return axios.post<CreatePaymentOrderRequest, ApiResponse<CreatePaymentOrderResult>>(
-    '/api/PaymentOrder/native',
+    '/api/PaymentOrder/pay',
     req
   );
 }
@@ -140,12 +142,6 @@ export function refundPaymentOrder(req: CreatePaymentRefundRequest) {
   return axios.post<CreatePaymentRefundRequest, ApiResponse<PaymentRefundDto>>(
     '/api/PaymentOrder/refund',
     req
-  );
-}
-
-export function sandboxPayOrder(orderNo: string) {
-  return axios.post<void, ApiResponse<PaymentOrderDto>>(
-    `/api/PaymentOrder/sandbox-pay/${encodeURIComponent(orderNo)}`
   );
 }
 

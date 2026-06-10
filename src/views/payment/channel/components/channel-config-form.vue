@@ -1,28 +1,18 @@
 <template>
   <div class="channel-config-form">
-    <a-alert
-      v-if="providerType === PaymentProviderType.Sandbox"
-      type="info"
-      show-icon
-      class="sandbox-tip"
-    >
-      沙箱渠道无需额外配置，可直接用于本地联调。
-    </a-alert>
-    <template v-else>
-      <a-form-item v-for="field in fields" :key="field.key" :label="field.label">
-        <a-textarea
-          v-if="field.type === 'textarea'"
-          v-model="configValues[field.key]"
-          :auto-size="{ minRows: field.rows || 3, maxRows: 10 }"
-          :placeholder="field.placeholder"
-        />
-        <a-input
-          v-else
-          v-model="configValues[field.key]"
-          :placeholder="field.placeholder"
-        />
-      </a-form-item>
-    </template>
+    <a-form-item v-for="field in fields" :key="field.key" :label="field.label">
+      <a-textarea
+        v-if="field.type === 'textarea'"
+        v-model="configValues[field.key]"
+        :auto-size="{ minRows: field.rows || 3, maxRows: 10 }"
+        :placeholder="field.placeholder"
+      />
+      <a-input
+        v-else
+        v-model="configValues[field.key]"
+        :placeholder="field.placeholder"
+      />
+    </a-form-item>
   </div>
 </template>
 
@@ -67,9 +57,3 @@
     resetValues,
   });
 </script>
-
-<style scoped lang="less">
-  .sandbox-tip {
-    margin-bottom: 8px;
-  }
-</style>

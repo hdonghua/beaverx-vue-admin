@@ -48,7 +48,7 @@
       <div class="toolbar">
         <a-button v-if="canCreate" type="primary" @click="openCreateModal">
           <template #icon><icon-plus /></template>
-          创建扫码支付
+          创建支付订单
         </a-button>
       </div>
       <a-table
@@ -71,6 +71,14 @@
         </template>
         <template #operations="{ record }">
           <a-space>
+            <a-button
+              v-if="canShowAppPay(record)"
+              type="text"
+              size="small"
+              @click="showAppPay(record)"
+            >
+              App参数
+            </a-button>
             <a-button
               v-if="canShowQr(record)"
               type="text"
@@ -110,7 +118,7 @@
 
     <a-modal
       v-model:visible="createVisible"
-      title="创建扫码支付订单"
+      :title="createModalTitle"
       unmount-on-close
       :ok-loading="createSubmitting"
       @before-ok="handleCreate"
@@ -186,6 +194,7 @@
     </a-modal>
 
     <PaymentQrModal ref="qrModalRef" @paid="fetchData" />
+    <PaymentAppPayModal ref="appPayModalRef" @paid="fetchData" />
   </PageContainer>
 </template>
 
@@ -198,14 +207,16 @@
   import usePermission from '@/hooks/permission';
   import { Permissions } from '@/constants/permissions';
   import PaymentQrModal from '@/components/payment-qr-modal/index.vue';
+  import PaymentAppPayModal from '@/components/payment-app-pay-modal/index.vue';
   import {
     PaymentChannelDto,
     queryEnabledPaymentChannels,
   } from '@/api/server/payment-channel';
+  import { isAppPaymentProvider } from '@/constants/payment-channel-config';
   import {
     PaymentOrderDto,
     PaymentOrderStatus,
-    createNativePaymentOrder,
+    createPaymentOrder,
     queryPaymentOrderPage,
     syncPaymentOrder,
     closePaymentOrder,
@@ -252,6 +263,18 @@
   });
 
   const qrModalRef = ref<InstanceType<typeof PaymentQrModal>>();
+  const appPayModalRef = ref<InstanceType<typeof PaymentAppPayModal>>();
+
+  const selectedCreateChannel = computed(() =>
+    enabledChannels.value.find((x) => x.channelCode === createForm.channelCode)
+  );
+
+  const createModalTitle = computed(() => {
+    if (selectedCreateChannel.value && isAppPaymentProvider(selectedCreateChannel.value.providerType)) {
+      return '创建 App 支付订单';
+    }
+    return '创建二维码支付订单';
+  });
 
   const statusOptions = [
     { value: PaymentOrderStatus.Pending, label: '待支付' },
@@ -293,7 +316,11 @@
   }
 
   function canShowQr(record: PaymentOrderDto) {
-    return record.status === PaymentOrderStatus.Paying && record.qrCodeUrl;
+    return record.status === PaymentOrderStatus.Paying && !!record.qrCodeUrl;
+  }
+
+  function canShowAppPay(record: PaymentOrderDto) {
+    return record.status === PaymentOrderStatus.Paying && !!record.appPayOrderString;
   }
 
   function canClose(record: PaymentOrderDto) {
@@ -374,7 +401,7 @@
     }
     createSubmitting.value = true;
     try {
-      const { data } = await createNativePaymentOrder({
+      const { data } = await createPaymentOrder({
         channelCode: createForm.channelCode,
         subject: createForm.subject,
         description: createForm.description || undefined,
@@ -383,7 +410,17 @@
       });
       Message.success('订单创建成功');
       await fetchData();
-      qrModalRef.value?.open(data);
+      if (data.appPayOrderString) {
+        appPayModalRef.value?.open({
+          order: data.order,
+          appPayOrderString: data.appPayOrderString,
+        });
+      } else if (data.qrCodeUrl) {
+        qrModalRef.value?.open({
+          order: data.order,
+          qrCodeUrl: data.qrCodeUrl,
+        });
+      }
       return true;
     } catch {
       return false;
@@ -398,6 +435,17 @@
       return;
     }
     qrModalRef.value?.open({ order: record, qrCodeUrl: record.qrCodeUrl });
+  }
+
+  function showAppPay(record: PaymentOrderDto) {
+    if (!record.appPayOrderString) {
+      Message.warning('该订单暂无 App 支付参数');
+      return;
+    }
+    appPayModalRef.value?.open({
+      order: record,
+      appPayOrderString: record.appPayOrderString,
+    });
   }
 
   async function handleSync(id: number) {

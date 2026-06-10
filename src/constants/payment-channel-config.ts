@@ -1,5 +1,11 @@
 import { PaymentProviderType } from '@/api/server/payment-channel';
 
+export const PAYMENT_CHANNEL_CODES = {
+  WeChatQrcode: 'wechat_qrcode',
+  AlipayQrcode: 'alipay_qrcode',
+  AlipayAppPay: 'alipay_app_pay',
+} as const;
+
 export interface PaymentChannelConfigField {
   key: string;
   label: string;
@@ -9,11 +15,54 @@ export interface PaymentChannelConfigField {
   rows?: number;
 }
 
+const ALIPAY_CONFIG_FIELDS: PaymentChannelConfigField[] = [
+  { key: 'appId', label: 'AppId', required: true, placeholder: '支付宝 AppId' },
+  {
+    key: 'privateKey',
+    label: '应用私钥',
+    type: 'textarea',
+    rows: 4,
+    required: true,
+    placeholder: 'RSA2 应用私钥',
+  },
+  {
+    key: 'alipayPublicKey',
+    label: '支付宝公钥（公钥模式）',
+    type: 'textarea',
+    rows: 4,
+    placeholder: '公钥模式必填，证书模式可留空',
+  },
+  {
+    key: 'merchantCertPath',
+    label: '应用公钥证书路径（证书模式）',
+    placeholder: '如 /data/cert/appCertPublicKey.crt',
+  },
+  {
+    key: 'alipayPublicCertPath',
+    label: '支付宝公钥证书路径（证书模式）',
+    placeholder: '如 /data/cert/alipayCertPublicKey_RSA2.crt',
+  },
+  {
+    key: 'alipayRootCertPath',
+    label: '支付宝根证书路径（证书模式）',
+    placeholder: '如 /data/cert/alipayRootCert.crt',
+  },
+  {
+    key: 'signType',
+    label: '签名类型',
+    placeholder: 'RSA2',
+  },
+  {
+    key: 'gateway',
+    label: '网关地址',
+    placeholder: 'https://openapi.alipay.com/gateway.do',
+  },
+];
+
 export const PAYMENT_CHANNEL_CONFIG_FIELDS: Record<
   PaymentProviderType,
   PaymentChannelConfigField[]
 > = {
-  [PaymentProviderType.Sandbox]: [],
   [PaymentProviderType.WeChat]: [
     { key: 'appId', label: 'AppId', required: true, placeholder: '微信 AppId' },
     { key: 'mchId', label: '商户号', required: true, placeholder: '微信支付商户号' },
@@ -46,49 +95,8 @@ export const PAYMENT_CHANNEL_CONFIG_FIELDS: Record<
       placeholder: '-----BEGIN CERTIFICATE-----',
     },
   ],
-  [PaymentProviderType.Alipay]: [
-    { key: 'appId', label: 'AppId', required: true, placeholder: '支付宝 AppId' },
-    {
-      key: 'privateKey',
-      label: '应用私钥',
-      type: 'textarea',
-      rows: 4,
-      required: true,
-      placeholder: 'RSA2 应用私钥',
-    },
-    {
-      key: 'alipayPublicKey',
-      label: '支付宝公钥（公钥模式）',
-      type: 'textarea',
-      rows: 4,
-      placeholder: '公钥模式必填，证书模式可留空',
-    },
-    {
-      key: 'merchantCertPath',
-      label: '应用公钥证书路径（证书模式）',
-      placeholder: '如 /data/cert/appCertPublicKey.crt',
-    },
-    {
-      key: 'alipayPublicCertPath',
-      label: '支付宝公钥证书路径（证书模式）',
-      placeholder: '如 /data/cert/alipayCertPublicKey_RSA2.crt',
-    },
-    {
-      key: 'alipayRootCertPath',
-      label: '支付宝根证书路径（证书模式）',
-      placeholder: '如 /data/cert/alipayRootCert.crt',
-    },
-    {
-      key: 'signType',
-      label: '签名类型',
-      placeholder: 'RSA2',
-    },
-    {
-      key: 'gateway',
-      label: '网关地址',
-      placeholder: 'https://openapi.alipay.com/gateway.do',
-    },
-  ],
+  [PaymentProviderType.Alipay]: ALIPAY_CONFIG_FIELDS,
+  [PaymentProviderType.AlipayApp]: ALIPAY_CONFIG_FIELDS,
 };
 
 export function parseChannelConfigJson(
@@ -127,7 +135,10 @@ export function buildChannelConfigJson(
     }
   });
 
-  if (providerType === PaymentProviderType.Alipay) {
+  if (
+    providerType === PaymentProviderType.Alipay ||
+    providerType === PaymentProviderType.AlipayApp
+  ) {
     payload.signType = values.signType?.trim() || 'RSA2';
     payload.gateway =
       values.gateway?.trim() || 'https://openapi.alipay.com/gateway.do';
@@ -144,7 +155,10 @@ export function createEmptyChannelConfig(
   fields.forEach((field) => {
     values[field.key] = field.key === 'signType' ? 'RSA2' : '';
   });
-  if (providerType === PaymentProviderType.Alipay) {
+  if (
+    providerType === PaymentProviderType.Alipay ||
+    providerType === PaymentProviderType.AlipayApp
+  ) {
     values.gateway = 'https://openapi.alipay.com/gateway.do';
   }
   return values;
@@ -171,7 +185,10 @@ export function validateChannelConfig(
     return `请填写：${missing.join('、')}`;
   }
 
-  if (providerType === PaymentProviderType.Alipay) {
+  if (
+    providerType === PaymentProviderType.Alipay ||
+    providerType === PaymentProviderType.AlipayApp
+  ) {
     const certMode =
       values.merchantCertPath?.trim() &&
       values.alipayPublicCertPath?.trim() &&
@@ -182,4 +199,15 @@ export function validateChannelConfig(
   }
 
   return null;
+}
+
+export function isQrPaymentProvider(providerType: PaymentProviderType) {
+  return (
+    providerType === PaymentProviderType.WeChat ||
+    providerType === PaymentProviderType.Alipay
+  );
+}
+
+export function isAppPaymentProvider(providerType: PaymentProviderType) {
+  return providerType === PaymentProviderType.AlipayApp;
 }

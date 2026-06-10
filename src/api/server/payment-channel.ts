@@ -3,9 +3,9 @@ import { ApiResponse } from '@/api/interceptor';
 import { PagedResultDto, QueryPageRequest } from '@/types/page';
 
 export enum PaymentProviderType {
-  Sandbox = 0,
   WeChat = 1,
   Alipay = 2,
+  AlipayApp = 3,
 }
 
 export interface PaymentChannelDto {

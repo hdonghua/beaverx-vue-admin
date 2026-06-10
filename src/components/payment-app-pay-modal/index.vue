@@ -1,27 +1,30 @@
 <template>
   <a-modal
     v-model:visible="visible"
-    title="扫码支付"
+    title="App 支付参数"
     :footer="false"
-    width="420px"
+    width="520px"
     unmount-on-close
     @close="handleClose"
   >
-    <div class="pay-qr-wrap">
+    <div class="pay-app-wrap">
       <div class="pay-amount">¥ {{ amountYuan }}</div>
       <div class="pay-subject">{{ subject }}</div>
       <div class="pay-order-no">订单号：{{ orderNo }}</div>
-      <div class="qr-box">
-        <img v-if="qrImageUrl" :src="qrImageUrl" alt="payment qr" class="qr-image" />
-        <a-spin v-else />
-      </div>
+      <a-textarea
+        :model-value="appPayOrderString"
+        readonly
+        :auto-size="{ minRows: 4, maxRows: 8 }"
+        class="order-string"
+      />
+      <a-space class="pay-actions" wrap>
+        <a-button type="primary" @click="handleCopy">复制 orderString</a-button>
+        <a-button :loading="syncLoading" @click="handleSync">刷新状态</a-button>
+      </a-space>
       <div class="pay-status">
         <a-tag :color="statusColor">{{ statusLabel }}</a-tag>
       </div>
-      <a-space class="pay-actions" wrap>
-        <a-button :loading="syncLoading" @click="handleSync">刷新状态</a-button>
-      </a-space>
-      <div class="pay-tip">请使用对应支付 App 扫描二维码完成支付</div>
+      <div class="pay-tip">将 orderString 交给移动端 App，由支付宝 SDK 调起支付</div>
     </div>
   </a-modal>
 </template>
@@ -29,7 +32,6 @@
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import QRCode from 'qrcode';
   import {
     PaymentOrderStatus,
     PaymentOrderDto,
@@ -41,9 +43,8 @@
   const orderNo = ref('');
   const subject = ref('');
   const amountCents = ref(0);
-  const qrCodeUrl = ref('');
+  const appPayOrderString = ref('');
   const status = ref<PaymentOrderStatus>(PaymentOrderStatus.Paying);
-  const qrImageUrl = ref('');
   const syncLoading = ref(false);
   let pollTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -58,7 +59,7 @@
 
   const statusLabelMap: Record<number, string> = {
     [PaymentOrderStatus.Pending]: '待支付',
-    [PaymentOrderStatus.Paying]: '待扫码',
+    [PaymentOrderStatus.Paying]: '待支付',
     [PaymentOrderStatus.Success]: '支付成功',
     [PaymentOrderStatus.Failed]: '支付失败',
     [PaymentOrderStatus.Closed]: '已关闭',
@@ -83,18 +84,6 @@
 
   const emit = defineEmits<{ paid: [order: PaymentOrderDto]; closed: [] }>();
 
-  async function renderQr(url: string) {
-    if (!url) {
-      qrImageUrl.value = '';
-      return;
-    }
-    try {
-      qrImageUrl.value = await QRCode.toDataURL(url, { width: 220, margin: 1 });
-    } catch {
-      qrImageUrl.value = '';
-    }
-  }
-
   function stopPoll() {
     if (pollTimer) {
       clearInterval(pollTimer);
@@ -113,19 +102,18 @@
     }, 3000);
   }
 
-  async function applyOrder(order: PaymentOrderDto, url?: string) {
+  async function applyOrder(order: PaymentOrderDto, orderString?: string) {
     orderId.value = order.id;
     orderNo.value = order.orderNo;
     subject.value = order.subject;
     amountCents.value = order.amount;
     status.value = order.status;
-    qrCodeUrl.value = url || order.qrCodeUrl || '';
-    await renderQr(qrCodeUrl.value);
+    appPayOrderString.value = orderString || order.appPayOrderString || '';
   }
 
-  async function open(result: { order: PaymentOrderDto; qrCodeUrl: string }) {
+  async function open(result: { order: PaymentOrderDto; appPayOrderString: string }) {
     visible.value = true;
-    await applyOrder(result.order, result.qrCodeUrl);
+    await applyOrder(result.order, result.appPayOrderString);
     if (!isPaid.value) {
       startPoll();
     }
@@ -150,6 +138,19 @@
     }
   }
 
+  async function handleCopy() {
+    if (!appPayOrderString.value) {
+      Message.warning('暂无 App 支付参数');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(appPayOrderString.value);
+      Message.success('已复制 orderString');
+    } catch {
+      Message.error('复制失败，请手动选择文本复制');
+    }
+  }
+
   function handleClose() {
     stopPoll();
     emit('closed');
@@ -165,7 +166,7 @@
 </script>
 
 <style scoped lang="less">
-  .pay-qr-wrap {
+  .pay-app-wrap {
     text-align: center;
   }
 
@@ -188,25 +189,13 @@
     font-size: 12px;
   }
 
-  .qr-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px auto 12px;
-    width: 240px;
-    height: 240px;
-    border: 1px solid var(--color-border-2);
-    border-radius: 8px;
-    background: #fff;
-  }
-
-  .qr-image {
-    width: 220px;
-    height: 220px;
+  .order-string {
+    margin: 16px 0 12px;
+    text-align: left;
   }
 
   .pay-status {
-    margin-bottom: 12px;
+    margin-top: 12px;
   }
 
   .pay-actions {
