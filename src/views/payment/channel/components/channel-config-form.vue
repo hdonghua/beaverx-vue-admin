@@ -25,7 +25,18 @@
               </template>
             </a-upload>
             <div v-if="getCertFileName(field)" class="cert-tip uploaded">
-              已上传：{{ getCertFileName(field) }}
+              已上传：
+              <a
+                v-if="getCertUrl(field)"
+                class="cert-link"
+                :href="getCertUrl(field)"
+                :download="getCertFileName(field)"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ getCertFileName(field) }}
+              </a>
+              <span v-else>{{ getCertFileName(field) }}</span>
             </div>
             <div v-if="getCertPath(field)" class="cert-tip">
               本地路径：{{ getCertPath(field) }}
@@ -70,6 +81,7 @@
   import type { RequestOption } from '@arco-design/web-vue/es/upload/interfaces';
   import { PaymentProviderType } from '@/api/server/payment-channel';
   import { uploadFile } from '@/api/server/file';
+  import { resolveApiUrl } from '@/utils/asset-url';
   import {
     PAYMENT_CHANNEL_CONFIG_FIELDS,
     createEmptyChannelConfig,
@@ -94,6 +106,11 @@
       return '';
     }
     return configValues[field.fileNameKey] || '';
+  }
+
+  function getCertUrl(field: PaymentChannelConfigField) {
+    const url = configValues[field.key]?.trim();
+    return url ? resolveApiUrl(url) : '';
   }
 
   function getCertPath(field: PaymentChannelConfigField) {
@@ -187,6 +204,15 @@
 
     &.uploaded {
       color: rgb(var(--green-6));
+    }
+  }
+
+  .cert-link {
+    color: rgb(var(--primary-6));
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 </style>
