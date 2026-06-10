@@ -79,55 +79,84 @@
     <a-modal
       v-model:visible="modalVisible"
       :title="isEdit ? '编辑渠道' : '新增渠道'"
-      width="680px"
+      width="960px"
       unmount-on-close
+      :body-style="{ maxHeight: '70vh', overflow: 'auto' }"
       @close="resetForm"
       @before-ok="handleBeforeOk"
     >
-      <a-form ref="formRef" layout="vertical" :model="form">
-        <a-form-item
-          v-if="!isEdit"
-          field="channelCode"
-          label="渠道编码"
-          :rules="[{ required: true, message: '渠道编码不能为空' }]"
-        >
-          <a-input v-model="form.channelCode" placeholder="如 wechat_qrcode" />
-        </a-form-item>
-        <a-form-item
-          field="channelName"
-          label="渠道名称"
-          :rules="[{ required: true, message: '渠道名称不能为空' }]"
-        >
-          <a-input v-model="form.channelName" />
-        </a-form-item>
-        <a-form-item v-if="!isEdit" field="providerType" label="支付提供商">
-          <a-select v-model="form.providerType" @change="handleProviderTypeChange">
-            <a-option :value="PaymentProviderType.WeChat">微信二维码</a-option>
-            <a-option :value="PaymentProviderType.Alipay">支付宝二维码</a-option>
-            <a-option :value="PaymentProviderType.AlipayApp">支付宝APP</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item v-else label="支付提供商">
-          <a-input :model-value="providerTypeLabel(form.providerType)" disabled />
-        </a-form-item>
+      <a-form ref="formRef" layout="vertical" :model="form" class="channel-modal-form">
+        <a-row :gutter="16">
+          <a-col v-if="!isEdit" :span="12">
+            <a-form-item
+              field="channelCode"
+              label="渠道编码"
+              :rules="[{ required: true, message: '渠道编码不能为空' }]"
+            >
+              <a-input v-model="form.channelCode" placeholder="如 wechat_qrcode" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="isEdit ? 12 : 12">
+            <a-form-item
+              field="channelName"
+              label="渠道名称"
+              :rules="[{ required: true, message: '渠道名称不能为空' }]"
+            >
+              <a-input v-model="form.channelName" />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="!isEdit" :span="12">
+            <a-form-item field="providerType" label="支付提供商">
+              <a-select
+                v-model="form.providerType"
+                @change="handleProviderTypeChange"
+              >
+                <a-option :value="PaymentProviderType.WeChat">微信二维码</a-option>
+                <a-option :value="PaymentProviderType.Alipay">支付宝二维码</a-option>
+                <a-option :value="PaymentProviderType.AlipayApp">支付宝APP</a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col v-else :span="12">
+            <a-form-item label="支付提供商">
+              <a-input
+                :model-value="providerTypeLabel(form.providerType)"
+                disabled
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item field="sort" label="排序">
+              <a-input-number v-model="form.sort" :min="0" style="width: 100%" />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="isEdit" :span="12">
+            <a-form-item field="isEnabled" label="是否启用">
+              <a-switch v-model="form.isEnabled" />
+            </a-form-item>
+          </a-col>
+        </a-row>
         <a-divider orientation="left">渠道配置</a-divider>
         <ChannelConfigForm
           ref="configFormRef"
           :provider-type="form.providerType"
           :config-json="form.configJson"
         />
-        <a-form-item field="notifyUrl" label="回调地址覆盖（可选）">
-          <a-input v-model="form.notifyUrl" placeholder="留空则使用系统默认回调地址" />
-        </a-form-item>
-        <a-form-item field="sort" label="排序">
-          <a-input-number v-model="form.sort" :min="0" />
-        </a-form-item>
-        <a-form-item field="remark" label="备注">
-          <a-input v-model="form.remark" />
-        </a-form-item>
-        <a-form-item v-if="isEdit" field="isEnabled" label="是否启用">
-          <a-switch v-model="form.isEnabled" />
-        </a-form-item>
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item field="notifyUrl" label="回调地址覆盖（可选）">
+              <a-input
+                v-model="form.notifyUrl"
+                placeholder="留空则使用系统默认回调地址"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item field="remark" label="备注">
+              <a-input v-model="form.remark" />
+            </a-form-item>
+          </a-col>
+        </a-row>
       </a-form>
     </a-modal>
   </PageContainer>
@@ -289,7 +318,7 @@
 
     try {
       if (isEdit.value && editingId.value) {
-        await updatePaymentChannel(editingId.value, {
+        const { data } = await updatePaymentChannel(editingId.value, {
           channelName: form.channelName,
           configJson,
           notifyUrl: form.notifyUrl || undefined,
@@ -297,9 +326,10 @@
           sort: form.sort,
           isEnabled: form.isEnabled,
         });
+        form.configJson = data.configJson;
         Message.success('更新成功');
       } else {
-        await addPaymentChannel({
+        const { data } = await addPaymentChannel({
           channelCode: form.channelCode,
           channelName: form.channelName,
           providerType: form.providerType,
@@ -309,6 +339,7 @@
           sort: form.sort,
           isEnabled: form.isEnabled,
         });
+        form.configJson = data.configJson;
         Message.success('创建成功');
       }
       fetchData();
@@ -338,5 +369,15 @@
 
   .toolbar {
     margin-bottom: 12px;
+  }
+
+  .channel-modal-form {
+    :deep(.arco-divider) {
+      margin: 8px 0 12px;
+    }
+
+    :deep(.arco-form-item) {
+      margin-bottom: 12px;
+    }
   }
 </style>
