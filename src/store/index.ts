@@ -1,11 +1,8 @@
-import { createPinia } from 'pinia';
-import { createPersistPlugin } from './plugins/persist';
+import pinia from './pinia';
 import useAppStore from './modules/app';
+import useAuthStore from './modules/auth';
 import useUserStore from './modules/user';
 import useTabBarStore from './modules/tab-bar';
 
-const pinia = createPinia();
-pinia.use(createPersistPlugin());
-
-export { useAppStore, useUserStore, useTabBarStore };
+export { useAppStore, useAuthStore, useUserStore, useTabBarStore };
 export default pinia;

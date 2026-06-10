@@ -3,7 +3,7 @@ import ArcoVue from '@arco-design/web-vue';
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import globalComponents from '@/components';
 import router from './router';
-import store from './store';
+import store from './store/pinia';
 import i18n from './locale';
 import directive from './directive';
 import App from './App.vue';
@@ -14,19 +14,21 @@ import "virtual:svg-icons-register";
 // 样式通过 arco-plugin 插件导入。详见目录文件 config/plugin/arcoStyleImport.ts
 // https://arco.design/docs/designlab/use-theme-package
 import '@/assets/style/global.less';
-import '@/api/interceptor';
 
 const app = createApp(App);
 
 app.use(ArcoVue, {});
 app.use(ArcoVueIcon);
 
-app.use(router);
 app.use(store);
+app.use(router);
 app.use(i18n);
 app.use(globalComponents);
 app.use(directive);
 
 app.use(Vue3Dragscroll);
+
+// 需在 pinia 初始化后再注册 axios 拦截器（token 从 auth store 读取）
+import '@/api/interceptor';
 
 app.mount('#app');

@@ -3,6 +3,7 @@ import {
   getRefreshToken,
   getToken,
   isAccessTokenExpired,
+  isRefreshTokenExpired,
 } from '@/utils/auth';
 
 /** access 已失效且无法续期时应退出登录（不主动刷新 token） */
@@ -13,7 +14,7 @@ export function shouldForceLogout() {
   if (!isAccessTokenExpired()) {
     return false;
   }
-  if (getRefreshToken()) {
+  if (getRefreshToken() && !isRefreshTokenExpired()) {
     return false;
   }
   clearToken();

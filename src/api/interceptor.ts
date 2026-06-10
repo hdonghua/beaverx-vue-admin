@@ -1,10 +1,12 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { Message, Modal } from '@arco-design/web-vue';
+import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/store';
 import {
   getToken,
   getRefreshToken,
+  isAccessTokenExpired,
+  isRefreshTokenExpired,
   isTokenExpiringSoon,
 } from '@/utils/auth';
 import { refreshAccessToken } from '@/api/refresh-token';
@@ -49,36 +51,38 @@ function isAuthBypassRequest(config?: RequestConfig) {
   );
 }
 
-let logoutModalVisible = false;
+let forceLoggingOut = false;
 
-function promptReLogin() {
-  if (logoutModalVisible) {
+async function forceLogout(message = '登录已过期，请重新登录') {
+  if (forceLoggingOut) {
     return;
   }
-  logoutModalVisible = true;
-  Modal.error({
-    title: '确认登出',
-    content:
-      '您已退出登录，您可以取消操作以继续留在此页面，或重新登录。',
-    okText: '重新登录',
-    async onOk() {
-      const userStore = useUserStore();
-      await userStore.logout();
-      window.location.reload();
-    },
-    onClose() {
-      logoutModalVisible = false;
-    },
-  });
+  forceLoggingOut = true;
+  Message.warning({ content: message, duration: 3000 });
+  const userStore = useUserStore();
+  await userStore.logout();
+  window.location.reload();
 }
 
 axios.interceptors.request.use(
   async (config: RequestConfig) => {
-    if (!isAuthBypassRequest(config) && isTokenExpiringSoon() && getRefreshToken()) {
-      try {
-        await refreshAccessToken();
-      } catch {
-        // 主动刷新失败时交由后续请求或 401 拦截处理
+    if (!isAuthBypassRequest(config)) {
+      const refreshToken = getRefreshToken();
+      const refreshExpired = isRefreshTokenExpired();
+      const accessExpired = isAccessTokenExpired();
+      const needRefresh = accessExpired || isTokenExpiringSoon();
+
+      if (needRefresh) {
+        if (!refreshToken || refreshExpired) {
+          void forceLogout();
+          return Promise.reject(new Error('Unauthorized'));
+        }
+        try {
+          await refreshAccessToken();
+        } catch {
+          void forceLogout();
+          return Promise.reject(new Error('Unauthorized'));
+        }
       }
     }
 
@@ -133,8 +137,8 @@ axios.interceptors.response.use(
       !originalRequest._retry &&
       !isAuthBypassRequest(originalRequest)
     ) {
-      if (!getRefreshToken()) {
-        promptReLogin();
+      if (!getRefreshToken() || isRefreshTokenExpired()) {
+        void forceLogout();
         return Promise.reject(new Error(content));
       }
 
@@ -148,7 +152,7 @@ axios.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${tokenResult.token}`;
         return axios(originalRequest);
       } catch {
-        promptReLogin();
+        void forceLogout();
         return Promise.reject(new Error(content));
       }
     }
@@ -163,7 +167,7 @@ axios.interceptors.response.use(
       originalRequest?.url !== '/api/Auth/profile' &&
       isAuthBypassRequest(originalRequest)
     ) {
-      promptReLogin();
+      void forceLogout();
     }
 
     return Promise.reject(new Error(content));

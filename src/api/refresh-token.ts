@@ -2,6 +2,7 @@ import axios from 'axios';
 import {
   clearToken,
   getRefreshToken,
+  isRefreshTokenExpired,
   setTokenPair,
 } from '@/utils/auth';
 import type { TokenResult } from '@/api/server/auth';
@@ -36,8 +37,9 @@ export async function refreshAccessToken(): Promise<TokenResult> {
   }
 
   const refreshTokenValue = getRefreshToken();
-  if (!refreshTokenValue) {
-    throw new Error('No refresh token');
+  if (!refreshTokenValue || isRefreshTokenExpired()) {
+    clearToken();
+    throw new Error('Refresh token expired');
   }
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -50,7 +52,12 @@ export async function refreshAccessToken(): Promise<TokenResult> {
     )
     .then((response) => {
       const data = unwrapTokenResult(response.data);
-      setTokenPair(data.token, data.refreshToken, data.expiresIn);
+      setTokenPair(
+        data.token,
+        data.refreshToken,
+        data.expiresIn,
+        data.refreshExpiresIn
+      );
       return data;
     })
     .catch((error) => {

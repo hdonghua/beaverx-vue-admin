@@ -6,7 +6,7 @@ import {
   getProfile,
   UserProfileDto,
 } from '@/api/server/auth';
-import { setTokenPair, clearToken, getRefreshToken } from '@/utils/auth';
+import useAuthStore from '../auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { stopRealtimeHub } from '@/utils/realtime-hub';
 import { UserState } from './types';
@@ -82,30 +82,38 @@ const useUserStore = defineStore('user', {
     },
 
     async login(loginForm: LoginRequest) {
+      const authStore = useAuthStore();
       try {
         const { data } = await userLogin(loginForm);
-        setTokenPair(data.token, data.refreshToken, data.expiresIn);
+        authStore.setTokenPair(
+          data.token,
+          data.refreshToken,
+          data.expiresIn,
+          data.refreshExpiresIn
+        );
         this.applyProfile(data.user);
         const { startRealtimeHub } = await import('@/utils/realtime-hub');
         await startRealtimeHub();
       } catch (err) {
-        clearToken();
+        authStore.clearToken();
         throw err;
       }
     },
     logoutCallBack() {
       const appStore = useAppStore();
       const tabBarStore = useTabBarStore();
+      const authStore = useAuthStore();
       void stopRealtimeHub();
       this.resetInfo();
-      clearToken();
+      authStore.clearToken();
       removeRouteListener();
       appStore.clearServerMenu();
       tabBarStore.resetTabList();
     },
     async logout() {
+      const authStore = useAuthStore();
       try {
-        await userLogout(getRefreshToken());
+        await userLogout(authStore.refreshToken || undefined);
       } finally {
         this.logoutCallBack();
       }

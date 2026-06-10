@@ -1,84 +1,68 @@
-const TOKEN_KEY = 'token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
-const TOKEN_EXPIRES_AT_KEY = 'token_expires_at';
+import pinia from '@/store/pinia';
+import useAuthStore from '@/store/modules/auth';
 
-const isAccessTokenExpired = () => {
-  const expiresAt = getTokenExpiresAt();
-  if (!expiresAt) {
-    return false;
-  }
-  return Date.now() >= expiresAt;
-};
+function store() {
+  return useAuthStore(pinia);
+}
 
-/** 是否存在可用登录态（access 未过期，或仍可用 refresh 续期） */
-const isLogin = () => {
-  if (!localStorage.getItem(TOKEN_KEY)) {
-    return false;
-  }
-  if (!isAccessTokenExpired()) {
-    return true;
-  }
-  return !!localStorage.getItem(REFRESH_TOKEN_KEY);
-};
+const isAccessTokenExpired = () => store().isAccessTokenExpired;
 
-const getToken = () => {
-  return localStorage.getItem(TOKEN_KEY);
-};
+const isRefreshTokenExpired = () => store().isRefreshTokenExpired;
 
-const getRefreshToken = () => {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
-};
+const isLogin = () => store().isLogin;
 
-const getTokenExpiresAt = () => {
-  const value = localStorage.getItem(TOKEN_EXPIRES_AT_KEY);
-  return value ? Number(value) : 0;
-};
+const getToken = () => store().token || null;
+
+const getRefreshToken = () => store().refreshToken || null;
+
+const getTokenExpiresAt = () => store().tokenExpiresAt;
+
+const getRefreshTokenExpiresAt = () => store().refreshTokenExpiresAt;
 
 const setToken = (token: string) => {
-  localStorage.setItem(TOKEN_KEY, token);
+  store().token = token;
 };
 
 const setRefreshToken = (refreshToken: string) => {
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  store().refreshToken = refreshToken;
 };
 
 const setTokenExpiresAt = (expiresAt: number) => {
-  localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(expiresAt));
+  store().tokenExpiresAt = expiresAt;
+};
+
+const setRefreshTokenExpiresAt = (expiresAt: number) => {
+  store().refreshTokenExpiresAt = expiresAt;
 };
 
 const setTokenPair = (
   token: string,
   refreshToken: string,
-  expiresIn: number
+  expiresIn: number,
+  refreshExpiresIn?: number
 ) => {
-  setToken(token);
-  setRefreshToken(refreshToken);
-  setTokenExpiresAt(Date.now() + expiresIn * 1000);
+  store().setTokenPair(token, refreshToken, expiresIn, refreshExpiresIn);
 };
 
 const clearToken = () => {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);
+  store().clearToken();
 };
 
-const isTokenExpiringSoon = (thresholdMs = 5 * 60 * 1000) => {
-  const expiresAt = getTokenExpiresAt();
-  if (!expiresAt) {
-    return false;
-  }
-  return expiresAt - Date.now() <= thresholdMs;
-};
+const isTokenExpiringSoon = (thresholdMs = 5 * 60 * 1000) =>
+  store().isTokenExpiringSoon(thresholdMs);
 
 export {
   isLogin,
   isAccessTokenExpired,
+  isRefreshTokenExpired,
   getToken,
   getRefreshToken,
   getTokenExpiresAt,
+  getRefreshTokenExpiresAt,
   setToken,
   setRefreshToken,
   setTokenExpiresAt,
+  setRefreshTokenExpiresAt,
   setTokenPair,
   clearToken,
   isTokenExpiringSoon,
