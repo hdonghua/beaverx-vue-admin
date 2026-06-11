@@ -78,45 +78,48 @@ function tryResolveExternalRefresh(
 
 export default function setupPermissionGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
-    const appStore = useAppStore();
-    const userStore = useUserStore();
-    const Permission = usePermission();
-    const permissionsAllow = Permission.accessRouter(to);
-    const routeName = to.name ? String(to.name) : '';
+    try {
+      const appStore = useAppStore();
+      const userStore = useUserStore();
+      const Permission = usePermission();
+      const permissionsAllow = Permission.accessRouter(to);
+      const routeName = to.name ? String(to.name) : '';
 
-    if (appStore.menuFromServer) {
-      if (shouldFetchServerMenu(appStore, routeName, to.path)) {
-        await appStore.fetchServerMenuConfig(router);
-      }
+      if (appStore.menuFromServer) {
+        if (shouldFetchServerMenu(appStore, routeName, to.path)) {
+          await appStore.fetchServerMenuConfig(router);
+        }
 
-      if (tryResolveExternalRefresh(router, to, next)) {
-        return;
-      }
+        if (tryResolveExternalRefresh(router, to, next)) {
+          return;
+        }
 
-      const isWhiteListed = ROUTE_ACCESS_WHITE_LIST.includes(routeName);
-      const hasMenuAccess =
-        isWhiteListed || appStore.allowedRouteNames.includes(routeName);
+        const isWhiteListed = ROUTE_ACCESS_WHITE_LIST.includes(routeName);
+        const hasMenuAccess =
+          isWhiteListed || appStore.allowedRouteNames.includes(routeName);
 
-      if (!permissionsAllow) {
-        next(hasMenuAccess ? FORBIDDEN : NOT_FOUND);
-        return;
-      }
+        if (!permissionsAllow) {
+          next(hasMenuAccess ? FORBIDDEN : NOT_FOUND);
+          return;
+        }
 
-      if (hasMenuAccess) {
+        if (hasMenuAccess) {
+          next();
+        } else if (isRouteDefinedInApp(router, routeName)) {
+          next(FORBIDDEN);
+        } else {
+          next(NOT_FOUND);
+        }
+      } else if (permissionsAllow) {
         next();
-      } else if (isRouteDefinedInApp(router, routeName)) {
-        next(FORBIDDEN);
       } else {
-        next(NOT_FOUND);
+        const destination =
+          Permission.findFirstPermissionRoute(appRoutes, userStore.role) ||
+          FORBIDDEN;
+        next(destination);
       }
-    } else if (permissionsAllow) {
-      next();
-    } else {
-      const destination =
-        Permission.findFirstPermissionRoute(appRoutes, userStore.role) ||
-        FORBIDDEN;
-      next(destination);
+    } finally {
+      NProgress.done();
     }
-    NProgress.done();
   });
 }

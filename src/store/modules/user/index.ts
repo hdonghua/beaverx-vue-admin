@@ -12,6 +12,7 @@ import { stopRealtimeHub } from '@/utils/realtime-hub';
 import { UserState } from './types';
 import useAppStore from '../app';
 import useTabBarStore from '../tab-bar';
+import { resetSessionExpiredState } from '@/utils/session-expired';
 
 function mapProfileToState(profile: UserProfileDto): Partial<UserState> {
   const isSuperAdmin = profile.roles.some(
@@ -92,6 +93,7 @@ const useUserStore = defineStore('user', {
           data.refreshExpiresIn
         );
         this.applyProfile(data.user);
+        resetSessionExpiredState();
         const { startRealtimeHub } = await import('@/utils/realtime-hub');
         await startRealtimeHub();
       } catch (err) {

@@ -4,6 +4,7 @@ import NProgress from 'nprogress'; // progress bar
 import { useUserStore } from '@/store';
 import { isLogin } from '@/utils/auth';
 import { shouldForceLogout } from '@/utils/session';
+import { clearSessionAndNotify } from '@/utils/session-expired';
 import { DEFAULT_ROUTE_NAME } from '../constants';
 
 function redirectToLogin(
@@ -52,7 +53,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
 
     if (!isLogin() || shouldForceLogout()) {
       if (userStore.role) {
-        await userStore.logoutCallBack();
+        userStore.logoutCallBack();
       }
       redirectToLogin(to, next);
       return;
@@ -67,7 +68,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
       await userStore.info();
       next();
     } catch {
-      await userStore.logout();
+      clearSessionAndNotify('登录已过期，请重新登录');
       redirectToLogin(to, next);
     }
   });

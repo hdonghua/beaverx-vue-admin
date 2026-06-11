@@ -12,7 +12,7 @@
         />
       </a-tab-pane>
       <template #extra>
-        <a-button type="text" @click="emptyList">
+        <a-button type="text" @click="emptyList" v-if="unreadCount > 0">
           {{ $t('messageBox.tab.button') }}
         </a-button>
       </template>

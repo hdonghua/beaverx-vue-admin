@@ -89,6 +89,10 @@ export function changePassword(req: ChangePasswordRequest) {
 export function logout(refreshTokenValue?: string | null) {
   return axios.post<RefreshTokenRequest | undefined, ApiResponse<void>>(
     '/api/Auth/logout',
-    refreshTokenValue ? { refreshToken: refreshTokenValue } : undefined
+    refreshTokenValue ? { refreshToken: refreshTokenValue } : undefined,
+    {
+      skipAuth: true,
+      skipRefresh: true,
+    } as Record<string, unknown>
   );
 }

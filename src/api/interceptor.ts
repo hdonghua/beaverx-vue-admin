@@ -1,7 +1,6 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message } from '@arco-design/web-vue';
-import { useUserStore } from '@/store';
 import {
   getToken,
   getRefreshToken,
@@ -9,6 +8,7 @@ import {
   isRefreshTokenExpired,
   isTokenExpiringSoon,
 } from '@/utils/auth';
+import { handleSessionExpired } from '@/utils/session-expired';
 import { refreshAccessToken } from '@/api/refresh-token';
 
 export interface Msg<T = unknown> {
@@ -51,17 +51,9 @@ function isAuthBypassRequest(config?: RequestConfig) {
   );
 }
 
-let forceLoggingOut = false;
-
-async function forceLogout(message = '登录已过期，请重新登录') {
-  if (forceLoggingOut) {
-    return;
-  }
-  forceLoggingOut = true;
-  Message.warning({ content: message, duration: 3000 });
-  const userStore = useUserStore();
-  await userStore.logout();
-  window.location.reload();
+function rejectUnauthorized() {
+  void handleSessionExpired();
+  return Promise.reject(new Error('Unauthorized'));
 }
 
 axios.interceptors.request.use(
@@ -74,14 +66,12 @@ axios.interceptors.request.use(
 
       if (needRefresh) {
         if (!refreshToken || refreshExpired) {
-          void forceLogout();
-          return Promise.reject(new Error('Unauthorized'));
+          return rejectUnauthorized();
         }
         try {
           await refreshAccessToken();
         } catch {
-          void forceLogout();
-          return Promise.reject(new Error('Unauthorized'));
+          return rejectUnauthorized();
         }
       }
     }
@@ -138,7 +128,7 @@ axios.interceptors.response.use(
       !isAuthBypassRequest(originalRequest)
     ) {
       if (!getRefreshToken() || isRefreshTokenExpired()) {
-        void forceLogout();
+        void handleSessionExpired();
         return Promise.reject(new Error(content));
       }
 
@@ -152,7 +142,7 @@ axios.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${tokenResult.token}`;
         return axios(originalRequest);
       } catch {
-        void forceLogout();
+        void handleSessionExpired();
         return Promise.reject(new Error(content));
       }
     }
@@ -176,7 +166,7 @@ axios.interceptors.response.use(
       originalRequest?.url !== '/api/Auth/profile' &&
       isAuthBypassRequest(originalRequest)
     ) {
-      void forceLogout();
+      void handleSessionExpired();
     }
 
     return Promise.reject(new Error(content));
