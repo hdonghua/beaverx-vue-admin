@@ -3,7 +3,8 @@
     <div class="logo">
       <img
         alt="logo"
-        src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image"
+        class="logo-image"
+        :src="Logo"
       />
       <div class="logo-text">{{ appStore.systemName }}</div>
     </div>
@@ -25,6 +26,7 @@
   import Footer from '@/components/footer/index.vue';
   import LoginBanner from './components/banner.vue';
   import LoginForm from './components/login-form.vue';
+  import Logo from '@/assets/images/beaverx-admin-logo.png'
 
   const appStore = useAppStore();
 
@@ -91,10 +93,18 @@
     display: inline-flex;
     align-items: center;
 
+    &-image {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
     &-text {
-      margin-left: 4px;
+      margin-left: 8px;
       color: var(--color-fill-1);
       font-size: 20px;
+      line-height: 32px;
     }
   }
 

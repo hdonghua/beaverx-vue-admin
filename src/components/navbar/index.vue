@@ -4,7 +4,8 @@
       <a-space>
         <img
           alt="logo"
-          src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image"
+          class="navbar-logo"
+          :src="Logo"
         />
         <a-typography-title
           :style="{ margin: 0, fontSize: '18px' }"
@@ -225,6 +226,7 @@
   import useMessageUnread from '@/hooks/message-unread';
   import useExportTasks from '@/hooks/export-tasks';
   import { resolveApiUrl } from '@/utils/asset-url';
+  import Logo from '@/assets/images/beaverx-admin-logo.png'
 
   const appStore = useAppStore();
   const menuSearchVisible = ref(false);
@@ -318,6 +320,13 @@
     display: flex;
     align-items: center;
     padding-left: 20px;
+
+    .navbar-logo {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
   }
 
   .center-side {

@@ -1,5 +1,5 @@
 export default {
-  'login.form.title': 'Login to Arco Design Pro',
+  'login.form.title': 'Admin Login',
   'login.form.userName.errMsg': 'Username cannot be empty',
   'login.form.password.errMsg': 'Password cannot be empty',
   'login.form.login.errMsg': 'Login error, refresh and try again',
@@ -7,12 +7,13 @@ export default {
   'login.form.userName.placeholder': 'Username: admin',
   'login.form.password.placeholder': 'Password: admin',
   'login.form.login': 'login',
-  'login.banner.slogan1': 'Out-of-the-box high-quality template',
+  'login.banner.slogan1': 'Unified Enterprise Digital Platform',
   'login.banner.subSlogan1':
-    'Rich page templates, covering most typical business scenarios',
-  'login.banner.slogan2': 'Built-in solutions to common problems',
+    'Centralize permissions, workflows, and data to boost collaboration and smarter decisions',
+  'login.banner.slogan2': 'Secure, Enterprise-Grade Architecture',
   'login.banner.subSlogan2':
-    'Internationalization, routing configuration, state management everything',
-  'login.banner.slogan3': 'Access visualization enhancement tool AUX',
-  'login.banner.subSlogan3': 'Realize flexible block development',
+    'Fine-grained access control and full audit trails built for compliance and governance',
+  'login.banner.slogan3': 'Rapid Deployment, Flexible Growth',
+  'login.banner.subSlogan3':
+    'Modular by design—compose what you need and go live faster with lower delivery cost',
 };
