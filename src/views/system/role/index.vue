@@ -45,7 +45,11 @@
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="handleAdd">
+            <a-button
+              type="primary"
+              v-permission="[Permissions.System.Role.Create]"
+              @click="handleAdd"
+            >
               <template #icon>
                 <icon-plus />
               </template>
@@ -137,6 +141,8 @@
               <a-button
                 type="text"
                 size="small"
+                v-if="record.code !== SUPER_ADMIN_ROLE_CODE"
+                v-permission="[Permissions.System.Role.AssignMenus]"
                 @click="handleAssignMenu(record)"
               >
                 <template #icon>
@@ -145,7 +151,12 @@
               </a-button>
             </a-tooltip>
             <a-tooltip content="编辑">
-              <a-button type="text" size="small" @click="handleEdit(record)">
+              <a-button
+                type="text"
+                size="small"
+                v-permission="[Permissions.System.Role.Update]"
+                @click="handleEdit(record)"
+              >
                 <template #icon>
                   <icon-edit />
                 </template>
@@ -155,7 +166,12 @@
               content="确定要删除该角色吗？"
               @ok="handleDelete(record.id)"
             >
-              <a-button type="text" size="small" status="danger">
+              <a-button
+                type="text"
+                size="small"
+                status="danger"
+                v-permission="[Permissions.System.Role.Delete]"
+              >
                 <template #icon>
                   <icon-delete />
                 </template>
@@ -268,14 +284,15 @@
     collectMenuIdsForSave,
     collectAllMenuIds,
   } from '@/utils/menu-tree';
-
-  const SUPER_ADMIN_ROLE_CODE = 'super_admin';
   import { clearFormValidate } from '@/utils/form';
   import { Pagination } from '@/types/global';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import cloneDeep from 'lodash/cloneDeep';
   import Sortable from 'sortablejs';
   import { FormInstance } from '@arco-design/web-vue/es/form';
+  import { Permissions } from '@/constants/permissions';
+
+  const SUPER_ADMIN_ROLE_CODE = 'super_admin';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };

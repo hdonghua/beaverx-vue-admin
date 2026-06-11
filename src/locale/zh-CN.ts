@@ -12,6 +12,7 @@ import localeSiteMessage from '@/views/system/message/locale/zh-CN';
 import localeSettings from './zh-CN/settings';
 
 export default {
+  'searchTable.actions.refresh': '刷新',
   'searchTable.form.search': '搜索',
   'searchTable.form.reset': '重置',
   'searchTable.actions.density': '密度',

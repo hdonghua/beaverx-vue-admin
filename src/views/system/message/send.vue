@@ -97,7 +97,12 @@
 
         <a-form-item>
           <a-space>
-            <a-button type="primary" :loading="submitting" @click="handleSubmit">
+            <a-button
+              type="primary"
+              :loading="submitting"
+              v-permission="[Permissions.System.Message.Send]"
+              @click="handleSubmit"
+            >
               {{ $t('siteMessage.submit') }}
             </a-button>
             <a-button @click="resetForm">{{ $t('siteMessage.reset') }}</a-button>
@@ -114,6 +119,7 @@
   import { useI18n } from 'vue-i18n';
   import { queryUserPage, UserDto } from '@/api/server/user';
   import { sendSiteMessage } from '@/api/server/site-message';
+  import { Permissions } from '@/constants/permissions';
 
   const { t } = useI18n();
   const formRef = ref();

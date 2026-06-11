@@ -42,7 +42,11 @@
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="handleAdd">
+            <a-button
+              type="primary"
+              v-permission="[Permissions.System.User.Create]"
+              @click="handleAdd"
+            >
               <template #icon>
                 <icon-plus />
               </template>
@@ -148,6 +152,7 @@
               <a-button
                 type="text"
                 size="small"
+                v-permission="[Permissions.System.User.AssignRoles]"
                 @click="handleAssignRole(record.id)"
               >
                 <template #icon>

@@ -25,7 +25,11 @@
             </a-form-item>
           </a-form>
           <div class="dict-toolbar">
-            <a-button type="primary" @click="handleAddType">
+            <a-button
+              type="primary"
+              v-permission="[Permissions.System.Dict.Type.Create]"
+              @click="handleAddType"
+            >
               <template #icon><icon-plus /></template>
               新增类型
             </a-button>
@@ -51,14 +55,25 @@
             </template>
             <template #typeOps="{ record }">
               <a-space @click.stop>
-                <a-button type="text" size="small" @click.stop="handleEditType(record)">
+                <a-button
+                  type="text"
+                  size="small"
+                  v-permission="[Permissions.System.Dict.Type.Update]"
+                  @click.stop="handleEditType(record)"
+                >
                   <template #icon><icon-edit /></template>
                 </a-button>
                 <a-popconfirm
                   content="确定删除该字典类型吗？"
                   @ok="handleDeleteType(record.id)"
                 >
-                  <a-button type="text" size="small" status="danger" @click.stop>
+                  <a-button
+                    type="text"
+                    size="small"
+                    status="danger"
+                    v-permission="[Permissions.System.Dict.Type.Delete]"
+                    @click.stop
+                  >
                     <template #icon><icon-delete /></template>
                   </a-button>
                 </a-popconfirm>
@@ -96,7 +111,12 @@
             </a-form-item>
           </a-form>
           <div class="dict-toolbar">
-            <a-button type="primary" :disabled="!selectedType" @click="handleAddData">
+            <a-button
+              type="primary"
+              :disabled="!selectedType"
+              v-permission="[Permissions.System.Dict.Data.Create]"
+              @click="handleAddData"
+            >
               <template #icon><icon-plus /></template>
               新增数据
             </a-button>
@@ -121,14 +141,24 @@
             </template>
             <template #dataOps="{ record }">
               <a-space>
-                <a-button type="text" size="small" @click="handleEditData(record)">
+                <a-button
+                  type="text"
+                  size="small"
+                  v-permission="[Permissions.System.Dict.Data.Update]"
+                  @click="handleEditData(record)"
+                >
                   <template #icon><icon-edit /></template>
                 </a-button>
                 <a-popconfirm
                   content="确定删除该字典数据吗？"
                   @ok="handleDeleteData(record.id)"
                 >
-                  <a-button type="text" size="small" status="danger">
+                  <a-button
+                    type="text"
+                    size="small"
+                    status="danger"
+                    v-permission="[Permissions.System.Dict.Data.Delete]"
+                  >
                     <template #icon><icon-delete /></template>
                   </a-button>
                 </a-popconfirm>
@@ -260,6 +290,7 @@
     DictDataDto,
   } from '@/api/server/dict-data';
   import { TAG_STYLE_OPTIONS } from '@/constants/tag-style';
+  import { Permissions } from '@/constants/permissions';
 
   defineOptions({ name: 'DictList' });
 

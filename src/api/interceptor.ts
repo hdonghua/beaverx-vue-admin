@@ -157,6 +157,15 @@ axios.interceptors.response.use(
       }
     }
 
+    if (status === 403) {
+      const forbiddenMessage = '没有权限访问该资源';
+      Message.error({
+        content: forbiddenMessage,
+        duration: 5 * 1000,
+      });
+      return Promise.reject(new Error(forbiddenMessage));
+    }
+
     Message.error({
       content,
       duration: 5 * 1000,

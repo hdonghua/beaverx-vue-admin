@@ -4,7 +4,11 @@
       <a-row style="margin-bottom: 16px">
         <a-col :span="24">
           <a-space>
-            <a-button type="primary" @click="handleAdd(null)">
+            <a-button
+              type="primary"
+              v-permission="[Permissions.System.Menu.Create]"
+              @click="handleAdd(null)"
+            >
               <template #icon>
                 <icon-plus />
               </template>
@@ -75,13 +79,19 @@
             v-if="record.menuType !== MenuType.Button"
             type="text"
             size="small"
+            v-permission="[Permissions.System.Menu.Create]"
             @click="handleAdd(record)"
           >
             <template #icon>
               <icon-plus />
             </template>
           </a-button>
-          <a-button type="text" size="small" @click="handleEdit(record)">
+          <a-button
+            type="text"
+            size="small"
+            v-permission="[Permissions.System.Menu.Update]"
+            @click="handleEdit(record)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -90,7 +100,12 @@
             content="确定要删除该菜单吗？"
             @ok="handleDelete(record.id)"
           >
-            <a-button type="text" size="small" status="danger">
+            <a-button
+              type="text"
+              size="small"
+              status="danger"
+              v-permission="[Permissions.System.Menu.Delete]"
+            >
               <template #icon>
                 <icon-delete />
               </template>
@@ -231,6 +246,7 @@
   import IconSelector from '@/components/icon-selector/index.vue';
   import { clearFormValidate } from '@/utils/form';
   import { regexUrl } from '@/utils';
+  import { Permissions } from '@/constants/permissions';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 

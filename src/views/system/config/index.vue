@@ -38,7 +38,11 @@
             </a-form-item>
           </a-form>
           <div class="config-toolbar">
-            <a-button type="primary" @click="handleAdd">
+            <a-button
+              type="primary"
+              v-permission="[Permissions.System.Config.Create]"
+              @click="handleAdd"
+            >
               <template #icon><icon-plus /></template>
               新增配置
             </a-button>
@@ -66,14 +70,24 @@
             </template>
             <template #operations="{ record }">
               <a-space>
-                <a-button type="text" size="small" @click="handleEdit(record)">
+                <a-button
+                  type="text"
+                  size="small"
+                  v-permission="[Permissions.System.Config.Update]"
+                  @click="handleEdit(record)"
+                >
                   <template #icon><icon-edit /></template>
                 </a-button>
                 <a-popconfirm
                   content="确定删除该配置吗？"
                   @ok="handleDelete(record.id)"
                 >
-                  <a-button type="text" size="small" status="danger">
+                  <a-button
+                    type="text"
+                    size="small"
+                    status="danger"
+                    v-permission="[Permissions.System.Config.Delete]"
+                  >
                     <template #icon><icon-delete /></template>
                   </a-button>
                 </a-popconfirm>
@@ -151,6 +165,7 @@
     deleteConfig,
     ConfigDto,
   } from '@/api/server/config';
+  import { Permissions } from '@/constants/permissions';
 
   defineOptions({ name: 'ConfigList' });
 
