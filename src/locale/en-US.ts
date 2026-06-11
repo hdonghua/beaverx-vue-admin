@@ -20,6 +20,7 @@ export default {
   'menu.system.menuList': 'Menu Management',
   'menu.system.dictList': 'Dictionary Management',
   'menu.system.configList': 'Config Management',
+  'menu.system.jobList': 'Scheduled Jobs',
   'menu.system.messageSend': 'Send Site Message',
   'menu.payment': 'Payment',
   'menu.payment.channel': 'Payment Channels',

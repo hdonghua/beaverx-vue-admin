@@ -13,6 +13,7 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
   '/system/menu': 'MenuList',
   '/system/dict': 'DictList',
   '/system/config': 'ConfigList',
+  '/system/job': 'ScheduledJobList',
   '/system/message': 'SiteMessageSend',
   '/payment': 'payment',
   '/payment/channel': 'PaymentChannelList',
@@ -257,7 +258,8 @@ export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
     names.has('RoleList') ||
     names.has('MenuList') ||
     names.has('DictList') ||
-    names.has('ConfigList')
+    names.has('ConfigList') ||
+    names.has('ScheduledJobList')
   ) {
     names.add('system');
   }

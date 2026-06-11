@@ -32,6 +32,7 @@ export default {
   'menu.system.menuList': '菜单管理',
   'menu.system.dictList': '字典管理',
   'menu.system.configList': '配置管理',
+  'menu.system.jobList': '定时任务',
   'menu.system.messageSend': '发送站内信',
   'menu.payment': '支付管理',
   'menu.payment.channel': '支付渠道',

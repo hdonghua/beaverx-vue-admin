@@ -63,6 +63,16 @@ const SYSTEM: AppRouteRecordRaw = {
       },
     },
     {
+      path: 'job',
+      name: 'ScheduledJobList',
+      component: () => import('@/views/system/job/index.vue'),
+      meta: {
+        locale: 'menu.system.jobList',
+        requiresAuth: true,
+        roles: ['*'],
+      },
+    },
+    {
       path: 'message',
       name: 'SiteMessageSend',
       component: () => import('@/views/system/message/send.vue'),

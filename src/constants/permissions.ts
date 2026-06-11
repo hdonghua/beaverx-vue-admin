@@ -46,6 +46,13 @@ export const Permissions = {
     Message: {
       Send: 'system:message:send',
     },
+    Job: {
+      List: 'system:job:list',
+      Create: 'system:job:create',
+      Update: 'system:job:update',
+      Delete: 'system:job:delete',
+      Trigger: 'system:job:trigger',
+    },
   },
   Payment: {
     Channel: {
