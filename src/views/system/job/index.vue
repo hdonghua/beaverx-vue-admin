@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.system', 'menu.system.jobList']">
     <a-card class="general-card" title="定时任务">
       <a-form :model="query" layout="inline" class="job-search">
@@ -292,6 +292,7 @@
   import useLoading from '@/hooks/loading';
   import { clearFormValidate } from '@/utils/form';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
   import {
     queryScheduledJobPage,
     addScheduledJob,
@@ -303,7 +304,7 @@
     ScheduledJobDto,
     ScheduledJobLogDto,
     ScheduledJobHttpMethod,
-  } from '@/api/server/scheduled-job';
+  } from '@/api/server/system/scheduled-job';
 
   defineOptions({ name: 'ScheduledJobList' });
 
@@ -362,7 +363,7 @@
   const modalVisible = ref(false);
   const logDrawerVisible = ref(false);
   const isEdit = ref(false);
-  const editingId = ref<number | null>(null);
+  const editingId = ref<EntityId | null>(null);
   const formRef = ref<FormInstance>();
   const cronPreview = ref<string[]>([]);
   const cronError = ref('');
@@ -540,13 +541,13 @@
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: EntityId) => {
     await deleteScheduledJob(id);
     Message.success('删除成功');
     await fetchList();
   };
 
-  const handleTrigger = async (id: number) => {
+  const handleTrigger = async (id: EntityId) => {
     await triggerScheduledJob(id);
     Message.success('已提交执行');
     await fetchList();

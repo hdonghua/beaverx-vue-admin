@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted } from 'vue';
+﻿import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import { isLogin } from '@/utils/auth';
@@ -10,7 +10,7 @@ import {
 import {
   RealtimeEvents,
   type UserDisabledPayload,
-} from '@/api/server/realtime';
+} from '@/api/server/common/realtime';
 import useUserStore from '@/store/modules/user';
 
 let hubConsumers = 0;

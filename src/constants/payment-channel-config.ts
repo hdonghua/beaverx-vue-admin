@@ -1,6 +1,6 @@
-import {
+﻿import {
   PaymentProviderType,
-} from '@/api/server/payment-channel';
+} from '@/api/server/payment/channel';
 
 export const PAYMENT_CHANNEL_CODES = {
   WeChatQrcode: 'wechat_qrcode',

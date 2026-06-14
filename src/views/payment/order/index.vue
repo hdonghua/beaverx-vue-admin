@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.payment', 'menu.payment.order']">
     <a-card class="general-card" title="支付订单">
       <a-form :model="query" layout="inline" class="search-form">
@@ -206,12 +206,13 @@
   import useLoading from '@/hooks/loading';
   import usePermission from '@/hooks/permission';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
   import PaymentQrModal from '@/components/payment-qr-modal/index.vue';
   import PaymentAppPayModal from '@/components/payment-app-pay-modal/index.vue';
   import {
     PaymentChannelDto,
     queryEnabledPaymentChannels,
-  } from '@/api/server/payment-channel';
+  } from '@/api/server/payment/channel';
   import { isAppPaymentProvider } from '@/constants/payment-channel-config';
   import {
     PaymentOrderDto,
@@ -221,7 +222,7 @@
     syncPaymentOrder,
     closePaymentOrder,
     refundPaymentOrder,
-  } from '@/api/server/payment-order';
+  } from '@/api/server/payment/order';
 
   const { hasPermission } = usePermission();
   const canCreate = computed(() => hasPermission(Permissions.Payment.Order.Create));
@@ -255,7 +256,7 @@
   const refundVisible = ref(false);
   const refundSubmitting = ref(false);
   const refundForm = reactive({
-    paymentOrderId: 0,
+    paymentOrderId: '' as EntityId,
     orderNo: '',
     refundableYuan: '0.00',
     amountYuan: 0.01,
@@ -448,7 +449,7 @@
     });
   }
 
-  async function handleSync(id: number) {
+  async function handleSync(id: EntityId) {
     try {
       await syncPaymentOrder(id);
       Message.success('同步完成');
@@ -458,7 +459,7 @@
     }
   }
 
-  async function handleClose(id: number) {
+  async function handleClose(id: EntityId) {
     try {
       await closePaymentOrder(id);
       Message.success('订单已关闭');

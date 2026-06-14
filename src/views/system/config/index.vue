@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.system', 'menu.system.configList']">
     <a-row :gutter="16">
       <a-col :span="6">
@@ -164,8 +164,9 @@
     updateConfig,
     deleteConfig,
     ConfigDto,
-  } from '@/api/server/config';
+  } from '@/api/server/system/config';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
 
   defineOptions({ name: 'ConfigList' });
 
@@ -197,7 +198,7 @@
 
   const modalVisible = ref(false);
   const isEdit = ref(false);
-  const editingId = ref<number | null>(null);
+  const editingId = ref<EntityId | null>(null);
   const formRef = ref<FormInstance>();
   const form = reactive({
     key: '',
@@ -330,7 +331,7 @@
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: EntityId) => {
     await deleteConfig(id);
     Message.success('删除成功');
     await fetchGroups();

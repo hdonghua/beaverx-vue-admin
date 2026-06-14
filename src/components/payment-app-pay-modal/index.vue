@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <a-modal
     v-model:visible="visible"
     title="App 支付参数"
@@ -36,10 +36,11 @@
     PaymentOrderStatus,
     PaymentOrderDto,
     syncPaymentOrder,
-  } from '@/api/server/payment-order';
+  } from '@/api/server/payment/order';
+  import type { EntityId } from '@/types/entity-id';
 
   const visible = ref(false);
-  const orderId = ref<number>();
+  const orderId = ref<EntityId | undefined>();
   const orderNo = ref('');
   const subject = ref('');
   const amountCents = ref(0);

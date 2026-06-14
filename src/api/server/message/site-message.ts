@@ -1,8 +1,9 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 
 export interface SendSiteMessageRequest {
-  userId?: number | null;
+  userId?: EntityId | null;
   sendToAll: boolean;
   title: string;
   subTitle?: string;

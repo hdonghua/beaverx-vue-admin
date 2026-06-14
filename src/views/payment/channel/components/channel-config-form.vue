@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="channel-config-form">
     <a-row :gutter="16">
       <a-col
@@ -79,8 +79,8 @@
   import { computed, reactive, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import type { RequestOption } from '@arco-design/web-vue/es/upload/interfaces';
-  import { PaymentProviderType } from '@/api/server/payment-channel';
-  import { uploadFile } from '@/api/server/file';
+  import { PaymentProviderType } from '@/api/server/payment/channel';
+  import { uploadFile } from '@/api/server/common/file';
   import { resolveApiUrl } from '@/utils/asset-url';
   import {
     PAYMENT_CHANNEL_CONFIG_FIELDS,

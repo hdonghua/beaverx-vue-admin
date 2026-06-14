@@ -1,5 +1,6 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 import { QueryPageRequest, PagedResultDto } from '@/types/page';
 
 export interface QueryConfigPageRequest extends QueryPageRequest {
@@ -9,7 +10,7 @@ export interface QueryConfigPageRequest extends QueryPageRequest {
 }
 
 export interface ConfigDto {
-  id: number;
+  id: EntityId;
   key: string;
   value: string;
   label: string;
@@ -31,7 +32,7 @@ export interface CreateConfigRequest {
 }
 
 export interface UpdateConfigRequest {
-  id: number;
+  id: EntityId;
   value?: string;
   label?: string;
   group?: string;
@@ -59,7 +60,7 @@ export function queryConfigGroups() {
   return axios.get<void, ApiResponse<string[]>>('/api/Config/groups');
 }
 
-export function getConfigById(id: number) {
+export function getConfigById(id: EntityId) {
   return axios.get<void, ApiResponse<ConfigDto>>(`/api/Config/${id}`);
 }
 
@@ -78,6 +79,6 @@ export function updateConfig(req: UpdateConfigRequest) {
   );
 }
 
-export function deleteConfig(id: number) {
-  return axios.delete<number, ApiResponse<void>>(`/api/Config/${id}`);
+export function deleteConfig(id: EntityId) {
+  return axios.delete<EntityId, ApiResponse<void>>(`/api/Config/${id}`);
 }

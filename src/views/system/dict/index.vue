@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.system', 'menu.system.dictList']">
     <a-row :gutter="16">
       <a-col :span="9">
@@ -281,16 +281,17 @@
     updateDictType,
     deleteDictType,
     DictTypeDto,
-  } from '@/api/server/dict-type';
+  } from '@/api/server/system/dict-type';
   import {
     queryDictDataList,
     addDictData,
     updateDictData,
     deleteDictData,
     DictDataDto,
-  } from '@/api/server/dict-data';
+  } from '@/api/server/system/dict-data';
   import { TAG_STYLE_OPTIONS } from '@/constants/tag-style';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
 
   defineOptions({ name: 'DictList' });
 
@@ -302,7 +303,7 @@
   const typeList = ref<DictTypeDto[]>([]);
   const dataList = ref<DictDataDto[]>([]);
   const selectedType = ref<DictTypeDto | null>(null);
-  const selectedTypeKeys = ref<number[]>([]);
+  const selectedTypeKeys = ref<EntityId[]>([]);
 
   const typeQuery = reactive({ keyword: '' });
   const dataQuery = reactive({ keyword: '' });
@@ -418,7 +419,7 @@
   };
 
   const handleTypeSelectionChange = (rowKeys: (string | number)[]) => {
-    const id = Number(rowKeys[0]);
+    const id = String(rowKeys[0]);
     if (!id) {
       return;
     }
@@ -434,7 +435,7 @@
 
   const typeModalVisible = ref(false);
   const typeIsEdit = ref(false);
-  const typeEditId = ref<number | null>(null);
+  const typeEditId = ref<EntityId | null>(null);
   const typeFormRef = ref<FormInstance>();
   const typeForm = reactive({
     code: '',
@@ -499,7 +500,7 @@
     }
   };
 
-  const handleDeleteType = async (id: number) => {
+  const handleDeleteType = async (id: EntityId) => {
     try {
       await deleteDictType(id);
       Message.success('字典类型删除成功');
@@ -516,7 +517,7 @@
 
   const dataModalVisible = ref(false);
   const dataIsEdit = ref(false);
-  const dataEditId = ref<number | null>(null);
+  const dataEditId = ref<EntityId | null>(null);
   const dataFormRef = ref<FormInstance>();
   const dataForm = reactive({
     label: '',
@@ -601,7 +602,7 @@
     }
   };
 
-  const handleDeleteData = async (id: number) => {
+  const handleDeleteData = async (id: EntityId) => {
     try {
       await deleteDictData(id);
       Message.success('字典数据删除成功');

@@ -13,7 +13,7 @@ export interface RealtimeMessage<T = unknown> {
 }
 
 export interface ExportTaskChangedPayload {
-  task: import('./export-task').ExportTaskDto;
+  task: import('@/api/server/system/export-task').ExportTaskDto;
   activeCount: number;
 }
 

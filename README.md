@@ -4,16 +4,18 @@
 
 ## 技术栈
 
-| 类别 | 技术 |
-|------|------|
-| 框架 | Vue 3 + TypeScript |
-| 构建 | Vite 3 |
-| UI | Arco Design Vue |
-| 路由 | Vue Router 4 |
-| 状态 | Pinia |
-| HTTP | Axios |
-| 实时 | SignalR（`@microsoft/signalr`） |
-| 国际化 | vue-i18n |
+
+| 类别   | 技术                            |
+| ---- | ----------------------------- |
+| 框架   | Vue 3 + TypeScript            |
+| 构建   | Vite 3                        |
+| UI   | Arco Design Vue               |
+| 路由   | Vue Router 4                  |
+| 状态   | Pinia                         |
+| HTTP | Axios                         |
+| 实时   | SignalR（`@microsoft/signalr`） |
+| 国际化  | vue-i18n                      |
+
 
 ## 环境要求
 
@@ -38,12 +40,14 @@ npm run dev
 
 ### 常用命令
 
-| 命令 | 说明 |
-|------|------|
-| `npm run dev` | 开发模式 |
-| `npm run build` | 类型检查 + 生产构建 |
-| `npm run preview` | 预览生产构建 |
+
+| 命令                   | 说明              |
+| -------------------- | --------------- |
+| `npm run dev`        | 开发模式            |
+| `npm run build`      | 类型检查 + 生产构建     |
+| `npm run preview`    | 预览生产构建          |
 | `npm run type:check` | 仅 TypeScript 检查 |
+
 
 ## 目录结构
 
@@ -51,9 +55,14 @@ npm run dev
 beaverx-vue-admin/
 ├── config/                 # Vite 配置
 ├── src/
-│   ├── api/                # 接口封装
-│   │   ├── interceptor.ts  # Axios 拦截器（Token、刷新、错误）
-│   │   └── server/         # 业务 API（按模块分文件）
+│   ├── api/                # 业务 API（按模块分目录）
+│   │   └── server/
+│   │       ├── auth/       # 登录、个人信息
+│   │       ├── rbac/       # 用户、角色、菜单
+│   │       ├── system/     # 配置、字典、定时任务、导出
+│   │       ├── message/    # 站内消息
+│   │       ├── payment/    # 支付渠道、订单
+│   │       └── common/     # 文件上传、SignalR 事件类型
 │   ├── components/         # 全局组件
 │   ├── config/settings.json # 布局/主题/是否服务端菜单等
 │   ├── hooks/              # 组合式函数
@@ -64,6 +73,7 @@ beaverx-vue-admin/
 │   │   └── routes/modules/ # 静态路由模块
 │   ├── store/modules/      # Pinia（user、app、tab-bar 等）
 │   ├── utils/
+│   │   ├── request/        # Axios 拦截器、ApiResponse 类型、Token 刷新
 │   │   ├── auth.ts         # Token 读写
 │   │   ├── server-menu.ts  # 服务端菜单 → 路由/权限映射
 │   │   └── register-server-routes.ts
@@ -91,11 +101,13 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
 
 ### 2. 路由与权限
 
-| 文件 | 作用 |
-|------|------|
+
+| 文件                              | 作用                         |
+| ------------------------------- | -------------------------- |
 | `router/guard/userLoginInfo.ts` | 未登录跳转登录；已登录访问 `/login` 的处理 |
-| `router/guard/permission.ts` | 服务端菜单下的路由白名单校验 |
-| `router/constants.ts` | `Home`、`403` 等白名单路由 |
+| `router/guard/permission.ts`    | 服务端菜单下的路由白名单校验             |
+| `router/constants.ts`           | `Home`、`403` 等白名单路由        |
+
 
 静态路由定义在 `router/routes/modules/`，需与后端菜单的 `path`、`component` 一致，例如：
 
@@ -106,15 +118,27 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
 ### 3. API 调用
 
 - 基础地址：`.env.development` 的 `VITE_API_BASE_URL`
+- 请求层：`src/utils/request/`（拦截器在 `index.ts`，`main.ts` 中 `import '@/utils/request'`）
 - 请求自动附带 `Authorization: Bearer <token>`
 - Access Token 将过期时由拦截器调用 refresh；401 会尝试刷新后重试
-- 业务代码统一使用 `src/api/server/*.ts`，返回类型为 `ApiResponse<T>`
+- 业务接口：`src/api/server/<模块>/`，返回类型为 `ApiResponse<T>`
 
-示例：
+**目录与导入示例：**
+
+| 模块 | 路径 | 导入示例 |
+| ---- | ---- | -------- |
+| 认证 | `api/server/auth/` | `import { login } from '@/api/server/auth'` |
+| RBAC | `api/server/rbac/` | `import { queryUserPage } from '@/api/server/rbac/user'` |
+| 系统 | `api/server/system/` | `import { queryConfigPage } from '@/api/server/system/config'` |
+| 消息 | `api/server/message/` | `import { getMessageList } from '@/api/server/message/message'` |
+| 支付 | `api/server/payment/` | `import { queryPaymentOrderPage } from '@/api/server/payment/order'` |
+| 公共 | `api/server/common/` | `import { RealtimeEvents } from '@/api/server/common/realtime'` |
 
 ```ts
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
+import type { PagedResultDto } from '@/types/page';
+import type { ConfigDto } from '@/api/server/system/config';
 
 export function queryConfigPage(req: QueryConfigPageRequest) {
   return axios.get<unknown, ApiResponse<PagedResultDto<ConfigDto>>>(
@@ -124,20 +148,26 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 }
 ```
 
+实体主键为雪花 ID，后端 JSON 序列化为 `string`，前端使用 `EntityId`（`src/types/entity-id.ts`）。
+
 ### 4. 实时通知（SignalR）
 
 登录后 `default-layout` 自动连接 `/hubs/notifications`，JWT 通过 `accessTokenFactory` 传递。
 
-| 文件 | 职责 |
-|------|------|
-| `src/utils/realtime-hub.ts` | 连接管理、`onRealtimeEvent` 订阅 |
-| `src/hooks/use-realtime-hub.ts` | 布局级连接生命周期 |
-| `src/api/server/realtime.ts` | 事件名与 Payload 类型 |
 
-| 事件 | 用途 |
-|------|------|
-| `export.task.changed` | 顶栏导出角标、导出列表状态更新 |
-| `message.unread.changed` | 未读角标、消息列表刷新 |
+| 文件                              | 职责                        |
+| ------------------------------- | ------------------------- |
+| `src/utils/realtime-hub.ts`     | 连接管理、`onRealtimeEvent` 订阅 |
+| `src/hooks/use-realtime-hub.ts` | 布局级连接生命周期                 |
+| `src/api/server/common/realtime.ts` | 事件名与 Payload 类型 |
+
+
+
+| 事件                       | 用途              |
+| ------------------------ | --------------- |
+| `export.task.changed`    | 顶栏导出角标、导出列表状态更新 |
+| `message.unread.changed` | 未读角标、消息列表刷新     |
+
 
 已移除导出任务与未读消息的 HTTP 轮询。
 
@@ -170,7 +200,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 ### 步骤 3：API
 
-`src/api/server/config.ts` 封装 CRUD 接口。
+在 `src/api/server/system/config.ts`（或对应模块目录下）封装 CRUD 接口，类型从 `@/utils/request` 引入 `ApiResponse`。
 
 ### 步骤 4：页面
 
@@ -191,13 +221,16 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 ## 常见问题
 
-| 现象 | 排查 |
-|------|------|
-| 接口 401 / 一直跳登录 | 检查 `VITE_API_BASE_URL`、后端 CORS、Token 是否过期 |
-| 有菜单但进页面 403 | 检查 `PATH_TO_ROUTE_NAME` 是否配置 |
-| 刷新外链/子路由 404 | 检查 `permission.ts` 与 `register-server-routes.ts` |
-| 构建失败 | 先执行 `npm run type:check` 定位 TS 错误 |
+
+| 现象             | 排查                                               |
+| -------------- | ------------------------------------------------ |
+| 接口 401 / 一直跳登录 | 检查 `VITE_API_BASE_URL`、后端 CORS、Token 是否过期        |
+| 有菜单但进页面 403    | 检查 `PATH_TO_ROUTE_NAME` 是否配置                     |
+| 刷新外链/子路由 404   | 检查 `permission.ts` 与 `register-server-routes.ts` |
+| 构建失败           | 先执行 `npm run type:check` 定位 TS 错误                |
+
 
 ## 相关仓库
 
 - 后端 API：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
+

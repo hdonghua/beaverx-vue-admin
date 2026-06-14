@@ -1,8 +1,8 @@
-import type { RouteRecordRaw } from 'vue-router';
+﻿import type { RouteRecordRaw } from 'vue-router';
 import { cloneDeep } from 'lodash';
 import appClientMenus from '@/router/app-menus';
 import { DEFAULT_LAYOUT } from '@/router/routes/base';
-import { MenuDto, MenuType } from '@/api/server/menu';
+import { MenuDto, MenuType } from '@/api/server/rbac/menu';
 import { EXTERNAL_ROUTE_FALLBACK_PARENT } from '@/utils/register-server-routes';
 
 /** 后端菜单 path -> 前端路由 name（内部页面权限校验用） */

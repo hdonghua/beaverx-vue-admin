@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <a-spin style="display: block" :loading="loading">
     <a-tabs v-model:activeKey="messageType" destroy-on-hide>
       <a-tab-pane v-for="item in tabList" :key="item.key">
@@ -29,10 +29,10 @@
     markAllMessagesRead,
     MessageRecord,
     MessageListType,
-  } from '@/api/server/message';
+  } from '@/api/server/message/message';
   import useLoading from '@/hooks/loading';
   import useMessageUnread from '@/hooks/message-unread';
-  import { RealtimeEvents } from '@/api/server/realtime';
+  import { RealtimeEvents } from '@/api/server/common/realtime';
   import { onRealtimeEvent } from '@/utils/realtime-hub';
   import List from './list.vue';
 

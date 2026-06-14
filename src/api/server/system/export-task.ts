@@ -1,5 +1,6 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 
 export enum ExportTaskStatus {
   Pending = 0,
@@ -15,7 +16,7 @@ export const ExportTypes = {
 } as const;
 
 export interface ExportTaskDto {
-  id: number;
+  id: EntityId;
   exportType: string;
   parameters?: string | null;
   fileName: string;
@@ -51,7 +52,7 @@ export function getExportActiveCount() {
   return axios.get<void, ApiResponse<number>>('/api/ExportTask/active-count');
 }
 
-export function getExportDownloadUrl(id: number) {
+export function getExportDownloadUrl(id: EntityId) {
   return axios.get<void, ApiResponse<ExportDownloadUrlDto>>(
     `/api/ExportTask/${id}/download-url`
   );

@@ -1,9 +1,10 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 import { QueryPageRequest, PagedResultDto } from '@/types/page';
 
 export interface RoleOptionDto {
-  id: number;
+  id: EntityId;
   name: string;
   code: string;
 }
@@ -13,14 +14,14 @@ export interface QueryRolePageRequest extends QueryPageRequest {
 }
 
 export interface RoleDto {
-  id: number;
+  id: EntityId;
   code: string;
   name: string;
   description?: string | null;
   sort: number;
   isEnabled: boolean;
   creationTime: string;
-  menuIds: number[];
+  menuIds: EntityId[];
 }
 
 export interface CreateRoleRequest {
@@ -32,7 +33,7 @@ export interface CreateRoleRequest {
 }
 
 export interface UpdateRoleRequest {
-  id: number;
+  id: EntityId;
   name?: string;
   description?: string;
   sort?: number;
@@ -40,7 +41,7 @@ export interface UpdateRoleRequest {
 }
 
 /** 角色详情 */
-export function getRoleById(id: number) {
+export function getRoleById(id: EntityId) {
   return axios.get<void, ApiResponse<RoleDto>>(`/api/Role/${id}`);
 }
 
@@ -84,13 +85,13 @@ export function updateRole(req: UpdateRoleRequest) {
 }
 
 /** 删除角色 */
-export function deleteRole(id: number) {
-  return axios.delete<number, ApiResponse<void>>(`/api/Role/${id}`);
+export function deleteRole(id: EntityId) {
+  return axios.delete<EntityId, ApiResponse<void>>(`/api/Role/${id}`);
 }
 
 /** 分配菜单 */
-export function assignRoleMenus(roleId: number, menuIds: number[]) {
-  return axios.put<{ menuIds: number[] }, ApiResponse<void>>(
+export function assignRoleMenus(roleId: EntityId, menuIds: EntityId[]) {
+  return axios.put<{ menuIds: EntityId[] }, ApiResponse<void>>(
     `/api/Role/${roleId}/menus`,
     { menuIds }
   );

@@ -1,13 +1,14 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 import { SysMenuType } from '@/constants/dict-types';
 
 export { SysMenuType as MenuType } from '@/constants/dict-types';
 export { SysMenuType };
 
 export interface MenuDto {
-  id: number;
-  parentId?: number | null;
+  id: EntityId;
+  parentId?: EntityId | null;
   name: string;
   menuType: SysMenuType;
   perms?: string | null;
@@ -22,7 +23,7 @@ export interface MenuDto {
 }
 
 export interface CreateMenuRequest {
-  parentId?: number | null;
+  parentId?: EntityId | null;
   name: string;
   menuType: SysMenuType;
   perms?: string;
@@ -36,8 +37,8 @@ export interface CreateMenuRequest {
 }
 
 export interface UpdateMenuRequest {
-  id: number;
-  parentId?: number | null;
+  id: EntityId;
+  parentId?: EntityId | null;
   name?: string;
   menuType?: SysMenuType;
   perms?: string;
@@ -74,8 +75,8 @@ export function updateMenu(data: UpdateMenuRequest) {
 }
 
 /** 删除菜单 */
-export function deleteMenu(menuId: number) {
-  return axios.delete<number, ApiResponse<void>>(`/api/Menu/${menuId}`);
+export function deleteMenu(menuId: EntityId) {
+  return axios.delete<EntityId, ApiResponse<void>>(`/api/Menu/${menuId}`);
 }
 
 /** 获取当前用户路由菜单 */

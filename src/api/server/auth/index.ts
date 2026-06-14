@@ -1,5 +1,6 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 
 export interface LoginRequest {
   userName: string;
@@ -7,7 +8,7 @@ export interface LoginRequest {
 }
 
 export interface UserProfileDto {
-  id: number;
+  id: EntityId;
   userName: string;
   nickName?: string | null;
   email?: string | null;

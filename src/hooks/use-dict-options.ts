@@ -1,5 +1,5 @@
-import { computed, ref, unref, watch, type MaybeRef } from 'vue';
-import type { DictOptionDto } from '@/api/server/dict-data';
+﻿import { computed, ref, unref, watch, type MaybeRef } from 'vue';
+import type { DictOptionDto } from '@/api/server/system/dict-data';
 import {
   getCachedDictOptions,
   loadDictOptions,

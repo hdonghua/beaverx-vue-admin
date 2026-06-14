@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="user-panel">
     <div class="user-panel-left">
       <a-upload
@@ -74,7 +74,7 @@
     updateProfile,
     UserProfileDto,
   } from '@/api/server/auth';
-  import { uploadFile } from '@/api/server/file';
+  import { uploadFile } from '@/api/server/common/file';
   import { resolveApiUrl } from '@/utils/asset-url';
 
   const emit = defineEmits<{ avatarUpdated: [] }>();

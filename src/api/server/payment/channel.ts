@@ -1,5 +1,6 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 import { PagedResultDto, QueryPageRequest } from '@/types/page';
 
 export enum PaymentProviderType {
@@ -9,7 +10,7 @@ export enum PaymentProviderType {
 }
 
 export interface PaymentChannelDto {
-  id: number;
+  id: EntityId;
   channelCode: string;
   channelName: string;
   providerType: PaymentProviderType;
@@ -57,7 +58,7 @@ export function queryEnabledPaymentChannels() {
   return axios.get<void, ApiResponse<PaymentChannelDto[]>>('/api/PaymentChannel/enabled');
 }
 
-export function getPaymentChannelById(id: number) {
+export function getPaymentChannelById(id: EntityId) {
   return axios.get<void, ApiResponse<PaymentChannelDto>>(`/api/PaymentChannel/${id}`);
 }
 
@@ -68,13 +69,13 @@ export function addPaymentChannel(req: CreatePaymentChannelRequest) {
   );
 }
 
-export function updatePaymentChannel(id: number, req: UpdatePaymentChannelRequest) {
+export function updatePaymentChannel(id: EntityId, req: UpdatePaymentChannelRequest) {
   return axios.put<UpdatePaymentChannelRequest, ApiResponse<PaymentChannelDto>>(
     `/api/PaymentChannel/${id}`,
     req
   );
 }
 
-export function deletePaymentChannel(id: number) {
+export function deletePaymentChannel(id: EntityId) {
   return axios.delete<void, ApiResponse<void>>(`/api/PaymentChannel/${id}`);
 }

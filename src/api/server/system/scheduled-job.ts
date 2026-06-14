@@ -1,5 +1,6 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 import { QueryPageRequest, PagedResultDto } from '@/types/page';
 
 export enum ScheduledJobType {
@@ -19,7 +20,7 @@ export enum ScheduledJobRunStatus {
 }
 
 export interface ScheduledJobDto {
-  id: number;
+  id: EntityId;
   jobCode: string;
   name: string;
   jobType: ScheduledJobType;
@@ -39,8 +40,8 @@ export interface ScheduledJobDto {
 }
 
 export interface ScheduledJobLogDto {
-  id: number;
-  jobId: number;
+  id: EntityId;
+  jobId: EntityId;
   status: ScheduledJobRunStatus;
   startedAt: string;
   finishedAt?: string | null;
@@ -72,7 +73,7 @@ export interface CreateScheduledJobRequest {
 }
 
 export interface UpdateScheduledJobRequest {
-  id: number;
+  id: EntityId;
   name?: string;
   cronExpression?: string;
   timeZoneId?: string;
@@ -105,7 +106,7 @@ export function queryScheduledJobPage(req: QueryScheduledJobPageRequest) {
   });
 }
 
-export function getScheduledJobById(id: number) {
+export function getScheduledJobById(id: EntityId) {
   return axios.get<void, ApiResponse<ScheduledJobDto>>(`/api/ScheduledJob/${id}`);
 }
 
@@ -124,15 +125,15 @@ export function updateScheduledJob(req: UpdateScheduledJobRequest) {
   );
 }
 
-export function deleteScheduledJob(id: number) {
-  return axios.delete<number, ApiResponse<void>>(`/api/ScheduledJob/${id}`);
+export function deleteScheduledJob(id: EntityId) {
+  return axios.delete<EntityId, ApiResponse<void>>(`/api/ScheduledJob/${id}`);
 }
 
-export function triggerScheduledJob(id: number) {
+export function triggerScheduledJob(id: EntityId) {
   return axios.post<void, ApiResponse<void>>(`/api/ScheduledJob/${id}/trigger`);
 }
 
-export function queryScheduledJobLogs(id: number, current = 1, pageSize = 10) {
+export function queryScheduledJobLogs(id: EntityId, current = 1, pageSize = 10) {
   return axios.get<void, ApiResponse<PagedResultDto<ScheduledJobLogDto>>>(
     `/api/ScheduledJob/${id}/logs`,
     {

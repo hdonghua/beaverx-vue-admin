@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+﻿import axios from 'axios';
+import { ApiResponse } from '@/utils/request';
 
 export interface FileUploadResult {
   bucket: string;

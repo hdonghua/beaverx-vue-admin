@@ -9,19 +9,10 @@ import {
   isTokenExpiringSoon,
 } from '@/utils/auth';
 import { handleSessionExpired } from '@/utils/session-expired';
-import { refreshAccessToken } from '@/api/refresh-token';
+import { refreshAccessToken } from './refresh-token';
 
-export interface Msg<T = unknown> {
-  code: number;
-  msg: string;
-  data: T;
-}
-
-export interface ApiResponse<T = unknown> {
-  data: T;
-}
-
-export type HttpResponse<T = unknown> = ApiResponse<T>;
+export * from './types';
+export { refreshAccessToken } from './refresh-token';
 
 interface ProblemDetails {
   message?: string;
@@ -99,7 +90,7 @@ axios.interceptors.response.use(
       'code' in payload &&
       'data' in payload
     ) {
-      const wrapped = payload as Msg;
+      const wrapped = payload as { code: number; msg: string; data: unknown };
       if (wrapped.code !== 10000) {
         Message.error({
           content: wrapped.msg || 'Error',

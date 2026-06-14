@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
+﻿import { defineStore } from 'pinia';
 import { Notification } from '@arco-design/web-vue';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { Router, RouteRecordRaw } from 'vue-router';
 import defaultSettings from '@/config/settings.json';
-import { getUserMenus } from '@/api/server/menu';
+import { getUserMenus } from '@/api/server/rbac/menu';
 import {
   transformServerMenus,
   getFirstAccessibleRouteName,

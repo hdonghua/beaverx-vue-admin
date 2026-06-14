@@ -1,9 +1,9 @@
-import { onScopeDispose, ref } from 'vue';
-import { getUnreadCount } from '@/api/server/message';
+﻿import { onScopeDispose, ref } from 'vue';
+import { getUnreadCount } from '@/api/server/message/message';
 import {
   RealtimeEvents,
   type MessageUnreadChangedPayload,
-} from '@/api/server/realtime';
+} from '@/api/server/common/realtime';
 import { onRealtimeEvent } from '@/utils/realtime-hub';
 
 const unreadCount = ref(0);

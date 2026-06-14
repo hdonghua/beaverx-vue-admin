@@ -29,6 +29,6 @@ app.use(directive);
 app.use(Vue3Dragscroll);
 
 // 需在 pinia 初始化后再注册 axios 拦截器（token 从 auth store 读取）
-import '@/api/interceptor';
+import '@/utils/request';
 
 app.mount('#app');

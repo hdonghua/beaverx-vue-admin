@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.system', 'menu.system.userList']">
     <a-card class="general-card">
       <a-row>
@@ -273,17 +273,18 @@
     assignRole,
     getUserById,
     resetPassword,
-  } from '@/api/server/user';
-  import { queryRoleOptions, RoleOptionDto } from '@/api/server/role';
+  } from '@/api/server/rbac/user';
+  import { queryRoleOptions, RoleOptionDto } from '@/api/server/rbac/role';
   import { Pagination } from '@/types/global';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import cloneDeep from 'lodash/cloneDeep';
   import Sortable from 'sortablejs';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import { clearFormValidate } from '@/utils/form';
-  import { createExportTask, ExportTypes } from '@/api/server/export-task';
+  import { createExportTask, ExportTypes } from '@/api/server/system/export-task';
   import useExportTasks from '@/hooks/export-tasks';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
   import dayjs from 'dayjs';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
@@ -381,11 +382,11 @@
 
   const roleModalVisible = ref(false);
   const roleForm = reactive({
-    roleIds: [] as number[],
+    roleIds: [] as EntityId[],
   });
   const roleOptions = ref<RoleOptionDto[]>([]);
-  const currentUserId = ref<number>(0);
-  const togglingUserId = ref<number | null>(null);
+  const currentUserId = ref<EntityId | null>(null);
+  const togglingUserId = ref<EntityId | null>(null);
 
   const passwordModalVisible = ref(false);
   const passwordFormRef = ref<FormInstance>();
@@ -443,7 +444,7 @@
       // error handled by interceptor
     }
   };
-  const handleAssignRole = async (id: number) => {
+  const handleAssignRole = async (id: EntityId) => {
     currentUserId.value = id;
     roleModalVisible.value = true;
     roleForm.roleIds = [];
@@ -463,6 +464,10 @@
   };
 
   const handleRoleBeforeOk = async (done: (closed: boolean) => void) => {
+    if (!currentUserId.value) {
+      done(false);
+      return;
+    }
     try {
       await assignRole({
         userId: currentUserId.value,
@@ -494,6 +499,10 @@
   const handlePasswordBeforeOk = async (done: (closed: boolean) => void) => {
     const validErr = await passwordFormRef.value?.validate();
     if (validErr) {
+      done(false);
+      return;
+    }
+    if (!currentUserId.value) {
       done(false);
       return;
     }

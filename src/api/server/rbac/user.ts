@@ -1,6 +1,8 @@
+﻿import { EntityId } from '@/types/entity-id';
 import { PagedResultDto, QueryPageRequest } from '@/types/page';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
+
 export interface CreateUserRequest {
   userName: string;
   password: string;
@@ -8,7 +10,7 @@ export interface CreateUserRequest {
   email?: string;
   phone?: string;
   isEnabled?: boolean;
-  roleIds?: number[];
+  roleIds?: EntityId[];
 }
 
 export interface QueryUserPageRequest extends QueryPageRequest {
@@ -16,7 +18,7 @@ export interface QueryUserPageRequest extends QueryPageRequest {
 }
 
 export interface UserDto {
-  id: number;
+  id: EntityId;
   userName: string;
   nickName?: string | null;
   email?: string | null;
@@ -24,12 +26,12 @@ export interface UserDto {
   avatar?: string | null;
   isEnabled: boolean;
   creationTime: string;
-  roleIds: number[];
+  roleIds: EntityId[];
   roleNames: string[];
 }
 
 export interface UpdateUserRequest {
-  id: number;
+  id: EntityId;
   nickName?: string;
   email?: string;
   phone?: string;
@@ -37,12 +39,12 @@ export interface UpdateUserRequest {
 }
 
 export interface AssignRoleRequest {
-  userId: number;
-  roleIds: number[];
+  userId: EntityId;
+  roleIds: EntityId[];
 }
 
 export interface ResetPasswordRequest {
-  userId: number;
+  userId: EntityId;
   newPassword: string;
 }
 
@@ -83,8 +85,8 @@ export function assignRole(req: AssignRoleRequest) {
 }
 
 /** 获取用户详情（含已分配角色） */
-export function getUserById(userId: number) {
-  return axios.get<number, ApiResponse<UserDto>>(`/api/User/${userId}`);
+export function getUserById(userId: EntityId) {
+  return axios.get<EntityId, ApiResponse<UserDto>>(`/api/User/${userId}`);
 }
 
 /** 重置密码 */
@@ -94,4 +96,3 @@ export function resetPassword(req: ResetPasswordRequest) {
     { newPassword: req.newPassword }
   );
 }
-

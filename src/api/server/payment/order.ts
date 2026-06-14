@@ -1,5 +1,6 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 import { PagedResultDto, QueryPageRequest } from '@/types/page';
 
 export enum PaymentOrderStatus {
@@ -21,7 +22,7 @@ export enum PaymentRefundStatus {
 }
 
 export interface PaymentOrderDto {
-  id: number;
+  id: EntityId;
   orderNo: string;
   channelCode: string;
   subject: string;
@@ -32,7 +33,7 @@ export interface PaymentOrderDto {
   attach?: string | null;
   businessType?: string | null;
   businessId?: string | null;
-  userId?: number | null;
+  userId?: EntityId | null;
   expireTime?: string | null;
   paidTime?: string | null;
   channelOrderNo?: string | null;
@@ -69,15 +70,15 @@ export interface CreatePaymentOrderResult {
 }
 
 export interface CreatePaymentRefundRequest {
-  paymentOrderId: number;
+  paymentOrderId: EntityId;
   amount?: number;
   reason?: string;
 }
 
 export interface PaymentRefundDto {
-  id: number;
+  id: EntityId;
   refundNo: string;
-  paymentOrderId: number;
+  paymentOrderId: EntityId;
   orderNo: string;
   channelCode: string;
   amount: number;
@@ -113,7 +114,7 @@ export function queryPaymentOrderPage(req: PaymentOrderQueryRequest) {
   );
 }
 
-export function getPaymentOrderById(id: number) {
+export function getPaymentOrderById(id: EntityId) {
   return axios.get<void, ApiResponse<PaymentOrderDto>>(`/api/PaymentOrder/${id}`);
 }
 
@@ -130,11 +131,11 @@ export function createPaymentOrder(req: CreatePaymentOrderRequest) {
   );
 }
 
-export function syncPaymentOrder(id: number) {
+export function syncPaymentOrder(id: EntityId) {
   return axios.post<void, ApiResponse<PaymentOrderDto>>(`/api/PaymentOrder/${id}/sync`);
 }
 
-export function closePaymentOrder(id: number) {
+export function closePaymentOrder(id: EntityId) {
   return axios.post<void, ApiResponse<PaymentOrderDto>>(`/api/PaymentOrder/${id}/close`);
 }
 

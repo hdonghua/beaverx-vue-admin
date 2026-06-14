@@ -1,5 +1,5 @@
-import * as signalR from '@microsoft/signalr';
-import type { RealtimeMessage } from '@/api/server/realtime';
+﻿import * as signalR from '@microsoft/signalr';
+import type { RealtimeMessage } from '@/api/server/common/realtime';
 import { getToken } from '@/utils/auth';
 
 const HUB_PATH = '/hubs/notifications';

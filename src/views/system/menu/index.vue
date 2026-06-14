@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.system', 'menu.system.menuList']">
     <a-card class="general-card">
       <a-row style="margin-bottom: 16px">
@@ -237,7 +237,7 @@
     CreateMenuRequest,
     UpdateMenuRequest,
     MenuType,
-  } from '@/api/server/menu';
+  } from '@/api/server/rbac/menu';
   import { DictTypeCodes } from '@/constants/dict-types';
   import DictSelect from '@/components/dict-select/index.vue';
   import DictTag from '@/components/dict-tag/index.vue';
@@ -247,6 +247,7 @@
   import { clearFormValidate } from '@/utils/form';
   import { regexUrl } from '@/utils';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
@@ -320,7 +321,7 @@
   const operationFormRef = ref<FormInstance>();
   const modalVisible = ref(false);
   const isEdit = ref(false);
-  const currentEditId = ref<number | null>(null);
+  const currentEditId = ref<EntityId | null>(null);
   const operationForm = reactive<CreateMenuRequest>({
     parentId: null,
     name: '',
@@ -523,7 +524,7 @@
     clearFormValidate(operationFormRef.value);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: EntityId) => {
     try {
       await deleteMenu(id);
       Message.success('删除成功');

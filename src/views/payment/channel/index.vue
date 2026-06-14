@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.payment', 'menu.payment.channel']">
     <a-card class="general-card" title="支付渠道">
       <a-form :model="query" layout="inline" class="search-form">
@@ -171,6 +171,7 @@
   import usePermission from '@/hooks/permission';
   import { clearFormValidate } from '@/utils/form';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
   import {
     buildChannelConfigJson,
     validateChannelConfig,
@@ -183,7 +184,7 @@
     addPaymentChannel,
     updatePaymentChannel,
     deletePaymentChannel,
-  } from '@/api/server/payment-channel';
+  } from '@/api/server/payment/channel';
 
   const { hasPermission } = usePermission();
   const canCreate = computed(() =>
@@ -202,7 +203,7 @@
   const query = reactive<{ keyword?: string; isEnabled?: boolean }>({});
   const modalVisible = ref(false);
   const isEdit = ref(false);
-  const editingId = ref<number>();
+  const editingId = ref<EntityId | undefined>();
   const formRef = ref<FormInstance>();
   const configFormRef = ref<InstanceType<typeof ChannelConfigForm>>();
   const form = reactive({
@@ -349,7 +350,7 @@
     }
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: EntityId) {
     try {
       await deletePaymentChannel(id);
       Message.success('删除成功');

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <a-list :bordered="false" :max-height="320" class="message-list">
     <a-list-item
       v-for="item in renderList"
@@ -44,7 +44,7 @@
 
 <script lang="ts" setup>
   import { computed, PropType } from 'vue';
-  import { MessageRecord, MessageListType } from '@/api/server/message';
+  import { MessageRecord, MessageListType } from '@/api/server/message/message';
 
   const props = defineProps({
     renderList: {

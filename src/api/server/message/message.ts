@@ -1,8 +1,9 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 
 export interface MessageRecord {
-  id: number;
+  id: EntityId;
   type: string;
   title: string;
   subTitle: string;
@@ -26,8 +27,8 @@ export function getUnreadCount() {
 }
 
 /** 批量标为已读 */
-export function markMessagesRead(ids: number[]) {
-  return axios.put<{ ids: number[] }, ApiResponse<void>>('/api/Message/read', {
+export function markMessagesRead(ids: EntityId[]) {
+  return axios.put<{ ids: EntityId[] }, ApiResponse<void>>('/api/Message/read', {
     ids,
   });
 }

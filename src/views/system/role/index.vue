@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.system', 'menu.system.roleList']">
     <a-card class="general-card">
       <a-row>
@@ -276,8 +276,8 @@
     RoleDto,
     CreateRoleRequest,
     UpdateRoleRequest,
-  } from '@/api/server/role';
-  import { queryMenus, MenuDto } from '@/api/server/menu';
+  } from '@/api/server/rbac/role';
+  import { queryMenus, MenuDto } from '@/api/server/rbac/menu';
   import {
     toMenuTreeNodes,
     normalizeCheckedMenuIds,
@@ -291,6 +291,7 @@
   import Sortable from 'sortablejs';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
 
   const SUPER_ADMIN_ROLE_CODE = 'super_admin';
 
@@ -377,16 +378,16 @@
   const menuTreeNodes = computed(() => toMenuTreeNodes(menuTreeData.value));
   const menuCheckLinked = ref(false);
   const menuTreeRenderKey = ref(0);
-  const currentRoleId = ref<number | null>(null);
+  const currentRoleId = ref<EntityId | null>(null);
   let menuLoadToken = 0;
   const menuForm = reactive({
-    menuIds: [] as number[],
+    menuIds: [] as EntityId[],
   });
 
-  const applyMenuCheckedIds = (menuIds: number[]) => {
+  const applyMenuCheckedIds = (menuIds: EntityId[]) => {
     const normalized = menuCheckLinked.value
       ? normalizeCheckedMenuIds(menuTreeData.value, menuIds)
-      : menuIds.map((id) => Number(id));
+      : menuIds;
     menuForm.menuIds = normalized;
   };
 
@@ -399,7 +400,7 @@
   const operationFormRef = ref<FormInstance>();
   const modalVisible = ref(false);
   const isEdit = ref(false);
-  const currentEditId = ref<number | null>(null);
+  const currentEditId = ref<EntityId | null>(null);
   const operationForm = reactive<
     CreateRoleRequest & { isEnabled?: boolean }
   >({
@@ -462,7 +463,7 @@
     modalVisible.value = true;
     clearFormValidate(operationFormRef.value);
   };
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: EntityId) => {
     try {
       await deleteRole(id);
       Message.success('删除成功');
@@ -484,7 +485,7 @@
     if (record.code?.toLowerCase() === SUPER_ADMIN_ROLE_CODE) {
       return collectAllMenuIds(menuTreeData.value);
     }
-    return (record.menuIds || []).map((id) => Number(id));
+    return (record.menuIds || []);
   };
 
   const handleAssignMenu = async (record: RoleDto) => {

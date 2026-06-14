@@ -1,4 +1,4 @@
-import { getDictOptions, DictOptionDto } from '@/api/server/dict-data';
+﻿import { getDictOptions, DictOptionDto } from '@/api/server/system/dict-data';
 
 const cache = new Map<string, DictOptionDto[]>();
 const pending = new Map<string, Promise<DictOptionDto[]>>();

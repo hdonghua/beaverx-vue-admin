@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.system', 'menu.system.messageSend']">
     <a-card class="general-card" :title="$t('siteMessage.cardTitle')">
       <a-form ref="formRef" :model="form" layout="vertical" class="send-form">
@@ -117,9 +117,10 @@
   import { onMounted, reactive, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { useI18n } from 'vue-i18n';
-  import { queryUserPage, UserDto } from '@/api/server/user';
-  import { sendSiteMessage } from '@/api/server/site-message';
+  import { queryUserPage, UserDto } from '@/api/server/rbac/user';
+  import { sendSiteMessage } from '@/api/server/message/site-message';
   import { Permissions } from '@/constants/permissions';
+  import type { EntityId } from '@/types/entity-id';
 
   const { t } = useI18n();
   const formRef = ref();
@@ -128,7 +129,7 @@
   const userOptions = ref<UserDto[]>([]);
 
   const defaultForm = () => ({
-    userId: undefined as number | undefined,
+    userId: undefined as EntityId | undefined,
     sendToAll: false,
     type: 'notice' as 'message' | 'notice' | 'todo',
     title: '',

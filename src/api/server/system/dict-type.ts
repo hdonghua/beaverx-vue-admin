@@ -1,5 +1,6 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 import { QueryPageRequest, PagedResultDto } from '@/types/page';
 
 export interface QueryDictTypePageRequest extends QueryPageRequest {
@@ -8,7 +9,7 @@ export interface QueryDictTypePageRequest extends QueryPageRequest {
 }
 
 export interface DictTypeDto {
-  id: number;
+  id: EntityId;
   code: string;
   name: string;
   remark?: string | null;
@@ -24,7 +25,7 @@ export interface CreateDictTypeRequest {
 }
 
 export interface UpdateDictTypeRequest {
-  id: number;
+  id: EntityId;
   name?: string;
   remark?: string;
   isEnabled?: boolean;
@@ -44,7 +45,7 @@ export function queryDictTypePage(req: QueryDictTypePageRequest) {
   });
 }
 
-export function getDictTypeById(id: number) {
+export function getDictTypeById(id: EntityId) {
   return axios.get<void, ApiResponse<DictTypeDto>>(`/api/DictType/${id}`);
 }
 
@@ -63,6 +64,6 @@ export function updateDictType(req: UpdateDictTypeRequest) {
   );
 }
 
-export function deleteDictType(id: number) {
-  return axios.delete<number, ApiResponse<void>>(`/api/DictType/${id}`);
+export function deleteDictType(id: EntityId) {
+  return axios.delete<EntityId, ApiResponse<void>>(`/api/DictType/${id}`);
 }

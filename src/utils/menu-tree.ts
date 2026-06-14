@@ -1,13 +1,14 @@
-import type { MenuDto } from '@/api/server/menu';
+﻿import type { MenuDto } from '@/api/server/rbac/menu';
+import type { EntityId } from '@/types/entity-id';
 
 export interface MenuTreeNode {
-  key: number;
+  key: EntityId;
   title: string;
   children?: MenuTreeNode[];
 }
 
-export function collectAllMenuIds(menus: MenuDto[]): number[] {
-  const ids: number[] = [];
+export function collectAllMenuIds(menus: MenuDto[]): EntityId[] {
+  const ids: EntityId[] = [];
   const walk = (items: MenuDto[]) => {
     items.forEach((menu) => {
       ids.push(menu.id);
@@ -37,9 +38,9 @@ export function toMenuTreeNodes(menus: MenuDto[]): MenuTreeNode[] {
 /** 父子关联模式下，补全已全选子节点对应的父级 ID，便于树组件正确勾选 */
 export function normalizeCheckedMenuIds(
   menus: MenuDto[],
-  menuIds: number[]
-): number[] {
-  const checked = new Set(menuIds.map((id) => Number(id)));
+  menuIds: EntityId[]
+): EntityId[] {
+  const checked = new Set(menuIds);
 
   const visit = (item: MenuDto): boolean => {
     if (!item.children?.length) {
@@ -61,13 +62,13 @@ export function collectMenuIdsForSave(
   menus: MenuDto[],
   checkedKeys: Array<string | number>,
   linked: boolean
-): number[] {
-  const result = new Set(checkedKeys.map((id) => Number(id)));
+): EntityId[] {
+  const result = new Set(checkedKeys.map((id) => String(id)));
   if (!linked) {
     return [...result];
   }
 
-  const walk = (items: MenuDto[], ancestors: number[]) => {
+  const walk = (items: MenuDto[], ancestors: EntityId[]) => {
     items.forEach((item) => {
       const path = [...ancestors, item.id];
       if (result.has(item.id)) {

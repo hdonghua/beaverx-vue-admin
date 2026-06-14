@@ -1,9 +1,10 @@
+﻿import { EntityId } from '@/types/entity-id';
 import axios from 'axios';
-import { ApiResponse } from '@/api/interceptor';
+import { ApiResponse } from '@/utils/request';
 
 export interface DictDataDto {
-  id: number;
-  dictTypeId: number;
+  id: EntityId;
+  dictTypeId: EntityId;
   dictTypeCode: string;
   label: string;
   value: string;
@@ -22,14 +23,14 @@ export interface DictOptionDto {
 }
 
 export interface QueryDictDataRequest {
-  dictTypeId?: number;
+  dictTypeId?: EntityId;
   typeCode?: string;
   keyword?: string;
   isEnabled?: boolean;
 }
 
 export interface CreateDictDataRequest {
-  dictTypeId: number;
+  dictTypeId: EntityId;
   label: string;
   value: string;
   sort?: number;
@@ -40,7 +41,7 @@ export interface CreateDictDataRequest {
 }
 
 export interface UpdateDictDataRequest {
-  id: number;
+  id: EntityId;
   label?: string;
   value?: string;
   sort?: number;
@@ -78,6 +79,6 @@ export function updateDictData(req: UpdateDictDataRequest) {
   );
 }
 
-export function deleteDictData(id: number) {
-  return axios.delete<number, ApiResponse<void>>(`/api/DictData/${id}`);
+export function deleteDictData(id: EntityId) {
+  return axios.delete<EntityId, ApiResponse<void>>(`/api/DictData/${id}`);
 }

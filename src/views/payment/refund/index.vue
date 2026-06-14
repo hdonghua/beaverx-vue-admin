@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PageContainer :breadcrumb="['menu.payment', 'menu.payment.refund']">
     <a-card class="general-card" title="退款记录">
       <a-form :model="query" layout="inline" class="search-form">
@@ -66,7 +66,7 @@
     PaymentRefundDto,
     PaymentRefundStatus,
     queryPaymentRefundPage,
-  } from '@/api/server/payment-order';
+  } from '@/api/server/payment/order';
 
   const { loading, setLoading } = useLoading(true);
   const list = ref<PaymentRefundDto[]>([]);
