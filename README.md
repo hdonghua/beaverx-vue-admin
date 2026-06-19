@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-默认账号（由后端种子数据提供）：`admin` / `admin123`
+默认账号（由后端种子数据提供）：`admin` / `Admin@123`
 
 ### 常用命令
 

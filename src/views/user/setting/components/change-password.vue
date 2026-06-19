@@ -22,11 +22,11 @@
       <a-form-item
         field="newPassword"
         label="新密码"
-        :rules="[{ required: true, message: '请输入新密码' }]"
+        :rules="passwordRules"
       >
         <a-input-password
           v-model="formData.newPassword"
-          placeholder="请输入新密码"
+          placeholder="8-32 位，含大小写字母、数字和特殊字符"
           allow-clear
         />
       </a-form-item>
@@ -41,6 +41,9 @@
           allow-clear
         />
       </a-form-item>
+      <a-typography-text type="secondary" class="password-hint">
+        {{ PASSWORD_RULE_MESSAGE }}
+      </a-typography-text>
       <a-form-item>
         <a-space>
           <a-button type="primary" :loading="submitting" @click="handleSubmit">
@@ -58,6 +61,11 @@
   import { Message } from '@arco-design/web-vue';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import { changePassword } from '@/api/server/auth';
+  import {
+    createConfirmPasswordRules,
+    passwordRules,
+    PASSWORD_RULE_MESSAGE,
+  } from '@/utils/password';
 
   const formRef = ref<FormInstance>();
   const submitting = ref(false);
@@ -67,18 +75,9 @@
     confirmPassword: '',
   });
 
-  const confirmPasswordRules = [
-    { required: true, message: '请确认新密码' },
-    {
-      validator: (value: string, callback: (error?: string) => void) => {
-        if (value !== formData.newPassword) {
-          callback('两次输入的密码不一致');
-        } else {
-          callback();
-        }
-      },
-    },
-  ];
+  const confirmPasswordRules = createConfirmPasswordRules(
+    () => formData.newPassword
+  );
 
   const resetForm = async () => {
     formData.oldPassword = '';
@@ -112,5 +111,11 @@
   .form-section {
     max-width: 520px;
     padding: 8px 0 16px;
+  }
+
+  .password-hint {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 12px;
   }
 </style>

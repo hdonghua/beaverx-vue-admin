@@ -194,9 +194,13 @@
         <a-form-item
           field="password"
           label="密码"
-          :rules="[{ required: true, message: '密码不能为空' }]"
+          :rules="passwordRules"
         >
-          <a-input-password v-model="operationForm.password" allow-clear />
+          <a-input-password
+            v-model="operationForm.password"
+            allow-clear
+            placeholder="8-32 位，含大小写字母、数字和特殊字符"
+          />
         </a-form-item>
         <a-form-item field="nickName" label="昵称">
           <a-input v-model="operationForm.nickName" />
@@ -235,12 +239,12 @@
         <a-form-item
           field="newPassword"
           label="新密码"
-          :rules="[{ required: true, message: '新密码不能为空' }]"
+          :rules="passwordRules"
         >
           <a-input-password
             v-model="passwordForm.newPassword"
             allow-clear
-            placeholder="请输入新密码"
+            placeholder="8-32 位，含大小写字母、数字和特殊字符"
           />
         </a-form-item>
         <a-form-item
@@ -254,6 +258,9 @@
             placeholder="请再次输入新密码"
           />
         </a-form-item>
+        <a-typography-text type="secondary" class="password-hint">
+          {{ PASSWORD_RULE_MESSAGE }}
+        </a-typography-text>
       </a-form>
     </a-modal>
   </PageContainer>
@@ -286,6 +293,11 @@
   import { Permissions } from '@/constants/permissions';
   import type { EntityId } from '@/types/entity-id';
   import dayjs from 'dayjs';
+  import {
+    createConfirmPasswordRules,
+    passwordRules,
+    PASSWORD_RULE_MESSAGE,
+  } from '@/utils/password';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };
@@ -395,18 +407,9 @@
     newPassword: '',
     confirmPassword: '',
   });
-  const confirmPasswordRules = [
-    { required: true, message: '请确认新密码' },
-    {
-      validator: (value: string, callback: (error?: string) => void) => {
-        if (value !== passwordForm.newPassword) {
-          callback('两次输入的密码不一致');
-        } else {
-          callback();
-        }
-      },
-    },
-  ];
+  const confirmPasswordRules = createConfirmPasswordRules(
+    () => passwordForm.newPassword
+  );
 
   const resetCreateUserForm = () => {
     operationForm.userName = '';
@@ -676,5 +679,12 @@
       margin-left: 12px;
       cursor: pointer;
     }
+  }
+
+  .password-hint {
+    display: block;
+    margin-top: -8px;
+    margin-bottom: 8px;
+    font-size: 12px;
   }
 </style>
