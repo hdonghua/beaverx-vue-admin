@@ -9,6 +9,7 @@ import locale500 from '@/views/exception/500/locale/zh-CN';
 import localeUserSetting from '@/views/user/setting/locale/zh-CN';
 import localeSystem from '@/views/system/locale/zh-CN';
 import localeSiteMessage from '@/views/system/message/locale/zh-CN';
+import localeOnlineUser from '@/views/system/online-user/locale/zh-CN';
 import localeSettings from './zh-CN/settings';
 
 export default {
@@ -34,6 +35,7 @@ export default {
   'menu.system.configList': '配置管理',
   'menu.system.jobList': '定时任务',
   'menu.system.messageSend': '发送站内信',
+  'menu.system.onlineUserList': '在线用户',
   'menu.payment': '支付管理',
   'menu.payment.channel': '支付渠道',
   'menu.payment.order': '支付订单',
@@ -51,4 +53,5 @@ export default {
   ...localeUserSetting,
   ...localeSystem,
   ...localeSiteMessage,
+  ...localeOnlineUser,
 };

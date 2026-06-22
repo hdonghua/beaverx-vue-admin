@@ -10,15 +10,23 @@ import {
 import {
   RealtimeEvents,
   type UserDisabledPayload,
+  type UserForceOfflinePayload,
 } from '@/api/server/common/realtime';
 import useUserStore from '@/store/modules/user';
 
 let hubConsumers = 0;
 let unsubscribeUserDisabled: (() => void) | null = null;
+let unsubscribeUserForceOffline: (() => void) | null = null;
 
 export default function useRealtimeHub() {
   const userStore = useUserStore();
   const router = useRouter();
+
+  const handleForcedLogout = (message: string) => {
+    Message.warning(message);
+    userStore.logoutCallBack();
+    router.push({ name: 'login' });
+  };
 
   onMounted(async () => {
     if (!isLogin()) {
@@ -32,9 +40,16 @@ export default function useRealtimeHub() {
         RealtimeEvents.UserDisabled,
         (data) => {
           const payload = (data || {}) as UserDisabledPayload;
-          Message.warning(payload.message || '您的账号已被禁用，即将退出登录');
-          userStore.logoutCallBack();
-          router.push({ name: 'login' });
+          handleForcedLogout(
+            payload.message || '您的账号已被禁用，即将退出登录'
+          );
+        }
+      );
+      unsubscribeUserForceOffline = onRealtimeEvent(
+        RealtimeEvents.UserForceOffline,
+        (data) => {
+          const payload = (data || {}) as UserForceOfflinePayload;
+          handleForcedLogout(payload.message || '您已被管理员强制下线');
         }
       );
     }
@@ -45,6 +60,8 @@ export default function useRealtimeHub() {
     if (hubConsumers === 0) {
       unsubscribeUserDisabled?.();
       unsubscribeUserDisabled = null;
+      unsubscribeUserForceOffline?.();
+      unsubscribeUserForceOffline = null;
       void stopRealtimeHub();
     }
   });

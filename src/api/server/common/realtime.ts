@@ -2,6 +2,8 @@ export const RealtimeEvents = {
   ExportTaskChanged: 'export.task.changed',
   MessageUnreadChanged: 'message.unread.changed',
   UserDisabled: 'user.disabled',
+  OnlineUsersChanged: 'online.users.changed',
+  UserForceOffline: 'user.force_offline',
 } as const;
 
 export type RealtimeEventName =
@@ -24,3 +26,13 @@ export interface MessageUnreadChangedPayload {
 export interface UserDisabledPayload {
   message?: string;
 }
+
+export interface OnlineUsersChangedPayload {
+  users: import('@/api/server/rbac/online-user').OnlineUserDto[];
+  totalConnections: number;
+}
+
+export interface UserForceOfflinePayload {
+  message?: string;
+}
+

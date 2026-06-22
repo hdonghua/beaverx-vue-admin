@@ -53,6 +53,10 @@ export const Permissions = {
       Delete: 'system:job:delete',
       Trigger: 'system:job:trigger',
     },
+    OnlineUser: {
+      List: 'system:online_user:list',
+      Kick: 'system:online_user:kick',
+    },
   },
   Payment: {
     Channel: {

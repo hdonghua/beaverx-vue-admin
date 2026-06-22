@@ -82,6 +82,16 @@ const SYSTEM: AppRouteRecordRaw = {
         roles: ['*'],
       },
     },
+    {
+      path: 'online-user',
+      name: 'OnlineUserList',
+      component: () => import('@/views/system/online-user/index.vue'),
+      meta: {
+        locale: 'menu.system.onlineUserList',
+        requiresAuth: true,
+        roles: ['*'],
+      },
+    },
   ],
 };
 

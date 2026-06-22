@@ -9,6 +9,7 @@ import locale500 from '@/views/exception/500/locale/en-US';
 import localeUserSetting from '@/views/user/setting/locale/en-US';
 import localeSystem from '@/views/system/locale/en-US';
 import localeSiteMessage from '@/views/system/message/locale/en-US';
+import localeOnlineUser from '@/views/system/online-user/locale/en-US';
 import localeSettings from './en-US/settings';
 
 export default {
@@ -22,6 +23,7 @@ export default {
   'menu.system.configList': 'Config Management',
   'menu.system.jobList': 'Scheduled Jobs',
   'menu.system.messageSend': 'Send Site Message',
+  'menu.system.onlineUserList': 'Online Users',
   'menu.payment': 'Payment',
   'menu.payment.channel': 'Payment Channels',
   'menu.payment.order': 'Payment Orders',
@@ -39,4 +41,5 @@ export default {
   ...localeUserSetting,
   ...localeSystem,
   ...localeSiteMessage,
+  ...localeOnlineUser,
 };

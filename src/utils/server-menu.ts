@@ -15,6 +15,7 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
   '/system/config': 'ConfigList',
   '/system/job': 'ScheduledJobList',
   '/system/message': 'SiteMessageSend',
+  '/system/online-user': 'OnlineUserList',
   '/payment': 'payment',
   '/payment/channel': 'PaymentChannelList',
   '/payment/order': 'PaymentOrderList',
