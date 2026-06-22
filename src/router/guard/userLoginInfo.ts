@@ -68,7 +68,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
       await userStore.info();
       next();
     } catch {
-      clearSessionAndNotify('登录已过期，请重新登录');
+      await clearSessionAndNotify('登录已过期，请重新登录');
       redirectToLogin(to, next);
     }
   });

@@ -112,10 +112,23 @@ const useUserStore = defineStore('user', {
       appStore.clearServerMenu();
       tabBarStore.resetTabList();
     },
+    async revokeServerSession(refreshTokenValue?: string | null) {
+      const authStore = useAuthStore();
+      const refreshToken = refreshTokenValue ?? authStore.refreshToken;
+      if (!refreshToken) {
+        return;
+      }
+      try {
+        await userLogout(refreshToken);
+      } catch {
+        // 令牌已失效时服务端登出失败可忽略
+      }
+    },
     async logout() {
       const authStore = useAuthStore();
+      const refreshToken = authStore.refreshToken;
       try {
-        await userLogout(authStore.refreshToken || undefined);
+        await this.revokeServerSession(refreshToken);
       } finally {
         this.logoutCallBack();
       }

@@ -2,14 +2,13 @@ import NProgress from 'nprogress';
 import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/store';
 import { getRefreshToken } from '@/utils/auth';
-import { logout as userLogout } from '@/api/server/auth';
 
 let handlingSessionExpired = false;
 
 /** 清除本地会话并提示；重复调用会被忽略 */
-export function clearSessionAndNotify(
+export async function clearSessionAndNotify(
   message = '登录已过期，请重新登录'
-): boolean {
+): Promise<boolean> {
   if (handlingSessionExpired) {
     return false;
   }
@@ -20,12 +19,10 @@ export function clearSessionAndNotify(
 
   const userStore = useUserStore();
   const refreshToken = getRefreshToken();
-  userStore.logoutCallBack();
-
-  if (refreshToken) {
-    void userLogout(refreshToken).catch(() => {
-      // 令牌已失效时服务端登出失败可忽略
-    });
+  try {
+    await userStore.revokeServerSession(refreshToken);
+  } finally {
+    userStore.logoutCallBack();
   }
 
   return true;
@@ -58,7 +55,7 @@ export async function handleSessionExpired(
   message = '登录已过期，请重新登录',
   redirectPath?: string
 ) {
-  if (!clearSessionAndNotify(message)) {
+  if (!(await clearSessionAndNotify(message))) {
     return;
   }
   await redirectToLoginPage(redirectPath);

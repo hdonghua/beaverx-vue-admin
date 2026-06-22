@@ -92,7 +92,6 @@ export function logout(refreshTokenValue?: string | null) {
     '/api/Auth/logout',
     refreshTokenValue ? { refreshToken: refreshTokenValue } : undefined,
     {
-      skipAuth: true,
       skipRefresh: true,
     } as Record<string, unknown>
   );

@@ -27,6 +27,7 @@ type RequestConfig = AxiosRequestConfig & {
 
 const AUTH_REFRESH_URL = '/api/Auth/refresh';
 const AUTH_LOGIN_URL = '/api/Auth/login';
+const AUTH_LOGOUT_URL = '/api/Auth/logout';
 
 if (import.meta.env.VITE_API_BASE_URL) {
   axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -36,10 +37,14 @@ function isAuthBypassRequest(config?: RequestConfig) {
   const url = config?.url || '';
   return (
     config?.skipAuth ||
-    config?.skipRefresh ||
     url.includes(AUTH_REFRESH_URL) ||
-    url.includes(AUTH_LOGIN_URL)
+    url.includes(AUTH_LOGIN_URL) ||
+    url.includes(AUTH_LOGOUT_URL)
   );
+}
+
+function shouldSkipTokenRefresh(config?: RequestConfig) {
+  return config?.skipRefresh || isAuthBypassRequest(config);
 }
 
 function rejectUnauthorized() {
@@ -49,7 +54,7 @@ function rejectUnauthorized() {
 
 axios.interceptors.request.use(
   async (config: RequestConfig) => {
-    if (!isAuthBypassRequest(config)) {
+    if (!shouldSkipTokenRefresh(config)) {
       const refreshToken = getRefreshToken();
       const refreshExpired = isRefreshTokenExpired();
       const accessExpired = isAccessTokenExpired();
@@ -147,6 +152,10 @@ axios.interceptors.response.use(
       return Promise.reject(new Error(forbiddenMessage));
     }
 
+    if (originalRequest?.url?.includes(AUTH_LOGOUT_URL)) {
+      return Promise.reject(new Error(content));
+    }
+
     Message.error({
       content,
       duration: 5 * 1000,
@@ -155,7 +164,8 @@ axios.interceptors.response.use(
     if (
       status === 401 &&
       originalRequest?.url !== '/api/Auth/profile' &&
-      isAuthBypassRequest(originalRequest)
+      isAuthBypassRequest(originalRequest) &&
+      !originalRequest?.url?.includes(AUTH_LOGOUT_URL)
     ) {
       void handleSessionExpired();
     }

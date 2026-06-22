@@ -22,9 +22,9 @@ export default function useRealtimeHub() {
   const userStore = useUserStore();
   const router = useRouter();
 
-  const handleForcedLogout = (message: string) => {
+  const handleForcedLogout = async (message: string) => {
     Message.warning(message);
-    userStore.logoutCallBack();
+    await userStore.logout();
     router.push({ name: 'login' });
   };
 
