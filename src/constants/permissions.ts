@@ -76,4 +76,13 @@ export const Permissions = {
       List: 'payment:refund:list',
     },
   },
+  Ticket: {
+    Work: {
+      List: 'ticket:work:list',
+      Create: 'ticket:work:create',
+      Update: 'ticket:work:update',
+      Delete: 'ticket:work:delete',
+      Process: 'ticket:work:process',
+    },
+  },
 } as const;

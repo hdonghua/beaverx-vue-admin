@@ -20,6 +20,9 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
   '/payment/channel': 'PaymentChannelList',
   '/payment/order': 'PaymentOrderList',
   '/payment/refund': 'PaymentRefundList',
+  '/ticket': 'ticket',
+  '/ticket/work': 'WorkTicketList',
+  '/ticket/process': 'WorkTicketProcess',
 };
 
 function formatMenuIcon(icon?: string | null) {
