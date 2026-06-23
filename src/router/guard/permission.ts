@@ -3,6 +3,7 @@ import NProgress from 'nprogress';
 
 import usePermission from '@/hooks/permission';
 import { useUserStore, useAppStore } from '@/store';
+import { isLogin } from '@/utils/auth';
 import { flattenRouteNames } from '@/utils/server-menu';
 import {
   isExternalLocationPath,
@@ -37,6 +38,12 @@ function shouldFetchServerMenu(
   routeName: string,
   path: string
 ) {
+  if (MENU_FETCH_SKIP_ROUTES.includes(routeName) || path.startsWith('/login')) {
+    return false;
+  }
+  if (!isLogin()) {
+    return false;
+  }
   if (!appStore.appAsyncMenus.length) {
     return true;
   }
@@ -51,7 +58,7 @@ function shouldFetchServerMenu(
   ) {
     return true;
   }
-  return !MENU_FETCH_SKIP_ROUTES.includes(routeName);
+  return false;
 }
 
 function shouldRetryNavigation(
