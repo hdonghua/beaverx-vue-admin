@@ -3,7 +3,7 @@
     <a-card class="general-card" title="RichText 富文本">
       <DemoSection
         title="双向绑定"
-        description="v-model:value 绑定 HTML 字符串。disabled 为 true 时只读。"
+        description="v-model:value 绑定 HTML 字符串。工具栏支持图片上传（走 /api/File/upload）与全屏编辑。"
       >
         <RichText v-model:value="content" placeholder="请输入正文..." />
         <a-divider />
@@ -11,6 +11,9 @@
         <pre class="html-preview">{{ content }}</pre>
         <template #code>
 &lt;RichText v-model:value="content" placeholder="请输入正文..." /&gt;
+
+&lt;!-- 指定上传目录 --&gt;
+&lt;RichText v-model:value="content" upload-folder="article" /&gt;
         </template>
       </DemoSection>
     </a-card>
@@ -23,7 +26,9 @@
   import RichText from '@/components/common/RichText.vue';
   import DemoSection from '../_demo/demo-section.vue';
 
-  const content = ref('<p>这是一段 <strong>富文本</strong> 示例内容。</p>');
+  const content = ref(
+    '<p>这是一段 <strong>富文本</strong> 示例，可点击工具栏上传图片。</p>'
+  );
 </script>
 
 <style scoped lang="less">

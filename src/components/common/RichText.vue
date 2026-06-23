@@ -1,132 +1,191 @@
 <!-- 富文本组件 -->
 <template>
   <div class="widget-rich-text">
-    <Toolbar class="toolbar" :editor="editorRef" :defaultConfig="toolbarConfig" :mode="mode" />
-    <Editor class="editor" v-model="valueHtml" :defaultConfig="editorConfig" :mode="mode" @onCreated="handleCreated" @onChange="handleChange" />
+    <Toolbar
+      class="toolbar"
+      :editor="editorRef"
+      :default-config="toolbarConfig"
+      :mode="mode"
+    />
+    <Editor
+      class="editor"
+      v-model="valueHtml"
+      :default-config="editorConfig"
+      :mode="mode"
+      @on-created="handleCreated"
+      @on-change="handleChange"
+    />
   </div>
 </template>
 
-<script setup>
-import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
-import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
-// import { DomEditor } from "@wangeditor/editor";
+<script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
+  import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
+  import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/editor';
+  import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+  import { uploadFile } from '@/api/server/common/file';
+  import { resolveApiUrl } from '@/utils/asset-url';
 
-const props = defineProps({
-  value: { type: String, default: "<p></p>" },
-  placeholder: { type: String, default: "请输入内容..." },
-  disabled: { type: Boolean, default: false },
-});
-const emits = defineEmits(["update:value"]);
+  const props = withDefaults(
+    defineProps<{
+      value?: string;
+      placeholder?: string;
+      disabled?: boolean;
+      /** MinIO 上传目录 */
+      uploadFolder?: string;
+    }>(),
+    {
+      value: '<p></p>',
+      placeholder: '请输入内容...',
+      disabled: false,
+      uploadFolder: 'rich-text',
+    }
+  );
 
-watch(
-  () => props.value,
-  (newValue) => {
-    valueHtml.value = newValue;
-  }
-);
+  const emits = defineEmits<{
+    (e: 'update:value', value: string): void;
+  }>();
 
-// 编辑器实例，必须用 shallowRef
-const editorRef = shallowRef();
-// 内容 HTML
-const valueHtml = ref("<p></p>");
-// 编辑器模式
-const mode = ref("simple");
-// 工具栏配置
-const toolbarConfig = {
-  toolbarKeys: [
-    "blockquote",
-    "header1",
-    "header2",
-    "header3",
-    "bold",
-    "underline",
-    "italic",
-    "through",
-    "color",
-    "bgColor",
-    "bulletedList",
-    "numberedList",
-    "justifyLeft",
-    "justifyRight",
-    "justifyCenter",
-    "insertTable",
-    "undo",
-    "redo",
-    "clearStyle",
-    "fullScreen",
-  ],
-};
-// 编辑器配置
-const editorConfig = {
-  placeholder: props.placeholder,
-  autoFocus: false,
-  readOnly: props.disabled,
-};
+  const editorRef = shallowRef<IDomEditor>();
+  const valueHtml = ref('<p></p>');
+  const mode = ref<'default' | 'simple'>('default');
 
-// 编辑器初始化完成时，将 editor 实例赋值给 editorRef
-const handleCreated = (editor) => {
-  editorRef.value = editor;
-  editor.setHtml(props.value);
-};
-const handleChange = (editor) => {
-  emits("update:value", valueHtml.value);
-};
+  const toolbarConfig: Partial<IToolbarConfig> = {
+    toolbarKeys: [
+      'blockquote',
+      'header1',
+      'header2',
+      'header3',
+      '|',
+      'bold',
+      'underline',
+      'italic',
+      'through',
+      'color',
+      'bgColor',
+      '|',
+      'bulletedList',
+      'numberedList',
+      'justifyLeft',
+      'justifyRight',
+      'justifyCenter',
+      '|',
+      'uploadImage',
+      'insertTable',
+      '|',
+      'undo',
+      'redo',
+      'clearStyle',
+      'fullScreen',
+    ],
+  };
 
-// 模拟 ajax 异步获取内容
-onMounted(() => {
-  // setTimeout(() => {
-  //   // 获取 toolbar 配置
-  //   const toolbar = DomEditor.getToolbar(editorRef.value);
-  //   console.log(JSON.stringify(toolbar.getConfig()));
-  // }, 1500);
-  valueHtml.value = props.value;
-});
-// 组件销毁时，也及时销毁编辑器
-onBeforeUnmount(() => {
-  const editor = editorRef.value;
-  if (editor == null) return;
-  editor.destroy();
-});
+  const editorConfig: Partial<IEditorConfig> = {
+    placeholder: props.placeholder,
+    autoFocus: false,
+    readOnly: props.disabled,
+    MENU_CONF: {
+      uploadImage: {
+        maxFileSize: 5 * 1024 * 1024,
+        allowedFileTypes: ['image/*'],
+        async customUpload(
+          file: File,
+          insertFn: (url: string, alt?: string, href?: string) => void
+        ) {
+          try {
+            const { data } = await uploadFile(file, props.uploadFolder);
+            const url = resolveApiUrl(data.proxyUrl);
+            insertFn(url, data.fileName || file.name, url);
+          } catch {
+            Message.error('图片上传失败');
+          }
+        },
+      },
+    },
+  };
+
+  watch(
+    () => props.value,
+    (newValue) => {
+      if (newValue !== valueHtml.value) {
+        valueHtml.value = newValue || '<p></p>';
+      }
+    }
+  );
+
+  watch(
+    () => props.disabled,
+    (disabled) => {
+      const editor = editorRef.value;
+      if (!editor) return;
+      if (disabled) {
+        editor.disable();
+      } else {
+        editor.enable();
+      }
+    }
+  );
+
+  const handleCreated = (editor: IDomEditor) => {
+    editorRef.value = editor;
+    if (props.value) {
+      editor.setHtml(props.value);
+    }
+    if (props.disabled) {
+      editor.disable();
+    }
+  };
+
+  const handleChange = () => {
+    emits('update:value', valueHtml.value);
+  };
+
+  onMounted(() => {
+    valueHtml.value = props.value || '<p></p>';
+  });
+
+  onBeforeUnmount(() => {
+    const editor = editorRef.value;
+    if (editor == null) return;
+    editor.destroy();
+  });
 </script>
 
 <style lang="less">
-@import "@/styles/rich.text.less";
+  @import '@/styles/rich.text.less';
 
-.widget-rich-text {
-  border: 1px solid var(--color-fill-2);
-  border-radius: var(--border-radius-small);
-  overflow: hidden;
-  font-size: 14px;
-  color: #999;
-  width: 100%;
+  .widget-rich-text {
+    border: 1px solid var(--color-fill-2);
+    border-radius: var(--border-radius-small);
+    font-size: 14px;
+    color: var(--color-text-3);
+    width: 100%;
 
-  .toolbar {
-    border-bottom: 1px solid var(--color-fill-2);
-  }
-
-  .editor {
-    background-color: var(--color-fill-2);
-    overflow-y: hidden;
-
-    &:hover {
-      background-color: var(--color-fill-3);
+    .toolbar {
+      border-bottom: 1px solid var(--color-fill-2);
     }
 
-    [data-slate-editor] {
-      // height: 100%;
-      min-height: 200px;
-      padding: 4px 10px;
-      border: 1px solid transparent;
+    .editor {
+      background-color: var(--color-fill-2);
 
-      &:focus {
-        background-color: #fff;
-        border: 1px solid rgb(var(--primary-6));
+      &:hover {
+        background-color: var(--color-fill-3);
       }
 
-      [data-slate-node="element"] {
-        margin-top: 0;
+      [data-slate-editor] {
+        min-height: 200px;
+        padding: 4px 10px;
+        border: 1px solid transparent;
+
+        &:focus {
+          background-color: #fff;
+          border: 1px solid rgb(var(--primary-6));
+        }
+
+        [data-slate-node='element'] {
+          margin-top: 0;
+        }
       }
     }
   }
-}
 </style>
