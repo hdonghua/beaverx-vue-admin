@@ -5,7 +5,6 @@ const COMPONENTS: AppRouteRecordRaw = {
   path: '/components',
   name: 'components',
   component: DEFAULT_LAYOUT,
-  redirect: { name: 'ComponentOverview' },
   meta: {
     locale: 'menu.components',
     requiresAuth: true,
@@ -15,16 +14,6 @@ const COMPONENTS: AppRouteRecordRaw = {
     roles: ['*'],
   },
   children: [
-    {
-      path: 'overview',
-      name: 'ComponentOverview',
-      component: () => import('@/views/components/overview/index.vue'),
-      meta: {
-        locale: 'menu.components.overview',
-        requiresAuth: true,
-        roles: ['*'],
-      },
-    },
     {
       path: 'dict-select',
       name: 'ComponentDictSelect',
