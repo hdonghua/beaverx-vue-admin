@@ -88,16 +88,10 @@ beaverx-vue-admin/
 `src/config/settings.json` 中 `menuFromServer: true` 时：
 
 - 侧边栏菜单来自接口 `GET /api/Menu/user-menus`
-- 路由是否可访问由 `allowedRouteNames` 控制（见 `permission.ts`）
-- **新增系统菜单页面时**，必须在 `src/utils/server-menu.ts` 的 `PATH_TO_ROUTE_NAME` 中增加映射，例如：
-
-```ts
-const PATH_TO_ROUTE_NAME: Record<string, string> = {
-  '/system/config': 'ConfigList', // path → 路由 name
-};
-```
-
-否则会出现：菜单能显示，但点击进入 **403**。
+- 登录后按后端菜单 **动态注册路由**（`dir-{id}` / `menu-{id}`），目录统一挂 `DEFAULT_LAYOUT`
+- **`component`** 动态加载 `views/` 页面，业务菜单 **不必** 在 `router/routes/modules/` 预定义
+- **`path`** 为后端配置的访问地址；刷新时会重新拉菜单、注册路由并按 URL 重进
+- `views/` 下须有与 `component` 对应的 `.vue` 文件，否则菜单不生效
 
 ### 2. 路由与权限
 
@@ -109,11 +103,13 @@ const PATH_TO_ROUTE_NAME: Record<string, string> = {
 | `router/constants.ts`           | `Home`、`403` 等白名单路由        |
 
 
-静态路由定义在 `router/routes/modules/`，需与后端菜单的 `path`、`component` 一致，例如：
+静态路由 `router/routes/modules/` 在 `menuFromServer: true` 时主要用于 **Home、组件演示** 等；业务菜单由后端下发并动态注册。
 
-- 后端 `path`: `/system/config`
-- 后端 `component`: `system/config/index`
-- 前端路由：`path: 'config'`，组件 `@/views/system/config/index.vue`
+| 字段 | 示例 | 说明 |
+|------|------|------|
+| 后端 `component` | `system/user/index` | 对应 `views/system/user/index.vue`（须存在该文件） |
+| 后端 `path` | `/system/user` | 注册到 vue-router 的访问地址，可自定义 |
+| 路由 name | `menu-{id}` | 自动生成，无需前端配置 |
 
 ### 3. API 调用
 
@@ -183,7 +179,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 ### 步骤 1：静态路由
 
-`src/router/routes/modules/system.ts` 增加子路由，`name` 与 `PATH_TO_ROUTE_NAME` 保持一致：
+`src/router/routes/modules/system.ts` 增加子路由，`name` 保持语义清晰（如 `ConfigList`）：
 
 ```ts
 {
@@ -194,25 +190,25 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 }
 ```
 
-### 步骤 2：菜单 path 映射
+后端菜单 `component` 填 `system/config/index` 即可；`path` 可按需填写。父级 Layout 路由会自动放行。
 
-`src/utils/server-menu.ts` → `PATH_TO_ROUTE_NAME` 增加 `/system/config: 'ConfigList'`。
-
-### 步骤 3：API
+### 步骤 2：API
 
 在 `src/api/server/system/config.ts`（或对应模块目录下）封装 CRUD 接口，类型从 `@/utils/request` 引入 `ApiResponse`。
 
-### 步骤 4：页面
+### 步骤 3：页面
 
 `src/views/system/config/index.vue`，可参考 `dict`、`user` 列表页写法。
 
-### 步骤 5：文案
+### 步骤 4：文案
 
 `src/locale/zh-CN.ts`、`en-US.ts` 增加 `menu.system.configList`。
 
-### 步骤 6：后端配合
+### 步骤 5：后端配合
 
-后端需同步提供：菜单种子、权限码、Controller。详见 [BeaverX.Admin README](https://github.com/hdonghua/BeaverX.Admin)。
+后端在 **菜单管理**（或 `RbacDataSeeder`）中新增菜单：`component` 填 `system/config/index`，`path` 自定，并配置权限码。详见 [BeaverX.Admin README](https://github.com/hdonghua/BeaverX.Admin)。
+
+> 日常加页面：前端补静态路由 + 视图 + API；后端在菜单管理配好 `component` / 权限并分配给角色即可，**不必改** `server-menu.ts`。
 
 ## 布局与全局配置
 
@@ -225,7 +221,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 | 现象             | 排查                                               |
 | -------------- | ------------------------------------------------ |
 | 接口 401 / 一直跳登录 | 检查 `VITE_API_BASE_URL`、后端 CORS、Token 是否过期        |
-| 有菜单但进页面 403    | 检查 `PATH_TO_ROUTE_NAME` 是否配置                     |
+| 有菜单但进页面 403    | 检查后端 `component` 是否与 `views/` 路径一致（如 `system/config/index`） |
 | 刷新外链/子路由 404   | 检查 `permission.ts` 与 `register-server-routes.ts` |
 | 构建失败           | 先执行 `npm run type:check` 定位 TS 错误                |
 

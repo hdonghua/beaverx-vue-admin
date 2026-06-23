@@ -37,13 +37,36 @@ function shouldFetchServerMenu(
   routeName: string,
   path: string
 ) {
-  if (appStore.appAsyncMenus.length) {
-    return false;
+  if (!appStore.appAsyncMenus.length) {
+    return true;
   }
   if (isExternalLocationPath(path)) {
     return true;
   }
+  if (
+    !routeName &&
+    path &&
+    path !== '/' &&
+    !path.startsWith('/login')
+  ) {
+    return true;
+  }
   return !MENU_FETCH_SKIP_ROUTES.includes(routeName);
+}
+
+function shouldRetryNavigation(
+  router: Router,
+  to: { fullPath: string; name?: string | symbol | null }
+) {
+  if (to.name === NOT_FOUND.name || to.name === 'notFound') {
+    const resolved = router.resolve(to.fullPath);
+    return (
+      !!resolved.name &&
+      resolved.name !== NOT_FOUND.name &&
+      resolved.name !== 'notFound'
+    );
+  }
+  return !to.name || !router.hasRoute(to.name);
 }
 
 function tryResolveExternalRefresh(
@@ -88,15 +111,23 @@ export default function setupPermissionGuard(router: Router) {
       if (appStore.menuFromServer) {
         if (shouldFetchServerMenu(appStore, routeName, to.path)) {
           await appStore.fetchServerMenuConfig(router);
+
+          if (shouldRetryNavigation(router, to)) {
+            next({ path: to.fullPath, query: to.query, hash: to.hash, replace: true });
+            return;
+          }
         }
 
         if (tryResolveExternalRefresh(router, to, next)) {
           return;
         }
 
-        const isWhiteListed = ROUTE_ACCESS_WHITE_LIST.includes(routeName);
+        const resolvedName = to.name
+          ? String(to.name)
+          : String(router.resolve(to.fullPath).name || '');
+        const isWhiteListed = ROUTE_ACCESS_WHITE_LIST.includes(resolvedName);
         const hasMenuAccess =
-          isWhiteListed || appStore.allowedRouteNames.includes(routeName);
+          isWhiteListed || appStore.allowedRouteNames.includes(resolvedName);
 
         if (!permissionsAllow) {
           next(hasMenuAccess ? FORBIDDEN : NOT_FOUND);
@@ -105,7 +136,7 @@ export default function setupPermissionGuard(router: Router) {
 
         if (hasMenuAccess) {
           next();
-        } else if (isRouteDefinedInApp(router, routeName)) {
+        } else if (isRouteDefinedInApp(router, resolvedName)) {
           next(FORBIDDEN);
         } else {
           next(NOT_FOUND);

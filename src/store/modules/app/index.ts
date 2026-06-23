@@ -7,12 +7,13 @@ import { getUserMenus } from '@/api/server/rbac/menu';
 import {
   transformServerMenus,
   getFirstAccessibleRouteName,
-  collectAllowedRouteNames,
+  collectAllAllowedRouteNames,
   collectExternalRoutesFromMenus,
+  collectInternalRoutesFromMenus,
 } from '@/utils/server-menu';
-import { collectStaticMenuRouteNames } from '@/router/static-menus';
 import {
   registerExternalRoutes,
+  registerInternalRoutes,
   unregisterServerRoutes,
 } from '@/utils/register-server-routes';
 import { AppState } from './types';
@@ -63,10 +64,7 @@ const useAppStore = defineStore('app', {
       try {
         const { data } = await getUserMenus();
         this.serverMenu = transformServerMenus(data);
-        this.allowedRouteNames = [
-          ...collectAllowedRouteNames(data || []),
-          ...collectStaticMenuRouteNames(),
-        ];
+        this.allowedRouteNames = collectAllAllowedRouteNames(data || []);
 
         try {
           const router = routerInstance ?? (await getRouter());
@@ -74,13 +72,15 @@ const useAppStore = defineStore('app', {
             router,
             this.registeredServerRouteNames ?? []
           );
-          this.registeredServerRouteNames = registerExternalRoutes(
-            router,
-            collectExternalRoutesFromMenus(data || [])
-          );
+          const internalRoutes = collectInternalRoutesFromMenus(data || []);
+          const externalRoutes = collectExternalRoutesFromMenus(data || []);
+          this.registeredServerRouteNames = [
+            ...registerInternalRoutes(router, internalRoutes),
+            ...registerExternalRoutes(router, externalRoutes),
+          ];
         } catch (routeError) {
           // eslint-disable-next-line no-console
-          console.warn('外链路由注册失败，侧边栏菜单不受影响', routeError);
+          console.warn('服务端路由注册失败，侧边栏菜单不受影响', routeError);
           this.registeredServerRouteNames = [];
         }
 
@@ -92,7 +92,7 @@ const useAppStore = defineStore('app', {
           closable: true,
         });
         this.serverMenu = [];
-        this.allowedRouteNames = [...collectStaticMenuRouteNames()];
+        this.allowedRouteNames = collectAllAllowedRouteNames([]);
         this.registeredServerRouteNames = [];
         return [];
       }

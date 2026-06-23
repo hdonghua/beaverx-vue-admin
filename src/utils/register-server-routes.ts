@@ -1,4 +1,5 @@
 import type { Router, RouteRecordRaw } from 'vue-router';
+import { flattenRouteNames } from '@/utils/server-menu';
 
 export const EXTERNAL_ROUTE_FALLBACK_PARENT = 'linkHost';
 
@@ -79,6 +80,30 @@ export function registerExternalRoutes(
     } catch (error) {
       // eslint-disable-next-line no-console
       console.warn(`Failed to register external route: ${routeName}`, error);
+    }
+  });
+
+  return registeredNames;
+}
+
+/** 仅注册/更新服务端下发的内部路由（menu-、dir- 前缀），不触碰静态业务路由 */
+export function registerInternalRoutes(
+  router: Router,
+  routes: RouteRecordRaw[]
+): string[] {
+  const registeredNames: string[] = [];
+
+  routes.forEach((route) => {
+    const routeName = route.name ? String(route.name) : '';
+    try {
+      if (routeName && router.hasRoute(routeName)) {
+        router.removeRoute(routeName);
+      }
+      router.addRoute(route);
+      registeredNames.push(...flattenRouteNames([route]));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(`Failed to register internal route: ${routeName || route.path}`, error);
     }
   });
 

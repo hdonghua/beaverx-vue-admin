@@ -1,29 +1,48 @@
 ﻿import type { RouteRecordRaw } from 'vue-router';
-import { cloneDeep } from 'lodash';
-import appClientMenus from '@/router/app-menus';
 import { DEFAULT_LAYOUT } from '@/router/routes/base';
 import { MenuDto, MenuType } from '@/api/server/rbac/menu';
 import { EXTERNAL_ROUTE_FALLBACK_PARENT } from '@/utils/register-server-routes';
+import {
+  hasViewComponent,
+  resolveViewLoader,
+} from '@/utils/view-loader';
+import { collectStaticMenuRouteNames } from '@/router/static-menus';
 
-/** 后端菜单 path -> 前端路由 name（内部页面权限校验用） */
-const PATH_TO_ROUTE_NAME: Record<string, string> = {
-  '/system': 'system',
-  '/system/user': 'UserList',
-  '/system/role': 'RoleList',
-  '/system/menu': 'MenuList',
-  '/system/dict': 'DictList',
-  '/system/config': 'ConfigList',
-  '/system/job': 'ScheduledJobList',
-  '/system/message': 'SiteMessageSend',
-  '/system/online-user': 'OnlineUserList',
-  '/payment': 'payment',
-  '/payment/channel': 'PaymentChannelList',
-  '/payment/order': 'PaymentOrderList',
-  '/payment/refund': 'PaymentRefundList',
-  '/ticket': 'ticket',
-  '/ticket/work': 'WorkTicketList',
-  '/ticket/process': 'WorkTicketProcess',
-};
+export function menuRouteName(menuId: string | number) {
+  return `menu-${menuId}`;
+}
+
+export function dirRouteName(menuId: string | number) {
+  return `dir-${menuId}`;
+}
+
+function normalizeAbsolutePath(path?: string | null): string {
+  if (!path?.trim()) {
+    return '';
+  }
+  const value = path.trim().replace(/\\/g, '/');
+  const withLeading = value.startsWith('/') ? value : `/${value}`;
+  return withLeading.replace(/\/+/g, '/').replace(/\/$/, '') || '/';
+}
+
+/** 将菜单完整 path 转为 vue-router 子路由 path */
+function toChildRoutePath(menuFullPath: string, parentFullPath?: string): string {
+  const full = normalizeAbsolutePath(menuFullPath);
+  if (!full) {
+    return '';
+  }
+  if (!parentFullPath) {
+    return full;
+  }
+  const parent = normalizeAbsolutePath(parentFullPath);
+  if (full === parent) {
+    return '';
+  }
+  if (full.startsWith(`${parent}/`)) {
+    return full.slice(parent.length + 1);
+  }
+  return full;
+}
 
 function formatMenuIcon(icon?: string | null) {
   if (!icon) {
@@ -32,29 +51,18 @@ function formatMenuIcon(icon?: string | null) {
   return icon.startsWith('icon-') ? icon : `icon-${icon}`;
 }
 
-function buildStaticPathMap(routes: RouteRecordRaw[], parentPath = '') {
-  const map = new Map<string, RouteRecordRaw>();
-
-  routes.forEach((route) => {
-    const routePath = String(route.path || '');
-    const fullPath = routePath.startsWith('/')
-      ? routePath
-      : `${parentPath}/${routePath}`.replace(/\/+/g, '/');
-
-    if (routePath) {
-      map.set(fullPath, route);
-    }
-
-    if (route.children?.length) {
-      const childMap = buildStaticPathMap(route.children, fullPath);
-      childMap.forEach((value, key) => map.set(key, value));
-    }
-  });
-
-  return map;
+function buildMenuMeta(menu: MenuDto): RouteRecordRaw['meta'] {
+  const icon = formatMenuIcon(menu.icon);
+  return {
+    requiresAuth: true,
+    roles: ['*'],
+    title: menu.name,
+    order: menu.sort,
+    menuId: menu.id,
+    ...(icon ? { icon } : {}),
+  } as RouteRecordRaw['meta'];
 }
 
-/** 侧边栏展示：启用 + 可见 + 非按钮 */
 function isSidebarMenu(menu: MenuDto) {
   return (
     menu.isEnabled &&
@@ -63,105 +71,103 @@ function isSidebarMenu(menu: MenuDto) {
   );
 }
 
-/** 路由可访问：启用 + 非按钮（隐藏菜单仍可访问） */
 function isAccessibleMenu(menu: MenuDto) {
   return menu.isEnabled && menu.menuType !== MenuType.Button;
 }
 
-function resolveParentRouteName(
-  staticMatch: RouteRecordRaw | undefined,
-  parentRouteName?: string
-) {
-  if (staticMatch?.name) {
-    const name = String(staticMatch.name);
-    if (!name.startsWith('dir-')) {
-      return name;
-    }
-  }
-  return parentRouteName;
-}
-
 function toExternalRoute(
   menu: MenuDto,
-  parentRouteName?: string
+  parentDirRouteName?: string
 ): RouteRecordRaw {
   return {
     path: `external/${menu.id}`,
     name: `external-${menu.id}`,
+    component: () => import('@/views/iframe/index.vue'),
     meta: {
       requiresAuth: true,
       title: menu.name,
       icon: formatMenuIcon(menu.icon),
       isExternal: true,
       frameSrc: menu.path || '',
-      externalParentName: parentRouteName || EXTERNAL_ROUTE_FALLBACK_PARENT,
+      externalParentName: parentDirRouteName || EXTERNAL_ROUTE_FALLBACK_PARENT,
       order: menu.sort,
       roles: ['*'],
       ignoreCache: true,
+      menuId: menu.id,
     },
-  } as RouteRecordRaw;
-}
-
-function toVirtualDirectory(
-  menu: MenuDto,
-  children: RouteRecordRaw[]
-): RouteRecordRaw {
-  const path = menu.path || `dir-${menu.id}`;
-  return {
-    path,
-    name: `dir-${menu.id}`,
-    component: DEFAULT_LAYOUT,
-    meta: {
-      requiresAuth: true,
-      title: menu.name,
-      icon: formatMenuIcon(menu.icon),
-      order: menu.sort,
-      roles: ['*'],
-    },
-    children,
   };
 }
 
-function buildChildrenFromServer(
+function toDirectoryRoute(
+  menu: MenuDto,
+  children: RouteRecordRaw[]
+): RouteRecordRaw {
+  const route: RouteRecordRaw = {
+    path: normalizeAbsolutePath(menu.path) || `dir-${menu.id}`,
+    name: dirRouteName(menu.id),
+    component: DEFAULT_LAYOUT,
+    meta: buildMenuMeta(menu),
+    children,
+  };
+
+  const firstPage = children.find(
+    (child) => child.name && !child.meta?.isExternal
+  );
+  if (firstPage?.name) {
+    route.redirect = { name: String(firstPage.name) };
+  }
+
+  return route;
+}
+
+function toPageRoute(
+  menu: MenuDto,
+  parentFullPath?: string
+): RouteRecordRaw | null {
+  const loader = resolveViewLoader(menu.component);
+  if (!loader || !menu.path) {
+    return null;
+  }
+
+  return {
+    path: toChildRoutePath(menu.path, parentFullPath),
+    name: menuRouteName(menu.id),
+    component: loader,
+    meta: buildMenuMeta(menu),
+  };
+}
+
+function buildMenuRoutesFromServer(
   serverChildren: MenuDto[],
-  staticByPath: Map<string, RouteRecordRaw>,
-  parentRouteName?: string
+  parentFullPath?: string,
+  parentDirRouteName?: string,
+  includeHidden = false
 ): RouteRecordRaw[] {
+  const filterMenu = includeHidden ? isAccessibleMenu : isSidebarMenu;
+
   return serverChildren
-    .filter(isSidebarMenu)
+    .filter(filterMenu)
     .sort((a, b) => a.sort - b.sort)
     .map((menu) => {
       if (menu.menuType === MenuType.Menu) {
         if (menu.isExternal) {
-          return toExternalRoute(menu, parentRouteName);
+          return toExternalRoute(menu, parentDirRouteName);
         }
-
-        if (menu.path && staticByPath.has(menu.path)) {
-          return cloneDeep(staticByPath.get(menu.path)!);
-        }
-
-        return null;
+        return toPageRoute(menu, parentFullPath);
       }
 
       if (menu.menuType === MenuType.Directory) {
-        const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
-        const childParent = resolveParentRouteName(staticDir, parentRouteName);
-        const children = buildChildrenFromServer(
+        const dirPath = normalizeAbsolutePath(menu.path);
+        const children = buildMenuRoutesFromServer(
           menu.children || [],
-          staticByPath,
-          childParent
+          dirPath || parentFullPath,
+          dirRouteName(menu.id),
+          includeHidden
         );
         if (!children.length) {
           return null;
         }
-        if (staticDir) {
-          return {
-            ...cloneDeep(staticDir),
-            children,
-          };
-        }
-
-        return toVirtualDirectory(menu, children);
+        return toDirectoryRoute(menu, children);
       }
 
       return null;
@@ -169,56 +175,57 @@ function buildChildrenFromServer(
     .filter((route): route is RouteRecordRaw => !!route);
 }
 
-/** 将后端菜单转为前端侧边栏菜单（内部页 + 外链） */
-export function transformServerMenus(menus: MenuDto[]): RouteRecordRaw[] {
-  const staticRoutes = cloneDeep(appClientMenus) as RouteRecordRaw[];
-  const staticByPath = buildStaticPathMap(staticRoutes);
+function buildServerRouteTree(
+  menus: MenuDto[],
+  includeHidden: boolean
+): RouteRecordRaw[] {
+  const filterMenu = includeHidden ? isAccessibleMenu : isSidebarMenu;
 
   return menus
-    .filter((menu) => menu.menuType === MenuType.Directory && isSidebarMenu(menu))
+    .filter((menu) => menu.menuType === MenuType.Directory && filterMenu(menu))
     .sort((a, b) => a.sort - b.sort)
     .map((menu) => {
-      const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
-      const parentRouteName = resolveParentRouteName(staticDir);
-      const children = buildChildrenFromServer(
+      const dirPath = normalizeAbsolutePath(menu.path);
+      const children = buildMenuRoutesFromServer(
         menu.children || [],
-        staticByPath,
-        parentRouteName
+        dirPath,
+        dirRouteName(menu.id),
+        includeHidden
       );
-
-      if (staticDir) {
-        return {
-          ...cloneDeep(staticDir),
-          children,
-        };
+      if (!children.length) {
+        return null;
       }
-
-      return toVirtualDirectory(menu, children);
+      return toDirectoryRoute(menu, children);
     })
-    .filter((route) => route.children?.length);
+    .filter((route): route is RouteRecordRaw => !!route);
 }
 
-/** 收集需动态注册的外链路由（含隐藏菜单） */
+/** 按后端菜单构建路由树（含隐藏菜单，用于动态注册） */
+export function collectInternalRoutesFromMenus(menus: MenuDto[]): RouteRecordRaw[] {
+  return buildServerRouteTree(menus, true);
+}
+
+/** 将后端菜单转为侧边栏结构（path / name 均来自后端菜单） */
+export function transformServerMenus(menus: MenuDto[]): RouteRecordRaw[] {
+  return buildServerRouteTree(menus, false);
+}
+
+/** 收集外链路由（含隐藏菜单） */
 export function collectExternalRoutesFromMenus(menus: MenuDto[]): RouteRecordRaw[] {
   const result: RouteRecordRaw[] = [];
-  const staticByPath = buildStaticPathMap(
-    cloneDeep(appClientMenus) as RouteRecordRaw[]
-  );
 
-  const walk = (items: MenuDto[], parentRouteName?: string) => {
+  const walk = (items: MenuDto[], parentDirRouteName?: string) => {
     items
       .filter((menu) => menu.isEnabled)
       .sort((a, b) => a.sort - b.sort)
       .forEach((menu) => {
         if (menu.menuType === MenuType.Menu && menu.isExternal) {
-          result.push(toExternalRoute(menu, parentRouteName));
+          result.push(toExternalRoute(menu, parentDirRouteName));
           return;
         }
 
         if (menu.menuType === MenuType.Directory && menu.children?.length) {
-          const staticDir = menu.path ? staticByPath.get(menu.path) : undefined;
-          const childParent = resolveParentRouteName(staticDir, parentRouteName);
-          walk(menu.children, childParent);
+          walk(menu.children, dirRouteName(menu.id));
         }
       });
   };
@@ -227,9 +234,43 @@ export function collectExternalRoutesFromMenus(menus: MenuDto[]): RouteRecordRaw
   return result;
 }
 
-/** 收集可访问路由 name（含隐藏菜单，不含按钮） */
+function buildMenuIndex(menus: MenuDto[]) {
+  const menuById = new Map<string, MenuDto>();
+  const walk = (items: MenuDto[]) => {
+    items.forEach((menu) => {
+      menuById.set(String(menu.id), menu);
+      if (menu.children?.length) {
+        walk(menu.children);
+      }
+    });
+  };
+  walk(menus);
+  return menuById;
+}
+
+function collectDirectoryAncestors(
+  menu: MenuDto,
+  menuById: Map<string, MenuDto>
+): string[] {
+  const names: string[] = [];
+  let parentId = menu.parentId;
+  while (parentId) {
+    const parent = menuById.get(String(parentId));
+    if (!parent) {
+      break;
+    }
+    if (parent.menuType === MenuType.Directory) {
+      names.push(dirRouteName(parent.id));
+    }
+    parentId = parent.parentId;
+  }
+  return names;
+}
+
+/** 收集可访问路由 name（menu-{id} / dir-{id} / external-{id}） */
 export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
   const names = new Set<string>();
+  const menuById = buildMenuIndex(menus);
 
   const walk = (items: MenuDto[]) => {
     items.forEach((menu) => {
@@ -242,11 +283,15 @@ export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
 
       if (menu.isExternal) {
         names.add(`external-${menu.id}`);
-      } else if (menu.path) {
-        const routeName = PATH_TO_ROUTE_NAME[menu.path];
-        if (routeName) {
-          names.add(routeName);
+      } else if (menu.menuType === MenuType.Menu) {
+        if (hasViewComponent(menu.component)) {
+          names.add(menuRouteName(menu.id));
+          collectDirectoryAncestors(menu, menuById).forEach((name) =>
+            names.add(name)
+          );
         }
+      } else if (menu.menuType === MenuType.Directory) {
+        names.add(dirRouteName(menu.id));
       }
 
       if (menu.children?.length) {
@@ -256,30 +301,16 @@ export function collectAllowedRouteNames(menus: MenuDto[]): Set<string> {
   };
 
   walk(menus);
-
-  if (
-    names.has('UserList') ||
-    names.has('RoleList') ||
-    names.has('MenuList') ||
-    names.has('DictList') ||
-    names.has('ConfigList') ||
-    names.has('ScheduledJobList')
-  ) {
-    names.add('system');
-  }
-
-  if (
-    names.has('PaymentChannelList') ||
-    names.has('PaymentOrderList') ||
-    names.has('PaymentRefundList')
-  ) {
-    names.add('payment');
-  }
-
   return names;
 }
 
-/** 按后端授权过滤本地静态菜单，保留 Arco 需要的 meta/icon/locale 结构 */
+export function collectAllAllowedRouteNames(menus: MenuDto[]): string[] {
+  return [
+    ...collectAllowedRouteNames(menus || []),
+    ...collectStaticMenuRouteNames(),
+  ];
+}
+
 export function filterClientMenusByAllowedNames(
   routes: RouteRecordRaw[],
   allowedNames: Set<string>
@@ -304,24 +335,9 @@ export function filterClientMenusByAllowedNames(
   }, []);
 }
 
-/** 从已过滤的侧边栏菜单中取第一个可访问叶子路由 */
 export function getFirstAccessibleRouteName(
   menus: RouteRecordRaw[]
 ): string | null {
-  const preferredOrder = [
-    'UserList',
-    'RoleList',
-    'MenuList',
-    'DictList',
-    'ConfigList',
-  ];
-  const availableNames = flattenRouteNames(menus);
-
-  const preferred = preferredOrder.find((name) => availableNames.includes(name));
-  if (preferred) {
-    return preferred;
-  }
-
   const walk = (routes: RouteRecordRaw[]): string | null => {
     for (const route of routes) {
       if (route.meta?.isExternal) {
