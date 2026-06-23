@@ -11,6 +11,8 @@ declare module 'vue-router' {
     frameSrc?: string; // External URL for iframe page
     externalParentName?: string; // Vue Router parent name for iframe route
     hideInMenu?: boolean; // If true, it is not displayed in the side menu
+    /** 仅前端静态菜单，menuFromServer 时合并到侧边栏 */
+    staticMenu?: boolean;
     hideChildrenInMenu?: boolean; // if set true, the children are not displayed in the side menu
     activeMenu?: string; // if set name, the menu will be highlighted according to the name you set
     order?: number; // Sort routing menu items. If set key, the higher the value, the more forward it is

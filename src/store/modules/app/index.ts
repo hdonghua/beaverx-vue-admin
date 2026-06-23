@@ -10,6 +10,7 @@ import {
   collectAllowedRouteNames,
   collectExternalRoutesFromMenus,
 } from '@/utils/server-menu';
+import { collectStaticMenuRouteNames } from '@/router/static-menus';
 import {
   registerExternalRoutes,
   unregisterServerRoutes,
@@ -64,6 +65,7 @@ const useAppStore = defineStore('app', {
         this.serverMenu = transformServerMenus(data);
         this.allowedRouteNames = [
           ...collectAllowedRouteNames(data || []),
+          ...collectStaticMenuRouteNames(),
         ];
 
         try {
@@ -90,7 +92,7 @@ const useAppStore = defineStore('app', {
           closable: true,
         });
         this.serverMenu = [];
-        this.allowedRouteNames = [];
+        this.allowedRouteNames = [...collectStaticMenuRouteNames()];
         this.registeredServerRouteNames = [];
         return [];
       }

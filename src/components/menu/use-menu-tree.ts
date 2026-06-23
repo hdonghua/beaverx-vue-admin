@@ -3,6 +3,7 @@ import { RouteRecordRaw, RouteRecordNormalized } from 'vue-router';
 import usePermission from '@/hooks/permission';
 import { useAppStore } from '@/store';
 import appClientMenus from '@/router/app-menus';
+import { getStaticMenuRoutes } from '@/router/static-menus';
 import { cloneDeep } from 'lodash';
 
 export default function useMenuTree() {
@@ -10,7 +11,7 @@ export default function useMenuTree() {
   const appStore = useAppStore();
   const appRoute = computed(() => {
     if (appStore.menuFromServer) {
-      return appStore.appAsyncMenus;
+      return [...appStore.appAsyncMenus, ...getStaticMenuRoutes()];
     }
     return appClientMenus;
   });
