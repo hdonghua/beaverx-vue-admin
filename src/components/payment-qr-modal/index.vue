@@ -19,7 +19,7 @@
         <a-tag :color="statusColor">{{ statusLabel }}</a-tag>
       </div>
       <a-space class="pay-actions" wrap>
-        <a-button :loading="syncLoading" @click="handleSync">刷新状态</a-button>
+        <a-button :loading="syncLoading" @click="() => handleSync()">刷新状态</a-button>
       </a-space>
       <div class="pay-tip">请使用对应支付 App 扫描二维码完成支付</div>
     </div>
