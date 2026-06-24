@@ -19,6 +19,7 @@
   "tabBar": true,
   "avatarEnabled": false,
   "menuFromServer": true,
+  "serverMenuFetched": false,
   "serverMenu": [],
   "allowedRouteNames": [],
   "registeredServerRouteNames": []

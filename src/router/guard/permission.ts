@@ -42,7 +42,7 @@ function shouldFetchServerMenu(
     return false;
   }
   // F5 刷新 / 登出后重登：动态路由未注册时会先命中 notFound，仍需拉菜单
-  if (!appStore.appAsyncMenus.length) {
+  if (!appStore.serverMenuFetched) {
     return true;
   }
   if (MENU_FETCH_SKIP_ROUTES.includes(routeName)) {
@@ -118,11 +118,11 @@ export default function setupPermissionGuard(router: Router) {
 
       if (appStore.menuFromServer) {
         if (shouldFetchServerMenu(appStore, routeName, to.path)) {
-          const isInitialMenuLoad = !appStore.appAsyncMenus.length;
+          const isFirstFetch = !appStore.serverMenuFetched;
           await appStore.fetchServerMenuConfig(router);
 
           // 首次拉菜单会动态 addRoute，必须 replace 重进导航（否则登录后仍停在登录页）
-          if (isInitialMenuLoad || shouldRetryNavigation(router, to)) {
+          if (isFirstFetch || shouldRetryNavigation(router, to)) {
             next({ path: to.fullPath, query: to.query, hash: to.hash, replace: true });
             return;
           }

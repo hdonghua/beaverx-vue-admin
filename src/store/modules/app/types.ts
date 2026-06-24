@@ -21,6 +21,8 @@ export interface AppState {
   tabBar: boolean;
   avatarEnabled: boolean;
   menuFromServer: boolean;
+  /** 本会话是否已请求过服务端菜单（空菜单也为 true，避免重复拉取） */
+  serverMenuFetched: boolean;
   serverMenu: RouteRecordRaw[];
   allowedRouteNames: string[];
   registeredServerRouteNames: string[];

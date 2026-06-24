@@ -97,6 +97,8 @@ const useAppStore = defineStore('app', {
         this.allowedRouteNames = collectAllAllowedRouteNames([]);
         this.registeredServerRouteNames = [];
         return [];
+      } finally {
+        this.serverMenuFetched = true;
       }
     },
     getDefaultRouteName() {
@@ -118,6 +120,7 @@ const useAppStore = defineStore('app', {
       this.registeredServerRouteNames = [];
       this.serverMenu = [];
       this.allowedRouteNames = [];
+      this.serverMenuFetched = false;
     },
   },
 });
