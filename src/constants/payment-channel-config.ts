@@ -21,6 +21,7 @@ export const ALIPAY_CERT_FIELDS = [
     fileNameKey: 'alipayPublicCertFileName',
     pathKey: 'alipayPublicCertPath',
     label: '支付宝公钥证书（证书模式）',
+    hint: '证书模式需上传',
   },
   {
     urlKey: 'alipayRootCertUrl',
@@ -114,7 +115,7 @@ const ALIPAY_CONFIG_FIELDS: PaymentChannelConfigField[] = [
     pathKey: item.pathKey,
     label: item.label,
     type: 'cert-upload' as const,
-    hint: item.hint,
+    hint: 'hint' in item ? item.hint : undefined,
   })),
 ];
 

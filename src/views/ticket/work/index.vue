@@ -206,6 +206,7 @@
   import dayjs from 'dayjs';
   import { Message, type FieldRule, type FileItem, type FormInstance } from '@arco-design/web-vue';
   import type { RequestOption } from '@arco-design/web-vue/es/upload/interfaces';
+  import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import PageContainer from '@/components/page-container/index.vue';
   import DictSelect from '@/components/dict-select/index.vue';
   import DictTag from '@/components/dict-tag/index.vue';
@@ -265,7 +266,7 @@
   const formatTime = (value?: string | null) =>
     value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '-';
 
-  const columns = [
+  const columns: TableColumnData[] = [
     { title: '工单号', dataIndex: 'ticketNo', width: 180 },
     { title: '标题', dataIndex: 'title', ellipsis: true, tooltip: true, width: 160 },
     { title: '图片', slotName: 'images', width: 140 },
@@ -358,35 +359,42 @@
     fetchList();
   }
 
-  async function handleUpload(option: RequestOption) {
+  function handleUpload(option: RequestOption) {
     const { fileItem, onSuccess, onError } = option;
     const rawFile = fileItem.file;
-    if (!rawFile) {
-      onError?.();
-      return;
-    }
 
-    if (uploadedImages.value.length >= MAX_WORK_TICKET_IMAGES) {
-      Message.warning(`最多上传 ${MAX_WORK_TICKET_IMAGES} 张图片`);
-      onError?.();
-      return;
-    }
+    void (async () => {
+      if (!rawFile) {
+        onError?.();
+        return;
+      }
 
-    uploadingCount.value += 1;
-    try {
-      const { data } = await uploadFile(rawFile, 'work-ticket');
-      const image: WorkTicketImageDto = {
-        objectKey: data.objectKey,
-        proxyUrl: data.proxyUrl,
-        fileName: data.fileName,
-      };
-      onSuccess?.(image);
-    } catch {
-      Message.error('图片上传失败');
-      onError?.();
-    } finally {
-      uploadingCount.value -= 1;
-    }
+      if (uploadedImages.value.length >= MAX_WORK_TICKET_IMAGES) {
+        Message.warning(`最多上传 ${MAX_WORK_TICKET_IMAGES} 张图片`);
+        onError?.();
+        return;
+      }
+
+      uploadingCount.value += 1;
+      try {
+        const { data } = await uploadFile(rawFile, 'work-ticket');
+        const image: WorkTicketImageDto = {
+          objectKey: data.objectKey,
+          proxyUrl: data.proxyUrl,
+          fileName: data.fileName,
+        };
+        onSuccess?.(image);
+      } catch {
+        Message.error('图片上传失败');
+        onError?.();
+      } finally {
+        uploadingCount.value -= 1;
+      }
+    })();
+
+    return {
+      abort() {},
+    };
   }
 
   function handleUploadChange(items: FileItem[]) {

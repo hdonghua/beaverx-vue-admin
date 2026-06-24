@@ -271,7 +271,7 @@
 <script lang="ts" setup>
   import { computed, reactive, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
+  import type { TableColumnData, TableData } from '@arco-design/web-vue/es/table/interface';
   import type { FormInstance } from '@arco-design/web-vue/es/form';
   import useLoading from '@/hooks/loading';
   import { clearFormValidate } from '@/utils/form';
@@ -414,8 +414,8 @@
     fetchDataList();
   };
 
-  const handleTypeRowClick = (record: DictTypeDto) => {
-    selectType(record);
+  const handleTypeRowClick = (record: TableData) => {
+    selectType(record as DictTypeDto);
   };
 
   const handleTypeSelectionChange = (rowKeys: (string | number)[]) => {

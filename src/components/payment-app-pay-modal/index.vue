@@ -19,7 +19,7 @@
       />
       <a-space class="pay-actions" wrap>
         <a-button type="primary" @click="handleCopy">复制 orderString</a-button>
-        <a-button :loading="syncLoading" @click="handleSync">刷新状态</a-button>
+        <a-button :loading="syncLoading" @click="() => handleSync()">刷新状态</a-button>
       </a-space>
       <div class="pay-status">
         <a-tag :color="statusColor">{{ statusLabel }}</a-tag>

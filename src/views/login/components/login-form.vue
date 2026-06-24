@@ -54,7 +54,7 @@
   import { Message } from '@arco-design/web-vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
   import { useI18n } from 'vue-i18n';
-  import { useUserStore, useAppStore, useTabBarStore } from '@/store';
+  import { useUserStore, useTabBarStore } from '@/store';
   import useLoading from '@/hooks/loading';
   import { LoginRequest } from '@/api/server/auth';
 
@@ -63,7 +63,6 @@
   const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
   const userStore = useUserStore();
-  const appStore = useAppStore();
   const tabBarStore = useTabBarStore();
 
   const userInfo = reactive({
@@ -83,9 +82,6 @@
       setLoading(true);
       try {
         await userStore.login(values as LoginRequest);
-        if (appStore.menuFromServer) {
-          await appStore.fetchServerMenuConfig(router);
-        }
         tabBarStore.resetTabList();
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         const redirectTarget = (redirect as string) || '';

@@ -45,9 +45,13 @@
 
   const resolvedOptions = computed(() => toSelectOptions(props.valueType));
 
-  const handleChange = (value: string | number | undefined) => {
-    emit('update:modelValue', value);
-    emit('change', value);
+  const handleChange = (value: unknown) => {
+    const normalized =
+      typeof value === 'string' || typeof value === 'number'
+        ? value
+        : undefined;
+    emit('update:modelValue', normalized);
+    emit('change', normalized);
   };
 </script>
 
