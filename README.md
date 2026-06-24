@@ -1,5 +1,7 @@
 # BeaverX Vue Admin（前端）
 
+> **Language**: 简体中文 | [English](README.en.md)
+
 基于 [Arco Design Pro Vue](https://arco.design/vue/docs/pro/start) 的管理后台前端，对接 `BeaverX.Admin` 后端 API。菜单与按钮权限由服务端下发，适合 RBAC 场景。
 
 ## 在线预览
