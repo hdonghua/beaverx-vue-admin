@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
 import type { Plugin } from 'vite';
 
@@ -20,6 +20,7 @@ export default function configFaviconPlugin(): Plugin {
         return;
       }
       const outDir = resolve(process.cwd(), 'dist');
+      mkdirSync(outDir, { recursive: true });
       copyFileSync(faviconSrc, resolve(outDir, 'favicon.ico'));
     },
   };
