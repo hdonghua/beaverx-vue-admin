@@ -15,6 +15,7 @@ import {
   registerExternalRoutes,
   registerInternalRoutes,
   unregisterServerRoutes,
+  ensureNotFoundRouteLast,
 } from '@/utils/register-server-routes';
 import { AppState } from './types';
 
@@ -78,6 +79,7 @@ const useAppStore = defineStore('app', {
             ...registerInternalRoutes(router, internalRoutes),
             ...registerExternalRoutes(router, externalRoutes),
           ];
+          ensureNotFoundRouteLast(router);
         } catch (routeError) {
           // eslint-disable-next-line no-console
           console.warn('服务端路由注册失败，侧边栏菜单不受影响', routeError);

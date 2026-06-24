@@ -86,12 +86,12 @@
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         const redirectTarget = (redirect as string) || '';
         if (redirectTarget.startsWith('/')) {
-          await router.push({
+          await router.replace({
             path: redirectTarget,
             query: othersQuery,
           });
         } else {
-          await router.push({
+          await router.replace({
             name: redirectTarget || 'Home',
             query: othersQuery,
           });

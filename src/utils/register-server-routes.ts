@@ -1,4 +1,5 @@
 import type { Router, RouteRecordRaw } from 'vue-router';
+import { NOT_FOUND_ROUTE } from '@/router/routes/base';
 import { flattenRouteNames } from '@/utils/server-menu';
 
 export const EXTERNAL_ROUTE_FALLBACK_PARENT = 'linkHost';
@@ -153,4 +154,13 @@ export function unregisterServerRoutes(router: Router, routeNames: string[]) {
       router.removeRoute(name);
     }
   });
+}
+
+/** 动态 addRoute 后重新挂载 404，保证 catch-all 始终最后匹配 */
+export function ensureNotFoundRouteLast(router: Router) {
+  const notFoundName = NOT_FOUND_ROUTE.name;
+  if (notFoundName && router.hasRoute(notFoundName)) {
+    router.removeRoute(notFoundName);
+  }
+  router.addRoute(NOT_FOUND_ROUTE);
 }
