@@ -2,13 +2,22 @@
 
 基于 [Arco Design Pro Vue](https://arco.design/vue/docs/pro/start) 的管理后台前端，对接 `BeaverX.Admin` 后端 API。菜单与按钮权限由服务端下发，适合 RBAC 场景。
 
+## 在线预览
+
+| 项目 | 说明 |
+|------|------|
+| 地址 | [https://beaverxadmin.com/](https://beaverxadmin.com/) |
+| 账号 | `admin` / `Admin@123` |
+
+> **演示环境说明**：系统每 **5 分钟** 会定时清理并覆盖数据，请勿保存重要信息或用于生产。
+
 ## 技术栈
 
 
 | 类别   | 技术                            |
 | ---- | ----------------------------- |
 | 框架   | Vue 3 + TypeScript            |
-| 构建   | Vite 3                        |
+| 构建   | Vite 8                        |
 | UI   | Arco Design Vue               |
 | 路由   | Vue Router 4                  |
 | 状态   | Pinia                         |
@@ -19,7 +28,7 @@
 
 ## 环境要求
 
-- Node.js >= 16（推荐 18+）
+- Node.js >= 20.19.0（Vite 8 要求，推荐 22 LTS）
 - pnpm / npm / yarn 均可
 - 本地已启动后端 API（默认 `http://localhost:5216`）
 
