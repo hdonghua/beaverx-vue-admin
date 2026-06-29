@@ -12,3 +12,5 @@ declare module 'vue3-dragscroll';
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string;
 }
+
+declare const __APP_BUILD_VERSION__: string;

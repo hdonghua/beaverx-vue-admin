@@ -43,6 +43,7 @@ export default defineConfig({
   },
   define: {
     'process.env': {},
+    __APP_BUILD_VERSION__: JSON.stringify('dev'),
   },
   css: {
     preprocessorOptions: {

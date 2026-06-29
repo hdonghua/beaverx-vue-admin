@@ -10,6 +10,7 @@ import localeUserSetting from '@/views/user/setting/locale/en-US';
 import localeSystem from '@/views/system/locale/en-US';
 import localeSiteMessage from '@/views/system/message/locale/en-US';
 import localeOnlineUser from '@/views/system/online-user/locale/en-US';
+import localeAppUpdate from '@/components/app-update-modal/locale/en-US';
 import localeSettings from './en-US/settings';
 
 export default {
@@ -57,4 +58,5 @@ export default {
   ...localeSystem,
   ...localeSiteMessage,
   ...localeOnlineUser,
+  ...localeAppUpdate,
 };

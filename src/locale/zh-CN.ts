@@ -10,6 +10,7 @@ import localeUserSetting from '@/views/user/setting/locale/zh-CN';
 import localeSystem from '@/views/system/locale/zh-CN';
 import localeSiteMessage from '@/views/system/message/locale/zh-CN';
 import localeOnlineUser from '@/views/system/online-user/locale/zh-CN';
+import localeAppUpdate from '@/components/app-update-modal/locale/zh-CN';
 import localeSettings from './zh-CN/settings';
 
 export default {
@@ -69,4 +70,5 @@ export default {
   ...localeSystem,
   ...localeSiteMessage,
   ...localeOnlineUser,
+  ...localeAppUpdate,
 };
