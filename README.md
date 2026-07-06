@@ -81,7 +81,6 @@ Hangfire 调度面板（`/hangfire`，独立账号，见后端配置）：
 | 状态   | Pinia                         |
 | HTTP | Axios                         |
 | 实时   | SignalR（`@microsoft/signalr`） |
-| 国际化  | vue-i18n                      |
 
 
 ## 环境要求
@@ -270,7 +269,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 ### 步骤 4：文案
 
-`src/locale/zh-CN.ts`、`en-US.ts` 增加 `menu.system.configList`。
+在页面模板或路由 `meta.title` 中直接写中文标题。
 
 ### 步骤 5：后端配合
 

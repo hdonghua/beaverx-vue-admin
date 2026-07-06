@@ -6,7 +6,6 @@ export interface AppState {
   theme: string;
   colorWeak: boolean;
   navbar: boolean;
-  navbarLocale: boolean;
   navbarSettings: boolean;
   menu: boolean;
   topMenu: boolean;

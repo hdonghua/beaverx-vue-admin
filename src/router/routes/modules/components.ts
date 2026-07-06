@@ -6,7 +6,7 @@ const COMPONENTS: AppRouteRecordRaw = {
   name: 'components',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: 'menu.components',
+    title: '组件概览',
     requiresAuth: true,
     icon: 'icon-apps',
     order: 3,
@@ -19,7 +19,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentDictSelect',
       component: () => import('@/views/components/dict-select/index.vue'),
       meta: {
-        locale: 'menu.components.dictSelect',
+        title: '字典选择',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -29,7 +29,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentDictTag',
       component: () => import('@/views/components/dict-tag/index.vue'),
       meta: {
-        locale: 'menu.components.dictTag',
+        title: '字典标签',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -39,7 +39,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentSvgIcon',
       component: () => import('@/views/components/svg-icon/index.vue'),
       meta: {
-        locale: 'menu.components.svgIcon',
+        title: 'SVG 图标',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -49,7 +49,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentRichText',
       component: () => import('@/views/components/rich-text/index.vue'),
       meta: {
-        locale: 'menu.components.richText',
+        title: '富文本',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -59,7 +59,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentSignaturePad',
       component: () => import('@/views/components/signature-pad/index.vue'),
       meta: {
-        locale: 'menu.components.signaturePad',
+        title: '签名板',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -69,7 +69,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentBackToTop',
       component: () => import('@/views/components/back-to-top/index.vue'),
       meta: {
-        locale: 'menu.components.backToTop',
+        title: '回到顶部',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -79,7 +79,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentEditableText',
       component: () => import('@/views/components/editable-text/index.vue'),
       meta: {
-        locale: 'menu.components.editableText',
+        title: '可编辑文本',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -89,7 +89,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentRollLoading',
       component: () => import('@/views/components/roll-loading/index.vue'),
       meta: {
-        locale: 'menu.components.rollLoading',
+        title: '滚动加载',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -99,7 +99,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentLoadingLayer',
       component: () => import('@/views/components/loading-layer/index.vue'),
       meta: {
-        locale: 'menu.components.loadingLayer',
+        title: '加载遮罩',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -109,7 +109,7 @@ const COMPONENTS: AppRouteRecordRaw = {
       name: 'ComponentPermission',
       component: () => import('@/views/components/permission/index.vue'),
       meta: {
-        locale: 'menu.components.permission',
+        title: '权限指令',
         requiresAuth: true,
         roles: ['*'],
       },

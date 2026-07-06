@@ -27,10 +27,10 @@
       <a-form-item>
         <a-space>
           <a-button type="primary" :loading="submitting" @click="handleSave">
-            {{ $t('userSetting.save') }}
+            保存
           </a-button>
           <a-button @click="loadProfile">
-            {{ $t('userSetting.reset') }}
+            重置
           </a-button>
         </a-space>
       </a-form-item>

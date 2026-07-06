@@ -25,7 +25,7 @@
     </div>
     <ul class="right-side">
       <li>
-        <a-tooltip :content="$t('settings.search')">
+        <a-tooltip content="搜索">
           <a-button
             class="nav-btn"
             type="outline"
@@ -39,41 +39,12 @@
         </a-tooltip>
         <MenuSearch v-model:visible="menuSearchVisible" />
       </li>
-      <li v-if="appStore.navbarLocale">
-        <a-tooltip :content="$t('settings.language')">
-          <a-button
-            class="nav-btn"
-            type="outline"
-            :shape="'circle'"
-            @click="setDropDownVisible"
-          >
-            <template #icon>
-              <icon-language />
-            </template>
-          </a-button>
-        </a-tooltip>
-        <a-dropdown trigger="click" @select="changeLocale as any">
-          <div ref="triggerBtn" class="trigger-btn"></div>
-          <template #content>
-            <a-doption
-              v-for="item in locales"
-              :key="item.value"
-              :value="item.value"
-            >
-              <template #icon>
-                <icon-check v-show="item.value === currentLocale" />
-              </template>
-              {{ item.label }}
-            </a-doption>
-          </template>
-        </a-dropdown>
-      </li>
       <li>
         <a-tooltip
           :content="
             theme === 'light'
-              ? $t('settings.navbar.theme.toDark')
-              : $t('settings.navbar.theme.toLight')
+              ? '点击切换为暗黑模式'
+              : '点击切换为亮色模式'
           "
         >
           <a-button
@@ -90,7 +61,7 @@
         </a-tooltip>
       </li>
       <li>
-        <a-tooltip :content="$t('exportBox.tooltip')">
+        <a-tooltip content="导出任务">
           <div class="message-box-trigger">
             <a-badge :count="exportActiveCount" :dot="exportActiveCount > 0">
               <a-button
@@ -118,7 +89,7 @@
         </a-popover>
       </li>
       <li>
-        <a-tooltip :content="$t('settings.navbar.alerts')">
+        <a-tooltip content="消息通知">
           <div class="message-box-trigger">
             <a-badge :count="unreadCount">
               <a-button
@@ -148,8 +119,8 @@
         <a-tooltip
           :content="
             isFullscreen
-              ? $t('settings.navbar.screen.toExit')
-              : $t('settings.navbar.screen.toFull')
+              ? '点击退出全屏模式'
+              : '点击切换全屏模式'
           "
         >
           <a-button
@@ -166,7 +137,7 @@
         </a-tooltip>
       </li>
       <li v-if="appStore.navbarSettings">
-        <a-tooltip :content="$t('settings.title')">
+        <a-tooltip content="页面配置">
           <a-button
             class="nav-btn"
             type="outline"
@@ -193,7 +164,7 @@
               <a-space @click="$router.push({ name: 'Setting' })">
                 <icon-user />
                 <span>
-                  {{ $t('messageBox.userCenter') }}
+                  用户中心
                 </span>
               </a-space>
             </a-doption>
@@ -201,7 +172,7 @@
               <a-space @click="handleLogout">
                 <icon-export />
                 <span>
-                  {{ $t('messageBox.logout') }}
+                  登出登录
                 </span>
               </a-space>
             </a-doption>
@@ -216,8 +187,6 @@
   import { computed, ref, inject } from 'vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
-  import { LOCALE_OPTIONS } from '@/locale';
-  import useLocale from '@/hooks/locale';
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
@@ -236,9 +205,7 @@
   const exportBoxRef = ref<InstanceType<typeof ExportBox>>();
   const userStore = useUserStore();
   const { logout } = useUser();
-  const { changeLocale, currentLocale } = useLocale();
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
-  const locales = [...LOCALE_OPTIONS];
   const avatar = computed(() => resolveApiUrl(userStore.avatar));
   const hasAvatar = computed(() => Boolean(avatar.value));
   const avatarText = computed(() => {
@@ -271,7 +238,6 @@
     appStore.updateSettings({ globalSettings: true });
   };
   const refBtn = ref();
-  const triggerBtn = ref();
   const setExportPopoverVisible = () => {
     const event = new MouseEvent('click', {
       view: window,
@@ -295,14 +261,6 @@
   };
   const handleLogout = () => {
     logout();
-  };
-  const setDropDownVisible = () => {
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    triggerBtn.value.dispatchEvent(event);
   };
   const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
 </script>

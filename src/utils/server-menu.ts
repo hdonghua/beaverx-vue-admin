@@ -374,11 +374,7 @@ export function flattenRouteNames(routes: RouteRecordRaw[]): string[] {
   return names;
 }
 
-export function getRouteTitle(route: RouteRecordRaw, t: (key: string) => string) {
+export function getRouteTitle(route: RouteRecordRaw) {
   const title = route.meta?.title as string | undefined;
-  if (title) {
-    return title;
-  }
-  const localeKey = route.meta?.locale as string | undefined;
-  return localeKey ? t(localeKey) : String(route.name || '');
+  return title || String(route.name || '');
 }

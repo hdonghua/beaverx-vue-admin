@@ -13,7 +13,7 @@ const formatTag = (route: RouteLocationNormalized): TagProps => {
   const isExternal = Boolean(meta.isExternal);
   const frameSrc = String(meta.frameSrc || query?.frameSrc || '');
   return {
-    title: String(meta.title || meta.locale || name || ''),
+    title: String(meta.title || name || ''),
     name: String(name),
     fullPath,
     query: (isExternal && frameSrc

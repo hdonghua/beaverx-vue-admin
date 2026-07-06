@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <a-list :bordered="false" :max-height="360" class="export-list">
     <a-list-item
       v-for="item in renderList"
@@ -27,7 +27,7 @@
       <template v-if="item.status === 2" #actions>
         <a-button type="text" size="small" @click="emit('download', item)">
           <template #icon><icon-download /></template>
-          {{ $t('exportBox.download') }}
+          下载
         </a-button>
       </template>
     </a-list-item>
@@ -36,7 +36,6 @@
 
 <script lang="ts" setup>
   import { PropType } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import dayjs from 'dayjs';
   import {
     ExportTaskDto,
@@ -55,18 +54,17 @@
     download: [ExportTaskDto];
   }>();
 
-  const { t } = useI18n();
-
+  
   const statusText = (status: ExportTaskStatus) => {
     switch (status) {
       case ExportTaskStatus.Pending:
-        return t('exportBox.status.pending');
+        return '未开始';
       case ExportTaskStatus.Processing:
-        return t('exportBox.status.processing');
+        return '进行中';
       case ExportTaskStatus.Completed:
-        return t('exportBox.status.completed');
+        return '已完成';
       case ExportTaskStatus.Failed:
-        return t('exportBox.status.failed');
+        return '失败';
       default:
         return '';
     }
@@ -90,11 +88,11 @@
   const exportTypeText = (exportType: string) => {
     switch (exportType) {
       case ExportTypes.SystemUser:
-        return t('exportBox.export.user');
+        return '用户列表';
       case ExportTypes.SystemConfig:
-        return t('exportBox.export.config');
+        return '系统配置';
       case ExportTypes.SystemDictData:
-        return t('exportBox.export.dictData');
+        return '字典数据';
       default:
         return exportType;
     }

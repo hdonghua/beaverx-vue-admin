@@ -11,10 +11,10 @@
           >
             <a-row :gutter="16">
               <a-col :span="8">
-                <a-form-item field="name" :label="$t('userList.userName')">
+                <a-form-item field="name" label="账号">
                   <a-input
                     v-model="formModel.userName"
-                    :placeholder="$t('userList.userName.placeholder')"
+                    placeholder="请输入账号"
                   />
                 </a-form-item>
               </a-col>
@@ -24,13 +24,13 @@
                     <template #icon>
                       <icon-search />
                     </template>
-                    {{ $t('searchTable.form.search') }}
+                    搜索
                   </a-button>
                   <a-button @click="reset">
                     <template #icon>
                       <icon-refresh />
                     </template>
-                    {{ $t('searchTable.form.reset') }}
+                    重置
                   </a-button>
                 </a-space>
               </a-col>
@@ -50,7 +50,7 @@
               <template #icon>
                 <icon-plus />
               </template>
-              {{ $t('searchTable.operation.create') }}
+              新增
             </a-button>
             <a-button @click="handleExport">
               <template #icon>
@@ -64,13 +64,13 @@
           :span="12"
           style="display: flex; align-items: center; justify-content: end"
         >
-          <a-tooltip :content="$t('searchTable.actions.refresh')">
+          <a-tooltip :content="'刷新'">
             <div class="action-icon" @click="search"
               ><icon-refresh size="18"
             /></div>
           </a-tooltip>
           <a-dropdown @select="handleSelectDensity">
-            <a-tooltip :content="$t('searchTable.actions.density')">
+            <a-tooltip :content="'密度'">
               <div class="action-icon"><icon-line-height size="18" /></div>
             </a-tooltip>
             <template #content>
@@ -84,7 +84,7 @@
               </a-doption>
             </template>
           </a-dropdown>
-          <a-tooltip :content="$t('searchTable.actions.columnSetting')">
+          <a-tooltip :content="'列设置'">
             <a-popover
               trigger="click"
               position="bl"
@@ -268,7 +268,6 @@
 
 <script lang="ts" setup>
   import { computed, ref, reactive, watch, nextTick } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import { Message } from '@arco-design/web-vue';
   import useLoading from '@/hooks/loading';
   import {
@@ -308,8 +307,7 @@
     };
   };
   const { loading, setLoading } = useLoading(true);
-  const { t } = useI18n();
-  const { refreshActiveCount } = useExportTasks();
+    const { refreshActiveCount } = useExportTasks();
   const renderData = ref<UserDto[]>([]);
   const formModel = ref(generateFormModel());
   const cloneColumns = ref<Column[]>([]);
@@ -327,30 +325,30 @@
   });
   const densityList = computed(() => [
     {
-      name: t('searchTable.size.mini'),
+      name: '窄',
       value: 'mini',
     },
     {
-      name: t('searchTable.size.small'),
+      name: '小',
       value: 'small',
     },
     {
-      name: t('searchTable.size.medium'),
+      name: '中',
       value: 'medium',
     },
     {
-      name: t('searchTable.size.large'),
+      name: '大',
       value: 'large',
     },
   ]);
   const columns = computed<TableColumnData[]>(() => [
     {
-      title: t('searchTable.columns.index'),
+      title: '序号',
       dataIndex: 'index',
       slotName: 'index',
     },
     {
-      title: t('userList.userName'),
+      title: '账号',
       dataIndex: 'userName',
     },
     {
@@ -378,7 +376,7 @@
       slotName: 'creationTime',
     },
     {
-      title: t('searchTable.columns.operations'),
+      title: '操作',
       dataIndex: 'operations',
       slotName: 'operations',
       width: 120,

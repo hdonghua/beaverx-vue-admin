@@ -58,7 +58,6 @@
 
 <script lang="ts" setup>
   import { PropType, computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import { useRouter, useRoute } from 'vue-router';
   import { useAppStore, useTabBarStore } from '@/store';
   import type { TagProps } from '@/store/modules/tab-bar/types';
@@ -93,7 +92,6 @@
 
   const router = useRouter();
   const route = useRoute();
-  const { t } = useI18n();
   const appStore = useAppStore();
   const tabBarStore = useTabBarStore();
 
@@ -113,13 +111,7 @@
     if (isExternalTag(props.itemData)) {
       return resolveExternalTag(props.itemData).title;
     }
-    if (!title) {
-      return '';
-    }
-    if (!title.startsWith('menu.')) {
-      return title;
-    }
-    return t(title);
+    return title || '';
   });
 
   const buildTagLocation = (tag: TagProps) => {

@@ -12,7 +12,7 @@
               <template #icon>
                 <icon-plus />
               </template>
-              {{ $t('searchTable.operation.create') }}
+              新增
             </a-button>
           </a-space>
         </a-col>
@@ -225,7 +225,6 @@
 
 <script lang="ts" setup>
   import { computed, ref, reactive } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import useLoading from '@/hooks/loading';
   import { Message } from '@arco-design/web-vue';
   import {
@@ -256,13 +255,12 @@
     record.menuType === MenuType.Menu;
 
   const { loading, setLoading } = useLoading(true);
-  const { t } = useI18n();
-  const renderData = ref<MenuDto[]>([]);
+    const renderData = ref<MenuDto[]>([]);
   const size = ref<SizeProps>('medium');
 
   const columns = computed<TableColumnData[]>(() => [
     {
-      title: t('searchTable.columns.index'),
+      title: '序号',
       dataIndex: 'index',
       slotName: 'index',
       width: 80,
@@ -311,7 +309,7 @@
       width: 90,
     },
     {
-      title: t('searchTable.columns.operations'),
+      title: '操作',
       dataIndex: 'operations',
       slotName: 'operations',
       width: 180,

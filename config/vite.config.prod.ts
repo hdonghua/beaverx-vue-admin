@@ -33,8 +33,7 @@ export default mergeConfig(
               id.includes('/vue/') ||
               id.includes('vue-router') ||
               id.includes('pinia') ||
-              id.includes('@vueuse') ||
-              id.includes('vue-i18n')
+              id.includes('@vueuse')
             ) {
               return 'vue';
             }

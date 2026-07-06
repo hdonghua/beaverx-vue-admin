@@ -29,7 +29,7 @@ export const FORBIDDEN = {
 export const DEFAULT_ROUTE_NAME = 'Home';
 
 export const DEFAULT_ROUTE = {
-  title: 'menu.home',
+  title: '首页',
   name: DEFAULT_ROUTE_NAME,
   fullPath: '/home',
 };

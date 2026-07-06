@@ -2,17 +2,11 @@
   <PageContainer>
     <a-card class="general-card">
       <div class="online-user-summary">
-        <a-statistic
-          :title="$t('onlineUser.onlineCount')"
-          :value="list.length"
-        />
-        <a-statistic
-          :title="$t('onlineUser.connectionCount')"
-          :value="totalConnections"
-        />
+        <a-statistic title="在线用户数" :value="list.length" />
+        <a-statistic title="连接数" :value="totalConnections" />
         <a-button type="outline" @click="loadData">
           <template #icon><icon-refresh /></template>
-          {{ $t('searchTable.actions.refresh') }}
+          刷新
         </a-button>
       </div>
 
@@ -45,7 +39,7 @@
               status="danger"
               v-permission="[Permissions.System.OnlineUser.Kick]"
             >
-              {{ $t('onlineUser.kick') }}
+              强制下线
             </a-button>
           </a-popconfirm>
           <span v-else>-</span>
@@ -57,7 +51,6 @@
 
 <script lang="ts" setup>
   import { computed, onMounted, onUnmounted, ref } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
   import type { TableColumnData } from '@arco-design/web-vue';
@@ -75,8 +68,7 @@
   import useUserStore from '@/store/modules/user';
   import { onRealtimeEvent, startRealtimeHub } from '@/utils/realtime-hub';
 
-  const { t } = useI18n();
-  const userStore = useUserStore();
+    const userStore = useUserStore();
 
   const loading = ref(false);
   const list = ref<OnlineUserDto[]>([]);
@@ -85,35 +77,35 @@
 
   const columns = computed<TableColumnData[]>(() => [
     {
-      title: t('onlineUser.userName'),
+      title: '账号',
       dataIndex: 'userName',
       width: 160,
     },
     {
-      title: t('onlineUser.nickName'),
+      title: '昵称',
       dataIndex: 'nickName',
       slotName: 'nickName',
       width: 160,
     },
     {
-      title: t('onlineUser.connectionCount'),
+      title: '连接数',
       dataIndex: 'connectionCount',
       width: 120,
     },
     {
-      title: t('onlineUser.connectedAt'),
+      title: '首次连接时间',
       dataIndex: 'connectedAt',
       slotName: 'connectedAt',
       width: 180,
     },
     {
-      title: t('onlineUser.lastActiveAt'),
+      title: '最近活跃时间',
       dataIndex: 'lastActiveAt',
       slotName: 'lastActiveAt',
       width: 180,
     },
     {
-      title: t('searchTable.columns.operations'),
+      title: '操作',
       dataIndex: 'operations',
       slotName: 'operations',
       width: 120,
@@ -128,9 +120,7 @@
     String(record.userId) !== userStore.accountId;
 
   const kickConfirmText = (record: OnlineUserDto) =>
-    t('onlineUser.kickConfirm', {
-      name: record.nickName || record.userName,
-    });
+    `确定强制下线用户「${record.nickName || record.userName}」吗？`;
 
   const applyPayload = (payload?: OnlineUsersChangedPayload | null) => {
     if (!payload) {
@@ -157,7 +147,7 @@
   const handleKick = async (record: OnlineUserDto) => {
     try {
       await kickOnlineUser(record.userId);
-      Message.success(t('onlineUser.kickSuccess'));
+      Message.success('已强制下线');
     } catch {
       // 错误提示由 axios 拦截器统一处理
     }

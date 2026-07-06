@@ -80,7 +80,6 @@ Hangfire dashboard (`/hangfire`, separate credentials—see backend config):
 | State | Pinia |
 | HTTP | Axios |
 | Realtime | SignalR (`@microsoft/signalr`) |
-| i18n | vue-i18n |
 
 ## Requirements
 
@@ -260,7 +259,7 @@ Create `src/views/system/config/index.vue`; refer to `dict` or `user` list pages
 
 ### Step 4: Copy
 
-Add `menu.system.configList` to `src/locale/zh-CN.ts` and `en-US.ts`.
+Use Chinese text directly in page templates or route `meta.title`.
 
 ### Step 5: Backend
 

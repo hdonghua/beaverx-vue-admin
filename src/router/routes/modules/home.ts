@@ -6,7 +6,7 @@ const HOME: AppRouteRecordRaw = {
   name: 'home',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: 'menu.home',
+    title: '首页',
     requiresAuth: true,
     hideInMenu: true,
     order: -1,
@@ -17,7 +17,7 @@ const HOME: AppRouteRecordRaw = {
       name: 'Home',
       component: () => import('@/views/home/index.vue'),
       meta: {
-        locale: 'menu.home',
+        title: '首页',
         requiresAuth: true,
         roles: ['*'],
         hideInMenu: true,

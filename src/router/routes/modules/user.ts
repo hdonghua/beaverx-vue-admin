@@ -6,7 +6,7 @@ const USER: AppRouteRecordRaw = {
   name: 'user',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: 'menu.user',
+    title: '个人中心',
     icon: 'icon-user',
     requiresAuth: true,
     order: 7,
@@ -17,7 +17,7 @@ const USER: AppRouteRecordRaw = {
       name: 'Setting',
       component: () => import('@/views/user/setting/index.vue'),
       meta: {
-        locale: 'menu.user.center',
+        title: '用户中心',
         requiresAuth: true,
         roles: ['*'],
         hideInMenu: true,

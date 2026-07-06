@@ -4,7 +4,6 @@
   "theme": "light",
   "colorWeak": false,
   "navbar": true,
-  "navbarLocale": false,
   "navbarSettings": false,
   "menu": true,
   "topMenu": false,

@@ -1,6 +1,5 @@
 <script lang="tsx">
   import { defineComponent, ref, h, compile, computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter, RouteRecordRaw } from 'vue-router';
   import type { RouteMeta } from 'vue-router';
   import { useAppStore } from '@/store';
@@ -11,7 +10,6 @@
   export default defineComponent({
     emit: ['collapse'],
     setup() {
-      const { t } = useI18n();
       const appStore = useAppStore();
       const router = useRouter();
       const route = useRoute();
@@ -109,10 +107,7 @@
                       icon,
                       title: () =>
                         h(
-                          compile(
-                            element?.meta?.title ||
-                              t(element?.meta?.locale || '')
-                          )
+                          compile(element?.meta?.title || '')
                         ),
                     }}
                   >
@@ -124,7 +119,7 @@
                     v-slots={{ icon }}
                     onClick={() => goto(element)}
                   >
-                    {element?.meta?.title || t(element?.meta?.locale || '')}
+                    {element?.meta?.title || ''}
                   </a-menu-item>
                 );
               nodes.push(node as never);

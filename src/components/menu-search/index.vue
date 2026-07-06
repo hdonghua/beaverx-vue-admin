@@ -16,7 +16,7 @@
         v-model="keyword"
         size="large"
         allow-clear
-        :placeholder="$t('menuSearch.placeholder')"
+        :placeholder="'搜索菜单'"
         @input="activeIndex = 0"
         @keydown.down.prevent="moveActive(1)"
         @keydown.up.prevent="moveActive(-1)"
@@ -26,18 +26,18 @@
           <icon-search />
         </template>
         <template #suffix>
-          <span class="shortcut-hint">{{ $t('menuSearch.shortcut') }}</span>
+          <span class="shortcut-hint">Ctrl + K</span>
         </template>
       </a-input>
 
       <div v-if="!keyword.trim() && filteredList.length" class="search-hint">
-        {{ $t('menuSearch.hint') }}
+        输入菜单名称快速跳转
       </div>
 
       <a-empty
         v-if="keyword.trim() && !filteredList.length"
         class="search-empty"
-        :description="$t('menuSearch.empty')"
+        description="未找到相关菜单"
       />
 
       <ul v-else-if="filteredList.length" class="search-list">
@@ -66,7 +66,6 @@
 
 <script lang="ts" setup>
   import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import type { RouteRecordRaw } from 'vue-router';
   import useMenuTree from '@/components/menu/use-menu-tree';
@@ -85,8 +84,7 @@
   });
   const emit = defineEmits(['update:visible']);
 
-  const { t } = useI18n();
-  const router = useRouter();
+    const router = useRouter();
   const { menuTree } = useMenuTree();
   const keyword = ref('');
   const activeIndex = ref(0);
@@ -95,11 +93,7 @@
   const menuItems = computed(() =>
     flattenMenuForSearch(menuTree.value as RouteRecordRaw[], (route) => {
       const title = route.meta?.title as string | undefined;
-      if (title) {
-        return title;
-      }
-      const localeKey = route.meta?.locale as string | undefined;
-      return localeKey ? t(localeKey) : String(route.name || '');
+      return title || String(route.name || '');
     })
   );
 

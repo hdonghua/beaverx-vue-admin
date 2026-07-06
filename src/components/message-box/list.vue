@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <a-list :bordered="false" :max-height="320" class="message-list">
     <a-list-item
       v-for="item in renderList"
@@ -36,7 +36,7 @@
     </a-list-item>
     <!-- <template v-if="renderList.length && hasUnread" #footer>
       <div class="footer-wrap">
-        <a-link @click="allRead">{{ $t('messageBox.allRead') }}</a-link>
+        <a-link @click="allRead">{{ t('messageBox.allRead') }}</a-link>
       </div>
     </template> -->
   </a-list>

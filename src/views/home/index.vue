@@ -9,7 +9,7 @@
           {{ welcomeTitle }}
         </a-typography-title>
         <a-typography-paragraph class="welcome-subtitle">
-          {{ $t('home.welcome.subtitle') }}
+          请从左侧菜单进入功能模块，或使用顶部搜索快速跳转
         </a-typography-paragraph>
       </div>
     </a-card>
@@ -24,14 +24,12 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import { useAppStore } from '@/store';
 
-  const { t } = useI18n();
-  const appStore = useAppStore();
+    const appStore = useAppStore();
 
-  const welcomeTitle = computed(() =>
-    t('home.welcome.title', { name: appStore.systemName })
+  const welcomeTitle = computed(
+    () => `欢迎使用${appStore.systemName}`
   );
 </script>
 

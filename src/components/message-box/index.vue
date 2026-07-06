@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <a-spin style="display: block" :loading="loading">
     <a-tabs v-model:activeKey="messageType" destroy-on-hide>
       <a-tab-pane v-for="item in tabList" :key="item.key">
@@ -13,7 +13,7 @@
       </a-tab-pane>
       <template #extra>
         <a-button type="text" @click="emptyList" v-if="unreadCount > 0">
-          {{ $t('messageBox.tab.button') }}
+          已读
         </a-button>
       </template>
     </a-tabs>
@@ -22,7 +22,6 @@
 
 <script lang="ts" setup>
   import { ref, reactive, toRefs, computed, onMounted, onUnmounted } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import {
     getMessageList,
     markMessagesRead,
@@ -44,8 +43,7 @@
   const { loading, setLoading } = useLoading(true);
   const { refreshUnreadCount } = useMessageUnread();
   const messageType = ref('notice');
-  const { t } = useI18n();
-  const messageData = reactive<{
+    const messageData = reactive<{
     renderList: MessageRecord[];
     messageList: MessageRecord[];
   }>({
@@ -60,7 +58,7 @@
     // },
     {
       key: 'notice',
-      title: t('messageBox.tab.title.notice'),
+      title: '通知',
     },
   ];
   async function fetchSourceData() {
