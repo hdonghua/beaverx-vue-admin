@@ -35,11 +35,20 @@ function isRouteDefinedInApp(router: Router, routeName: string) {
 
 function shouldFetchServerMenu(
   appStore: ReturnType<typeof useAppStore>,
+  userStore: ReturnType<typeof useUserStore>,
   routeName: string,
   path: string
 ) {
   if (path.startsWith('/login') || !isLogin()) {
     return false;
+  }
+  const accountId = userStore.accountId;
+  if (
+    accountId &&
+    appStore.menuOwnerId &&
+    appStore.menuOwnerId !== accountId
+  ) {
+    return true;
   }
   // F5 刷新 / 登出后重登：动态路由未注册时会先命中 notFound，仍需拉菜单
   if (!appStore.serverMenuFetched) {
@@ -107,6 +116,24 @@ function tryResolveExternalRefresh(
   return false;
 }
 
+function isDynamicServerRouteName(name: string) {
+  return /^(menu|dir|external)-/.test(name);
+}
+
+function shouldRefetchForMissingRoute(
+  router: Router,
+  appStore: ReturnType<typeof useAppStore>,
+  routeName: string
+) {
+  if (!appStore.menuFromServer || !routeName) {
+    return false;
+  }
+  if (!isDynamicServerRouteName(routeName)) {
+    return false;
+  }
+  return !router.hasRoute(routeName);
+}
+
 export default function setupPermissionGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     try {
@@ -117,7 +144,10 @@ export default function setupPermissionGuard(router: Router) {
       const routeName = to.name ? String(to.name) : '';
 
       if (appStore.menuFromServer) {
-        if (shouldFetchServerMenu(appStore, routeName, to.path)) {
+        if (
+          shouldFetchServerMenu(appStore, userStore, routeName, to.path) ||
+          shouldRefetchForMissingRoute(router, appStore, routeName)
+        ) {
           const isFirstFetch = !appStore.serverMenuFetched;
           await appStore.fetchServerMenuConfig(router);
 
@@ -140,16 +170,19 @@ export default function setupPermissionGuard(router: Router) {
           isWhiteListed || appStore.allowedRouteNames.includes(resolvedName);
 
         if (!permissionsAllow) {
-          next(hasMenuAccess ? FORBIDDEN : NOT_FOUND);
+          next({
+            ...(hasMenuAccess ? FORBIDDEN : NOT_FOUND),
+            replace: true,
+          });
           return;
         }
 
         if (hasMenuAccess) {
           next();
         } else if (isRouteDefinedInApp(router, resolvedName)) {
-          next(FORBIDDEN);
+          next({ ...FORBIDDEN, replace: true });
         } else {
-          next(NOT_FOUND);
+          next({ ...NOT_FOUND, replace: true });
         }
       } else if (permissionsAllow) {
         next();

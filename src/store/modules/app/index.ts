@@ -23,6 +23,7 @@ import {
 } from '@/utils/register-server-routes';
 import { applyUserPreferences } from '@/utils/apply-user-preferences';
 import type { AppState, UserPreferences } from './types';
+import useUserStore from '../user';
 
 async function getRouter() {
   const { default: router } = await import('@/router');
@@ -37,6 +38,7 @@ function createInitialState(): AppState {
     device: 'desktop',
     globalSettings: false,
     serverMenuFetched: false,
+    menuOwnerId: null,
     serverMenu: [],
     allowedRouteNames: [],
     registeredServerRouteNames: [],
@@ -109,10 +111,12 @@ const useAppStore = defineStore('app', {
     },
     async fetchServerMenuConfig(routerInstance?: Router) {
       let notifyInstance: NotificationReturn | null = null;
+      const userStore = useUserStore();
       try {
         const { data } = await getUserMenus();
         this.serverMenu = transformServerMenus(data);
         this.allowedRouteNames = collectAllAllowedRouteNames(data || []);
+        this.menuOwnerId = userStore.accountId ?? null;
 
         try {
           const router = routerInstance ?? (await getRouter());
@@ -143,6 +147,7 @@ const useAppStore = defineStore('app', {
         this.serverMenu = [];
         this.allowedRouteNames = collectAllAllowedRouteNames([]);
         this.registeredServerRouteNames = [];
+        this.menuOwnerId = null;
         return [];
       } finally {
         this.serverMenuFetched = true;
@@ -168,6 +173,7 @@ const useAppStore = defineStore('app', {
       this.serverMenu = [];
       this.allowedRouteNames = [];
       this.serverMenuFetched = false;
+      this.menuOwnerId = null;
     },
   },
 });

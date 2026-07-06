@@ -30,6 +30,8 @@ export interface RuntimeAppState {
   device: string;
   globalSettings: boolean;
   serverMenuFetched: boolean;
+  /** 当前 serverMenu 所属用户，用于检测切换账号后需重新拉菜单 */
+  menuOwnerId: string | null;
   serverMenu: RouteRecordRaw[];
   allowedRouteNames: string[];
   registeredServerRouteNames: string[];

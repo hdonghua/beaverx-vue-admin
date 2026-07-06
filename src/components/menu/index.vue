@@ -5,6 +5,7 @@
   import { useAppStore } from '@/store';
   import { listenerRouteChange } from '@/utils/route-listener';
   import { ensureExternalRoute } from '@/utils/register-server-routes';
+  import { isDynamicImportError } from '@/utils/route-chunk-error';
   import useMenuTree from './use-menu-tree';
 
   export default defineComponent({
@@ -28,11 +29,11 @@
       const openKeys = ref<string[]>([]);
       const selectedKey = ref<string[]>([]);
 
-      const goto = (item: RouteRecordRaw) => {
+      const goto = async (item: RouteRecordRaw) => {
         if (item.meta?.isExternal) {
           ensureExternalRoute(router, item);
           const frameSrc = String(item.meta.frameSrc || '');
-          router.push({
+          await router.push({
             name: item.name as string,
             query: frameSrc ? { frameSrc } : undefined,
           });
@@ -45,10 +46,19 @@
           selectedKey.value = [item.name as string];
           return;
         }
-        // Trigger router change
-        router.push({
-          name: item.name,
-        });
+        try {
+          await router.push({
+            name: item.name,
+          });
+        } catch (error) {
+          if (!isDynamicImportError(error)) {
+            throw error;
+          }
+          await appStore.fetchServerMenuConfig(router);
+          await router.replace({
+            name: item.name as string,
+          });
+        }
       };
       const findMenuOpenKeys = (target: string) => {
         const result: string[] = [];

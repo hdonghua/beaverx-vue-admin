@@ -53,7 +53,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
 
     if (!isLogin() || shouldForceLogout()) {
       if (userStore.role) {
-        userStore.logoutCallBack();
+        await userStore.logoutCallBack();
       }
       redirectToLogin(to, next);
       return;

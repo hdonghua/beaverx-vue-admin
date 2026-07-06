@@ -12,7 +12,7 @@
 
   const router = useRouter();
   const back = () => {
-    router.push({ name: 'Home' });
+    router.replace({ name: 'Home' });
   };
 </script>
 

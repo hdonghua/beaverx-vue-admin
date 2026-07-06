@@ -84,6 +84,7 @@ const useUserStore = defineStore('user', {
 
     async login(loginForm: LoginRequest) {
       const authStore = useAuthStore();
+      const appStore = useAppStore();
       try {
         const { data } = await userLogin(loginForm);
         authStore.setTokenPair(
@@ -92,8 +93,11 @@ const useUserStore = defineStore('user', {
           data.expiresIn,
           data.refreshExpiresIn
         );
+        await appStore.clearServerMenu();
         this.applyProfile(data.user);
         resetSessionExpiredState();
+        const { default: router } = await import('@/router');
+        await appStore.fetchServerMenuConfig(router);
         const { startRealtimeHub } = await import('@/utils/realtime-hub');
         await startRealtimeHub();
       } catch (err) {
@@ -101,7 +105,7 @@ const useUserStore = defineStore('user', {
         throw err;
       }
     },
-    logoutCallBack() {
+    async logoutCallBack() {
       const appStore = useAppStore();
       const tabBarStore = useTabBarStore();
       const authStore = useAuthStore();
@@ -109,7 +113,7 @@ const useUserStore = defineStore('user', {
       this.resetInfo();
       authStore.clearToken();
       removeRouteListener();
-      appStore.clearServerMenu();
+      await appStore.clearServerMenu();
       tabBarStore.resetTabList();
     },
     async revokeServerSession(refreshTokenValue?: string | null) {
@@ -130,7 +134,7 @@ const useUserStore = defineStore('user', {
       try {
         await this.revokeServerSession(refreshToken);
       } finally {
-        this.logoutCallBack();
+        await this.logoutCallBack();
       }
     },
   },

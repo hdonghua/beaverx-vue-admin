@@ -22,7 +22,7 @@ export async function clearSessionAndNotify(
   try {
     await userStore.revokeServerSession(refreshToken);
   } finally {
-    userStore.logoutCallBack();
+    await userStore.logoutCallBack();
   }
 
   return true;

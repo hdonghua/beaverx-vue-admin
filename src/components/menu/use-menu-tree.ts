@@ -4,6 +4,7 @@ import usePermission from '@/hooks/permission';
 import { useAppStore } from '@/store';
 import appClientMenus from '@/router/app-menus';
 import { getStaticMenuRoutes } from '@/router/static-menus';
+import { filterClientMenusByAllowedNames } from '@/utils/server-menu';
 import { cloneDeep } from 'lodash';
 
 export default function useMenuTree() {
@@ -11,7 +12,12 @@ export default function useMenuTree() {
   const appStore = useAppStore();
   const appRoute = computed(() => {
     if (appStore.menuFromServer) {
-      return [...appStore.appAsyncMenus, ...getStaticMenuRoutes()];
+      const allowed = new Set(appStore.allowedRouteNames);
+      const serverMenus = filterClientMenusByAllowedNames(
+        appStore.appAsyncMenus,
+        allowed
+      );
+      return [...serverMenus, ...getStaticMenuRoutes()];
     }
     return appClientMenus;
   });
