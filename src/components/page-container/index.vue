@@ -16,7 +16,7 @@
     flex-direction: column;
     box-sizing: border-box;
     min-height: 100%;
-    padding: @Gap @GapLarge @GapLarge;
+    padding: @Gap;
   }
 
   .page-container-body {

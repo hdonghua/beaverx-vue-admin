@@ -208,8 +208,3 @@
   });
 </script>
 
-<style scoped lang="less">
-  .send-form {
-    max-width: 720px;
-  }
-</style>

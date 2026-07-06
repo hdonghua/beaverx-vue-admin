@@ -189,7 +189,7 @@
       min-height: 0;
       overflow-x: hidden;
       overflow-y: auto;
-      scrollbar-gutter: stable;
+      scrollbar-gutter: auto;
     }
   }
 </style>
