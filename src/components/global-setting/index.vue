@@ -1,107 +1,111 @@
-<template>
-  <div
-    v-if="!appStore.navbar && appStore.navbarSettings"
-    class="fixed-settings"
-    @click="setVisible"
-  >
-    <a-button type="primary">
-      <template #icon>
-        <icon-settings />
-      </template>
-    </a-button>
-  </div>
-  <a-drawer
-    :width="300"
-    unmount-on-close
-    :visible="visible"
-    cancel-text="关闭"
-    ok-text="复制配置"
-    @ok="copySettings"
-    @cancel="cancel"
-  >
-    <template #title>页面配置</template>
-    <Block :options="contentOpts" title="内容区域" />
-    <Block :options="othersOpts" title="其他设置" />
-    <a-alert>
-      配置之后仅是临时生效，要想真正作用于项目，点击下方的 "复制配置" 按钮，将配置替换到 settings.json 中即可。
-    </a-alert>
-  </a-drawer>
-</template>
-
-<script lang="ts" setup>
-  import { computed } from 'vue';
-  import { Message } from '@arco-design/web-vue';
-  import { useClipboard } from '@vueuse/core';
-  import { useAppStore } from '@/store';
-  import Block from './block.vue';
-
-  const emit = defineEmits(['cancel']);
-
-  const appStore = useAppStore();
-  const { copy } = useClipboard();
-  const visible = computed(() => appStore.globalSettings);
-  const contentOpts = computed(() => [
-    { name: '导航栏', key: 'navbar', defaultVal: appStore.navbar },
-    {
-      name: '导航栏设置',
-      key: 'navbarSettings',
-      defaultVal: appStore.navbarSettings,
-    },
-    {
-      name: '菜单栏',
-      key: 'menu',
-      defaultVal: appStore.menu,
-    },
-    {
-      name: '顶部菜单栏',
-      key: 'topMenu',
-      defaultVal: appStore.topMenu,
-    },
-    { name: '底部', key: 'footer', defaultVal: appStore.footer },
-    { name: '多页签', key: 'tabBar', defaultVal: appStore.tabBar },
-    {
-      name: '菜单来源于后台',
-      key: 'menuFromServer',
-      defaultVal: appStore.menuFromServer,
-    },
-    {
-      name: '菜单宽度 (px)',
-      key: 'menuWidth',
-      defaultVal: appStore.menuWidth,
-      type: 'number',
-    },
-  ]);
-  const othersOpts = computed(() => [
-    {
-      name: '色弱模式',
-      key: 'colorWeak',
-      defaultVal: appStore.colorWeak,
-    },
-  ]);
-
-  const cancel = () => {
-    appStore.updateSettings({ globalSettings: false });
-    emit('cancel');
-  };
-  const copySettings = async () => {
-    const text = JSON.stringify(appStore.$state, null, 2);
-    await copy(text);
-    Message.success('复制成功，请粘贴到 src/settings.json 文件中');
-  };
-  const setVisible = () => {
-    appStore.updateSettings({ globalSettings: true });
-  };
-</script>
-
-<style scoped lang="less">
-  .fixed-settings {
-    position: fixed;
-    top: 280px;
-    right: 0;
-
-    svg {
-      font-size: 18px;
-      vertical-align: -4px;
-    }
-  }
-</style>
+<template>
+  <div
+    v-if="!appStore.navbar && appStore.navbarSettings"
+    class="fixed-settings"
+    @click="setVisible"
+  >
+    <a-button type="primary">
+      <template #icon>
+        <icon-settings />
+      </template>
+    </a-button>
+  </div>
+  <a-drawer
+    :width="300"
+    unmount-on-close
+    :visible="visible"
+    :footer="false"
+    @cancel="cancel"
+  >
+    <template #title>页面配置</template>
+    <Block :options="themeOpts" title="主题" />
+    <Block :options="layoutOpts" title="布局" />
+    <a-alert>
+      此处修改会保存到浏览器本地，仅对当前用户生效。系统名称、菜单来源等请在
+      <code>src/config/settings.json</code> 中配置。
+    </a-alert>
+    <div class="drawer-actions">
+      <a-button long @click="handleReset">恢复默认</a-button>
+    </div>
+  </a-drawer>
+</template>
+
+<script lang="ts" setup>
+  import { computed } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+  import { useAppStore } from '@/store';
+  import Block from './block.vue';
+
+  const emit = defineEmits(['cancel']);
+
+  const appStore = useAppStore();
+  const visible = computed(() => appStore.globalSettings);
+
+  const themeOpts = computed(() => [
+    {
+      name: '主题色',
+      key: 'themeColor',
+      defaultVal: appStore.themeColor,
+      type: 'color',
+    },
+    {
+      name: '色弱模式',
+      key: 'colorWeak',
+      defaultVal: appStore.colorWeak,
+    },
+  ]);
+
+  const layoutOpts = computed(() => [
+    { name: '导航栏', key: 'navbar', defaultVal: appStore.navbar },
+    { name: '菜单栏', key: 'menu', defaultVal: appStore.menu },
+    { name: '顶部菜单栏', key: 'topMenu', defaultVal: appStore.topMenu },
+    { name: '底部', key: 'footer', defaultVal: appStore.footer },
+    { name: '多页签', key: 'tabBar', defaultVal: appStore.tabBar },
+    {
+      name: '菜单宽度 (px)',
+      key: 'menuWidth',
+      defaultVal: appStore.menuWidth,
+      type: 'number',
+    },
+    {
+      name: '菜单收起',
+      key: 'menuCollapse',
+      defaultVal: appStore.menuCollapse,
+    },
+  ]);
+
+  const cancel = () => {
+    appStore.updateSettings({ globalSettings: false });
+    emit('cancel');
+  };
+
+  const handleReset = () => {
+    appStore.resetUserPreferences();
+    Message.success('已恢复默认偏好设置');
+  };
+
+  const setVisible = () => {
+    appStore.updateSettings({ globalSettings: true });
+  };
+</script>
+
+<style scoped lang="less">
+  .fixed-settings {
+    position: fixed;
+    top: 280px;
+    right: 0;
+
+    svg {
+      font-size: 18px;
+      vertical-align: -4px;
+    }
+  }
+
+  .drawer-actions {
+    margin-top: 16px;
+  }
+
+  code {
+    font-size: 12px;
+  }
+</style>

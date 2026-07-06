@@ -1,14 +1,20 @@
 <template>
+  <a-color-picker
+    v-if="type === 'color'"
+    :model-value="defaultValue as string"
+    size="small"
+    @change="handleChange"
+  />
   <a-input-number
-    v-if="type === 'number'"
+    v-else-if="type === 'number'"
     :style="{ width: '80px' }"
     size="small"
-    :default-value="(defaultValue as number)"
+    :model-value="defaultValue as number"
     @change="handleChange"
   />
   <a-switch
     v-else
-    :default-checked="(defaultValue as boolean)"
+    :model-value="defaultValue as boolean"
     size="small"
     @change="handleChange"
   />

@@ -2,7 +2,11 @@
 import { Notification } from '@arco-design/web-vue';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { Router, RouteRecordRaw } from 'vue-router';
-import defaultSettings from '@/config/settings.json';
+import {
+  fixedSettings,
+  userPreferenceDefaults,
+  USER_PREFERENCE_KEYS,
+} from '@/config';
 import { getUserMenus } from '@/api/server/rbac/menu';
 import {
   transformServerMenus,
@@ -17,15 +21,40 @@ import {
   unregisterServerRoutes,
   ensureNotFoundRouteLast,
 } from '@/utils/register-server-routes';
-import { AppState } from './types';
+import { applyUserPreferences } from '@/utils/apply-user-preferences';
+import type { AppState, UserPreferences } from './types';
 
 async function getRouter() {
   const { default: router } = await import('@/router');
   return router;
 }
 
+function createInitialState(): AppState {
+  return {
+    ...userPreferenceDefaults,
+    ...fixedSettings,
+    hideMenu: false,
+    device: 'desktop',
+    globalSettings: false,
+    serverMenuFetched: false,
+    serverMenu: [],
+    allowedRouteNames: [],
+    registeredServerRouteNames: [],
+  };
+}
+
 const useAppStore = defineStore('app', {
-  state: (): AppState => ({ ...defaultSettings }),
+  state: (): AppState => createInitialState(),
+
+  persist: {
+    key: 'app-user-preferences',
+    paths: [...USER_PREFERENCE_KEYS],
+    afterRestore({ store }) {
+      const appStore = store as ReturnType<typeof useAppStore>;
+      applyUserPreferences(appStore);
+      appStore.toggleTheme(appStore.theme === 'dark');
+    },
+  },
 
   getters: {
     appCurrentSetting(state: AppState): AppState {
@@ -41,8 +70,25 @@ const useAppStore = defineStore('app', {
 
   actions: {
     updateSettings(partial: Partial<AppState>) {
-      // @ts-ignore-next-line
+      // @ts-expect-error dynamic route records in partial patch
       this.$patch(partial);
+      if (USER_PREFERENCE_KEYS.some((key) => key in partial)) {
+        applyUserPreferences(this);
+      }
+    },
+
+    updateUserPreference(partial: Partial<UserPreferences>) {
+      if (partial.topMenu) {
+        this.menuCollapse = false;
+      }
+      Object.assign(this, partial);
+      applyUserPreferences(this);
+    },
+
+    resetUserPreferences() {
+      this.$patch({ ...userPreferenceDefaults });
+      applyUserPreferences(this);
+      this.toggleTheme(this.theme === 'dark');
     },
 
     toggleTheme(dark: boolean) {
@@ -53,6 +99,7 @@ const useAppStore = defineStore('app', {
         this.theme = 'light';
         document.body.removeAttribute('arco-theme');
       }
+      applyUserPreferences(this);
     },
     toggleDevice(device: string) {
       this.device = device;

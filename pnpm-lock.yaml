@@ -12,6 +12,9 @@ importers:
 
   .:
     dependencies:
+      '@arco-design/color':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@arco-design/web-vue':
         specifier: ^2.44.7
         version: 2.58.0(vue@3.5.33(typescript@4.9.5))

@@ -184,7 +184,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, inject } from 'vue';
+  import { computed, ref, inject, onMounted } from 'vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
   import useUser from '@/hooks/user';
@@ -224,11 +224,12 @@
     attribute: 'arco-theme',
     valueDark: 'dark',
     valueLight: 'light',
-    storageKey: 'arco-theme',
     onChanged(dark: boolean) {
-      // overridden default behavior
       appStore.toggleTheme(dark);
     },
+  });
+  onMounted(() => {
+    isDark.value = appStore.theme === 'dark';
   });
   const toggleTheme = useToggle(isDark);
   const handleToggleTheme = () => {

@@ -1,29 +1,42 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-export interface AppState {
+/** 仅 settings.json 配置，用户不可在界面修改 */
+export interface FixedAppSettings {
   systemName: string;
   footerText: string;
+  loginFooter: boolean;
+  navbarSettings: boolean;
+  menuFromServer: boolean;
+  avatarEnabled: boolean;
+}
+
+/** 用户可在「页面配置」中修改，并持久化到 localStorage */
+export interface UserPreferences {
   theme: string;
+  themeColor: string;
   colorWeak: boolean;
   navbar: boolean;
-  navbarSettings: boolean;
   menu: boolean;
   topMenu: boolean;
-  hideMenu: boolean;
   menuCollapse: boolean;
   footer: boolean;
-  loginFooter: boolean;
-  themeColor: string;
-  menuWidth: number;
-  globalSettings: boolean;
-  device: string;
   tabBar: boolean;
-  avatarEnabled: boolean;
-  menuFromServer: boolean;
-  /** 本会话是否已请求过服务端菜单（空菜单也为 true，避免重复拉取） */
+  menuWidth: number;
+}
+
+/** 运行时状态，不持久化 */
+export interface RuntimeAppState {
+  hideMenu: boolean;
+  device: string;
+  globalSettings: boolean;
   serverMenuFetched: boolean;
   serverMenu: RouteRecordRaw[];
   allowedRouteNames: string[];
   registeredServerRouteNames: string[];
-  [key: string]: unknown;
 }
+
+export type AppState = FixedAppSettings &
+  UserPreferences &
+  RuntimeAppState & {
+    [key: string]: unknown;
+  };
