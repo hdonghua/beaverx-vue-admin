@@ -1,5 +1,5 @@
-﻿<template>
-  <PageContainer :breadcrumb="['menu.payment', 'menu.payment.channel']">
+<template>
+  <PageContainer>
     <a-card class="general-card" title="支付渠道">
       <a-form :model="query" layout="inline" class="search-form">
         <a-form-item field="keyword">

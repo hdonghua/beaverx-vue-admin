@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.permission']">
+  <PageContainer>
     <a-card class="general-card" title="权限指令 v-permission">
       <DemoSection
         title="指令说明"

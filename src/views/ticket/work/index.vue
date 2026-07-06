@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.ticket', 'menu.ticket.work']">
+  <PageContainer>
     <a-card class="general-card">
       <a-form :model="query" layout="inline" class="search-form">
         <a-form-item field="keyword">

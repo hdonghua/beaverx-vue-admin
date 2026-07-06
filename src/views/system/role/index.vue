@@ -1,5 +1,5 @@
-﻿<template>
-  <PageContainer :breadcrumb="['menu.system', 'menu.system.roleList']">
+<template>
+  <PageContainer>
     <a-card class="general-card">
       <a-row>
         <a-col :flex="1">

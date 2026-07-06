@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.backToTop']">
+  <PageContainer>
     <a-card class="general-card" title="BackToTop 回到顶部">
       <DemoSection
         title="容器内回到顶部"

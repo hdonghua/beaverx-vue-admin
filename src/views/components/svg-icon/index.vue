@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.svgIcon']">
+  <PageContainer>
     <a-card class="general-card" title="SvgIcon 图标">
       <DemoSection
         title="本地 SVG 图标"

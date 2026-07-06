@@ -1,5 +1,5 @@
-﻿<template>
-  <PageContainer :breadcrumb="['menu.payment', 'menu.payment.refund']">
+<template>
+  <PageContainer>
     <a-card class="general-card" title="退款记录">
       <a-form :model="query" layout="inline" class="search-form">
         <a-form-item field="orderNo">

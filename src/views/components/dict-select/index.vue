@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.dictSelect']">
+  <PageContainer>
     <a-card class="general-card" title="DictSelect 字典选择">
       <DemoSection
         title="基础用法"

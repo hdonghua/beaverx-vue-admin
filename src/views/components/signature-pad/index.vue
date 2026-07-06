@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.signaturePad']">
+  <PageContainer>
     <a-card class="general-card" title="SignaturePad 签名板">
       <DemoSection
         title="手写签名"

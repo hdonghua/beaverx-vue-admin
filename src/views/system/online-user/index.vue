@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.system', 'menu.system.onlineUserList']">
+  <PageContainer>
     <a-card class="general-card">
       <div class="online-user-summary">
         <a-statistic

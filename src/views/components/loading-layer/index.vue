@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.loadingLayer']">
+  <PageContainer>
     <a-card class="general-card" title="LoadingLayer 加载层">
       <DemoSection
         title="局部遮罩"

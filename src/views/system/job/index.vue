@@ -1,5 +1,5 @@
-﻿<template>
-  <PageContainer :breadcrumb="['menu.system', 'menu.system.jobList']">
+<template>
+  <PageContainer>
     <a-card class="general-card" title="定时任务">
       <a-form :model="query" layout="inline" class="job-search">
         <a-form-item field="keyword">

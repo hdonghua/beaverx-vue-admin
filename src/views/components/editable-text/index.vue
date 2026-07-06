@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.editableText']">
+  <PageContainer>
     <a-card class="general-card" title="EditableText 可编辑文本">
       <DemoSection
         title="点击编辑"

@@ -1,5 +1,5 @@
-﻿<template>
-  <PageContainer :breadcrumb="['menu.system', 'menu.system.messageSend']">
+<template>
+  <PageContainer>
     <a-card class="general-card" :title="$t('siteMessage.cardTitle')">
       <a-form ref="formRef" :model="form" layout="vertical" class="send-form">
         <a-form-item field="sendToAll">

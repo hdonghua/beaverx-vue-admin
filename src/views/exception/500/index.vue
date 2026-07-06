@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.exception', 'menu.exception.500']">
+  <PageContainer>
     <div class="content">
       <a-result
         class="result"

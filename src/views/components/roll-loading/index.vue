@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.rollLoading']">
+  <PageContainer>
     <a-card class="general-card" title="RollLoading 滚动加载">
       <DemoSection
         title="触底加载更多"

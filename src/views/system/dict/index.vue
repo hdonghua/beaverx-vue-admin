@@ -1,5 +1,5 @@
-﻿<template>
-  <PageContainer :breadcrumb="['menu.system', 'menu.system.dictList']">
+<template>
+  <PageContainer>
     <a-row :gutter="16">
       <a-col :span="9">
         <a-card class="general-card" title="字典类型">

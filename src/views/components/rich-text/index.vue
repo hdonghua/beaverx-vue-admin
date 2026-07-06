@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.richText']">
+  <PageContainer>
     <a-card class="general-card" title="RichText 富文本">
       <DemoSection
         title="双向绑定"

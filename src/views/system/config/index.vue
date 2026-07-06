@@ -1,5 +1,5 @@
-﻿<template>
-  <PageContainer :breadcrumb="['menu.system', 'menu.system.configList']">
+<template>
+  <PageContainer>
     <a-row :gutter="16">
       <a-col :span="6">
         <a-card class="general-card" title="配置分组">

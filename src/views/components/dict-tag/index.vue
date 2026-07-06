@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :breadcrumb="['menu.components', 'menu.components.dictTag']">
+  <PageContainer>
     <a-card class="general-card" title="DictTag 字典标签">
       <DemoSection
         title="标签模式"
