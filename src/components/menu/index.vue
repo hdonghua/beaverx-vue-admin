@@ -83,18 +83,24 @@
       };
       listenerRouteChange((newRoute) => {
         const { requiresAuth, activeMenu, hideInMenu } = newRoute.meta;
-        if (requiresAuth && (!hideInMenu || activeMenu)) {
-          const menuOpenKeys = findMenuOpenKeys(
-            (activeMenu || newRoute.name) as string
-          );
+        if (!requiresAuth) return;
 
-          const keySet = new Set([...menuOpenKeys, ...openKeys.value]);
-          openKeys.value = [...keySet];
-
-          selectedKey.value = [
-            activeMenu || menuOpenKeys[menuOpenKeys.length - 1],
-          ];
+        // 首页等不在侧栏展示的页面：清除选中态，避免与标签页不同步
+        if (hideInMenu && !activeMenu) {
+          selectedKey.value = [];
+          return;
         }
+
+        const menuOpenKeys = findMenuOpenKeys(
+          (activeMenu || newRoute.name) as string
+        );
+
+        const keySet = new Set([...menuOpenKeys, ...openKeys.value]);
+        openKeys.value = [...keySet];
+
+        selectedKey.value = [
+          activeMenu || menuOpenKeys[menuOpenKeys.length - 1],
+        ];
       }, true);
       const setCollapse = (val: boolean) => {
         if (appStore.device === 'desktop')
