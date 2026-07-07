@@ -20,10 +20,6 @@
     <template #title>页面配置</template>
     <Block :options="themeOpts" title="主题" />
     <Block :options="layoutOpts" title="布局" />
-    <a-alert>
-      此处修改会保存到浏览器本地，仅对当前用户生效。系统名称、菜单来源等请在
-      <code>src/config/settings.json</code> 中配置。
-    </a-alert>
     <div class="drawer-actions">
       <a-button long @click="handleReset">恢复默认</a-button>
     </div>
