@@ -89,6 +89,17 @@ Hangfire 调度面板（`/hangfire`，独立账号，见后端配置）：
 - pnpm / npm / yarn 均可
 - 本地已启动后端 API（默认 `http://localhost:5216`）
 
+后端仓库 [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin) 按分支区分 ORM / 数据库，**本前端无需改动**：
+
+| 后端分支 | ORM / 数据库 | 说明 |
+|----------|--------------|------|
+| `master`（默认） | EF Core + PostgreSQL | |
+| `master-mysql` | EF Core + MySQL 8+ | |
+| `sqlsugar` | SqlSugar + PostgreSQL | 须**手动建空库**，表启动自动同步 |
+| `sqlsugar-mysql` | SqlSugar + MySQL 8+ | 同上；Hangfire 需 `Allow User Variables=True` |
+
+SQL Server / Oracle 等：SqlSugar 改 `DbType`；EF Core 需自行实现驱动（见后端 README / 文档「切换其它数据库」）。
+
 ## 快速开始
 
 ```bash
@@ -295,5 +306,5 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 ## 相关仓库
 
-- 后端 API：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
+- 后端 API：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)（分支：`master` / `master-mysql` / `sqlsugar` / `sqlsugar-mysql`，前端通用）
 

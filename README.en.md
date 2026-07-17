@@ -87,6 +87,17 @@ Hangfire dashboard (`/hangfire`, separate credentials—see backend config):
 - pnpm / npm / yarn
 - Backend API running locally (default `http://localhost:5216`)
 
+Backend [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin) uses Git branches for ORM / database. **This frontend needs no changes:**
+
+| Backend branch | ORM / Database | Notes |
+|----------------|----------------|-------|
+| `master` (default) | EF Core + PostgreSQL | |
+| `master-mysql` | EF Core + MySQL 8+ | |
+| `sqlsugar` | SqlSugar + PostgreSQL | Create empty DB first; tables sync on startup |
+| `sqlsugar-mysql` | SqlSugar + MySQL 8+ | Same; Hangfire needs `Allow User Variables=True` |
+
+For SQL Server / Oracle etc.: SqlSugar → change `DbType`; EF Core → implement drivers yourself (see backend README / docs).
+
 ## Quick Start
 
 ```bash
@@ -283,4 +294,4 @@ Add menu in **Menu Management** (or `RbacDataSeeder`): `component` = `system/con
 
 ## Related Repositories
 
-- Backend API: [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
+- Backend API: [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin) (branches: `master` / `master-mysql` / `sqlsugar` / `sqlsugar-mysql`; frontend is shared)
