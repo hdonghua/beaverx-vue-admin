@@ -1,81 +1,84 @@
 <template>
   <PageContainer>
-    <a-card class="general-card">
-      <a-form :model="query" layout="inline" class="search-form">
-        <a-form-item field="keyword">
-          <a-input
-            v-model="query.keyword"
-            allow-clear
-            placeholder="工单号/标题/内容"
+    <QueryTable
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      :columns="columns"
+      :data="list"
+      :search-form-model="query"
+      :scroll="{ x: 1300 }"
+      column-resizable
+      @page-change="onPageChange"
+      @refresh="fetchList"
+    >
+      <template #search>
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item field="keyword" label="关键字">
+              <a-input
+                v-model="query.keyword"
+                allow-clear
+                placeholder="工单号/标题/内容"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item field="status" label="工单状态">
+              <a-select
+                v-model="query.status"
+                allow-clear
+                placeholder="工单状态"
+              >
+                <a-option :value="WorkTicketStatus.Pending">待处理</a-option>
+                <a-option :value="WorkTicketStatus.Processing">处理中</a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-space :size="18">
+              <a-button type="primary" @click="search">
+                <template #icon><icon-search /></template>
+                查询
+              </a-button>
+              <a-button @click="resetQuery">
+                <template #icon><icon-refresh /></template>
+                重置
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
+      <template #images="{ record }">
+        <a-space v-if="record.images?.length" :size="4">
+          <a-image
+            v-for="(img, index) in record.images"
+            :key="`${record.id}-${index}`"
+            :src="resolveApiUrl(img.proxyUrl)"
+            width="40"
+            height="40"
+            fit="cover"
           />
-        </a-form-item>
-        <a-form-item field="status">
-          <a-select
-            v-model="query.status"
-            allow-clear
-            placeholder="工单状态"
-            style="width: 140px"
-          >
-            <a-option :value="WorkTicketStatus.Pending">待处理</a-option>
-            <a-option :value="WorkTicketStatus.Processing">处理中</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="search">
-              <template #icon><icon-search /></template>
-              查询
-            </a-button>
-            <a-button @click="resetQuery">
-              <template #icon><icon-refresh /></template>
-              重置
-            </a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-
-      <a-table
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        :columns="columns"
-        :data="list"
-        :scroll="{ x: 1300 }"
-        column-resizable
-        :bordered="{ cell: true }"
-        @page-change="onPageChange"
-      >
-        <template #images="{ record }">
-          <a-space v-if="record.images?.length" :size="4">
-            <a-image
-              v-for="(img, index) in record.images"
-              :key="`${record.id}-${index}`"
-              :src="resolveApiUrl(img.proxyUrl)"
-              width="40"
-              height="40"
-              fit="cover"
-            />
-          </a-space>
-          <span v-else>-</span>
-        </template>
-        <template #status="{ record }">
-          <DictTag type-code="work_ticket_status" :value="String(record.status)" />
-        </template>
-        <template #creationTime="{ record }">
-          {{ formatTime(record.creationTime) }}
-        </template>
-        <template #operations="{ record }">
-          <a-button
-            type="text"
-            size="small"
-            v-permission="[Permissions.Ticket.Work.Process]"
-            @click="openProcessModal(record)"
-          >
-            处理
-          </a-button>
-        </template>
-      </a-table>
-    </a-card>
+        </a-space>
+        <span v-else>-</span>
+      </template>
+      <template #status="{ record }">
+        <DictTag type-code="work_ticket_status" :value="String(record.status)" />
+      </template>
+      <template #creationTime="{ record }">
+        {{ formatTime(record.creationTime) }}
+      </template>
+      <template #operations="{ record }">
+        <a-button
+          type="text"
+          size="small"
+          v-permission="[Permissions.Ticket.Work.Process]"
+          @click="openProcessModal(record)"
+        >
+          处理
+        </a-button>
+      </template>
+    </QueryTable>
 
     <a-modal
       v-model:visible="modalVisible"
@@ -154,7 +157,7 @@
   import { Message, type FieldRule, type FileItem, type FormInstance } from '@arco-design/web-vue';
   import type { RequestOption } from '@arco-design/web-vue/es/upload/interfaces';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
-  import PageContainer from '@/components/page-container/index.vue';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import DictTag from '@/components/dict-tag/index.vue';
   import { Permissions } from '@/constants/permissions';
   import { uploadFile } from '@/api/server/common/file';
@@ -345,10 +348,6 @@
 </script>
 
 <style scoped lang="less">
-  .search-form {
-    margin-bottom: 16px;
-  }
-
   .ticket-info {
     margin-bottom: 8px;
   }

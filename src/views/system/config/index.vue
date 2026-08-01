@@ -15,29 +15,44 @@
         </a-card>
       </a-col>
       <a-col :span="18">
-        <a-card class="general-card" title="配置列表">
-          <a-form :model="query" layout="inline" class="config-search">
-            <a-form-item field="keyword">
-              <a-input
-                v-model="query.keyword"
-                allow-clear
-                placeholder="键/标签/值"
-              />
-            </a-form-item>
-            <a-form-item>
-              <a-space>
-                <a-button type="primary" @click="search">
-                  <template #icon><icon-search /></template>
-                  查询
-                </a-button>
-                <a-button @click="resetQuery">
-                  <template #icon><icon-refresh /></template>
-                  重置
-                </a-button>
-              </a-space>
-            </a-form-item>
-          </a-form>
-          <div class="config-toolbar">
+        <QueryTable
+          title="配置列表"
+          row-key="id"
+          :loading="loading"
+          :pagination="pagination"
+          :columns="columns"
+          :data="list"
+          :search-form-model="query"
+          column-resizable
+          @page-change="onPageChange"
+          @refresh="fetchList"
+        >
+          <template #search>
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item field="keyword" label="关键字">
+                  <a-input
+                    v-model="query.keyword"
+                    allow-clear
+                    placeholder="键/标签/值"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-space :size="18">
+                  <a-button type="primary" @click="search">
+                    <template #icon><icon-search /></template>
+                    查询
+                  </a-button>
+                  <a-button @click="resetQuery">
+                    <template #icon><icon-refresh /></template>
+                    重置
+                  </a-button>
+                </a-space>
+              </a-col>
+            </a-row>
+          </template>
+          <template #toolbar-left>
             <a-button
               type="primary"
               v-permission="[Permissions.System.Config.Create]"
@@ -46,55 +61,44 @@
               <template #icon><icon-plus /></template>
               新增配置
             </a-button>
-          </div>
-          <a-table
-            row-key="id"
-            :loading="loading"
-            :pagination="pagination"
-            :columns="columns"
-            :data="list"
-            @page-change="onPageChange"
-            column-resizable
-            :bordered="{cell:true}"
-          >
-            <template #group="{ record }">
-              {{ record.group || '未分组' }}
-            </template>
-            <template #value="{ record }">
-              {{ record.value }}
-            </template>
-            <template #isEnabled="{ record }">
-              <a-tag :color="record.isEnabled ? 'green' : 'red'">
-                {{ record.isEnabled ? '启用' : '禁用' }}
-              </a-tag>
-            </template>
-            <template #operations="{ record }">
-              <a-space>
+          </template>
+          <template #group="{ record }">
+            {{ record.group || '未分组' }}
+          </template>
+          <template #value="{ record }">
+            {{ record.value }}
+          </template>
+          <template #isEnabled="{ record }">
+            <a-tag :color="record.isEnabled ? 'green' : 'red'">
+              {{ record.isEnabled ? '启用' : '禁用' }}
+            </a-tag>
+          </template>
+          <template #operations="{ record }">
+            <a-space>
+              <a-button
+                type="text"
+                size="small"
+                v-permission="[Permissions.System.Config.Update]"
+                @click="handleEdit(record)"
+              >
+                <template #icon><icon-edit /></template>
+              </a-button>
+              <a-popconfirm
+                content="确定删除该配置吗？"
+                @ok="handleDelete(record.id)"
+              >
                 <a-button
                   type="text"
                   size="small"
-                  v-permission="[Permissions.System.Config.Update]"
-                  @click="handleEdit(record)"
+                  status="danger"
+                  v-permission="[Permissions.System.Config.Delete]"
                 >
-                  <template #icon><icon-edit /></template>
+                  <template #icon><icon-delete /></template>
                 </a-button>
-                <a-popconfirm
-                  content="确定删除该配置吗？"
-                  @ok="handleDelete(record.id)"
-                >
-                  <a-button
-                    type="text"
-                    size="small"
-                    status="danger"
-                    v-permission="[Permissions.System.Config.Delete]"
-                  >
-                    <template #icon><icon-delete /></template>
-                  </a-button>
-                </a-popconfirm>
-              </a-space>
-            </template>
-          </a-table>
-        </a-card>
+              </a-popconfirm>
+            </a-space>
+          </template>
+        </QueryTable>
       </a-col>
     </a-row>
 
@@ -155,6 +159,7 @@
   import { Message } from '@arco-design/web-vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import type { FormInstance } from '@arco-design/web-vue/es/form';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import useLoading from '@/hooks/loading';
   import { clearFormValidate } from '@/utils/form';
   import {
@@ -343,13 +348,3 @@
     await fetchList();
   });
 </script>
-
-<style scoped lang="less">
-  .config-search {
-    margin-bottom: 12px;
-  }
-
-  .config-toolbar {
-    margin-bottom: 12px;
-  }
-</style>

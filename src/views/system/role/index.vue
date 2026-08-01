@@ -1,186 +1,115 @@
 <template>
   <PageContainer>
-    <a-card class="general-card">
-      <a-row>
-        <a-col :flex="1">
-          <a-form
-            :model="formModel"
-            :label-col-props="{ span: 6 }"
-            :wrapper-col-props="{ span: 18 }"
-            label-align="left"
+    <QueryTable
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      :columns="columns"
+      :data="renderData"
+      :search-form-model="formModel"
+      @page-change="onPageChange"
+      @refresh="search"
+    >
+      <template #search>
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item field="name" label="角色名称">
+              <a-input
+                v-model="formModel.name"
+                placeholder="请输入角色名称"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-space :size="18">
+              <a-button type="primary" @click="search">
+                <template #icon>
+                  <icon-search />
+                </template>
+                搜索
+              </a-button>
+              <a-button @click="reset">
+                <template #icon>
+                  <icon-refresh />
+                </template>
+                重置
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
+      <template #before-table>
+        <a-alert class="role-page-tip" type="info" show-icon>
+          角色编码 <strong>super_admin</strong> 为超级管理员，默认拥有全部菜单权限（含后续新增菜单），无需手动分配。
+        </a-alert>
+      </template>
+      <template #toolbar-left>
+        <a-space>
+          <a-button
+            type="primary"
+            v-permission="[Permissions.System.Role.Create]"
+            @click="handleAdd"
           >
-            <a-row :gutter="16">
-              <a-col :span="8">
-                <a-form-item field="name" label="角色名称">
-                  <a-input
-                    v-model="formModel.name"
-                    placeholder="请输入角色名称"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-space :size="18">
-                  <a-button type="primary" @click="search">
-                    <template #icon>
-                      <icon-search />
-                    </template>
-                    搜索
-                  </a-button>
-                  <a-button @click="reset">
-                    <template #icon>
-                      <icon-refresh />
-                    </template>
-                    重置
-                  </a-button>
-                </a-space>
-              </a-col>
-            </a-row>
-          </a-form>
-        </a-col>
-      </a-row>
-      <a-divider style="margin-top: 0" />
-      <a-alert class="role-page-tip" type="info" show-icon>
-        角色编码 <strong>super_admin</strong> 为超级管理员，默认拥有全部菜单权限（含后续新增菜单），无需手动分配。
-      </a-alert>
-      <a-row style="margin-bottom: 16px">
-        <a-col :span="12">
-          <a-space>
+            <template #icon>
+              <icon-plus />
+            </template>
+            新增
+          </a-button>
+        </a-space>
+      </template>
+      <template #index="{ rowIndex }">
+        {{ rowIndex + 1 + (pagination.current - 1) * pagination.pageSize }}
+      </template>
+      <template #isEnabled="{ record }">
+        <a-tag :color="record.isEnabled ? 'green' : 'red'">
+          {{ record.isEnabled ? '启用' : '禁用' }}
+        </a-tag>
+      </template>
+      <template #operations="{ record }">
+        <a-space>
+          <a-tooltip content="分配菜单">
             <a-button
-              type="primary"
-              v-permission="[Permissions.System.Role.Create]"
-              @click="handleAdd"
+              type="text"
+              size="small"
+              v-if="record.code !== SUPER_ADMIN_ROLE_CODE"
+              v-permission="[Permissions.System.Role.AssignMenus]"
+              @click="handleAssignMenu(record)"
             >
               <template #icon>
-                <icon-plus />
+                <icon-menu />
               </template>
-              新增
             </a-button>
-          </a-space>
-        </a-col>
-        <a-col
-          :span="12"
-          style="display: flex; align-items: center; justify-content: end"
-        >
-          <a-tooltip :content="'刷新'">
-            <div class="action-icon" @click="search"
-              ><icon-refresh size="18"
-            /></div>
           </a-tooltip>
-          <a-dropdown @select="handleSelectDensity">
-            <a-tooltip :content="'密度'">
-              <div class="action-icon"><icon-line-height size="18" /></div>
-            </a-tooltip>
-            <template #content>
-              <a-doption
-                v-for="item in densityList"
-                :key="item.value"
-                :value="item.value"
-                :class="{ active: item.value === size }"
-              >
-                <span>{{ item.name }}</span>
-              </a-doption>
-            </template>
-          </a-dropdown>
-          <a-tooltip :content="'列设置'">
-            <a-popover
-              trigger="click"
-              position="bl"
-              @popup-visible-change="popupVisibleChange"
+          <a-tooltip content="编辑">
+            <a-button
+              type="text"
+              size="small"
+              v-permission="[Permissions.System.Role.Update]"
+              @click="handleEdit(record)"
             >
-              <div class="action-icon"><icon-settings size="18" /></div>
-              <template #content>
-                <div id="tableSetting">
-                  <div
-                    v-for="(item, index) in showColumns"
-                    :key="item.dataIndex"
-                    class="setting"
-                  >
-                    <div style="margin-right: 4px; cursor: move">
-                      <icon-drag-arrow />
-                    </div>
-                    <div>
-                      <a-checkbox
-                        v-model="item.checked"
-                        @change="
-                          handleChange($event, item as TableColumnData, index)
-                        "
-                      >
-                      </a-checkbox>
-                    </div>
-                    <div class="title">
-                      {{ item.title === '#' ? '序列号' : item.title }}
-                    </div>
-                  </div>
-                </div>
+              <template #icon>
+                <icon-edit />
               </template>
-            </a-popover>
+            </a-button>
           </a-tooltip>
-        </a-col>
-      </a-row>
-      <a-table
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        :columns="(cloneColumns as TableColumnData[])"
-        :data="renderData"
-        :bordered="false"
-        :size="size"
-        @page-change="onPageChange"
-      >
-        <template #index="{ rowIndex }">
-          {{ rowIndex + 1 + (pagination.current - 1) * pagination.pageSize }}
-        </template>
-        <template #isEnabled="{ record }">
-          <a-tag :color="record.isEnabled ? 'green' : 'red'">
-            {{ record.isEnabled ? '启用' : '禁用' }}
-          </a-tag>
-        </template>
-        <template #operations="{ record }">
-          <a-space>
-            <a-tooltip content="分配菜单">
-              <a-button
-                type="text"
-                size="small"
-                v-if="record.code !== SUPER_ADMIN_ROLE_CODE"
-                v-permission="[Permissions.System.Role.AssignMenus]"
-                @click="handleAssignMenu(record)"
-              >
-                <template #icon>
-                  <icon-menu />
-                </template>
-              </a-button>
-            </a-tooltip>
-            <a-tooltip content="编辑">
-              <a-button
-                type="text"
-                size="small"
-                v-permission="[Permissions.System.Role.Update]"
-                @click="handleEdit(record)"
-              >
-                <template #icon>
-                  <icon-edit />
-                </template>
-              </a-button>
-            </a-tooltip>
-            <a-popconfirm
-              content="确定要删除该角色吗？"
-              @ok="handleDelete(record.id)"
+          <a-popconfirm
+            content="确定要删除该角色吗？"
+            @ok="handleDelete(record.id)"
+          >
+            <a-button
+              type="text"
+              size="small"
+              status="danger"
+              v-permission="[Permissions.System.Role.Delete]"
             >
-              <a-button
-                type="text"
-                size="small"
-                status="danger"
-                v-permission="[Permissions.System.Role.Delete]"
-              >
-                <template #icon>
-                  <icon-delete />
-                </template>
-              </a-button>
-            </a-popconfirm>
-          </a-space>
-        </template>
-      </a-table>
-    </a-card>
+              <template #icon>
+                <icon-delete />
+              </template>
+            </a-button>
+          </a-popconfirm>
+        </a-space>
+      </template>
+    </QueryTable>
     <a-modal
       v-model:visible="modalVisible"
       :title="isEdit ? '编辑角色' : '创建角色'"
@@ -265,6 +194,7 @@
   import { computed, ref, reactive, watch, nextTick } from 'vue';
   import useLoading from '@/hooks/loading';
   import { Message } from '@arco-design/web-vue';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import {
     queryRolePage,
     addRole,

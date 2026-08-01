@@ -10,13 +10,18 @@
         </a-button>
       </div>
 
-      <a-table
+      <QueryTable
         row-key="userId"
         :loading="loading"
         :columns="columns"
         :data="list"
         :pagination="false"
-        :bordered="{ cell: true }"
+        :use-card="false"
+        :show-search="false"
+        :show-toolbar="false"
+        :show-refresh="false"
+        :show-density="false"
+        :show-column-setting="false"
       >
         <template #nickName="{ record }">
           {{ record.nickName || '-' }}
@@ -44,7 +49,7 @@
           </a-popconfirm>
           <span v-else>-</span>
         </template>
-      </a-table>
+      </QueryTable>
     </a-card>
   </PageContainer>
 </template>
@@ -54,7 +59,7 @@
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
   import type { TableColumnData } from '@arco-design/web-vue';
-  import PageContainer from '@/components/page-container/index.vue';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import {
     RealtimeEvents,
     type OnlineUsersChangedPayload,
@@ -68,7 +73,7 @@
   import useUserStore from '@/store/modules/user';
   import { onRealtimeEvent, startRealtimeHub } from '@/utils/realtime-hub';
 
-    const userStore = useUserStore();
+  const userStore = useUserStore();
 
   const loading = ref(false);
   const list = ref<OnlineUserDto[]>([]);

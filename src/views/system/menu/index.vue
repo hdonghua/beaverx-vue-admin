@@ -1,119 +1,117 @@
 <template>
   <PageContainer>
-    <a-card class="general-card">
-      <a-row style="margin-bottom: 16px">
-        <a-col :span="24">
-          <a-space>
-            <a-button
-              type="primary"
-              v-permission="[Permissions.System.Menu.Create]"
-              @click="handleAdd(null)"
-            >
-              <template #icon>
-                <icon-plus />
-              </template>
-              新增
-            </a-button>
-          </a-space>
-        </a-col>
-      </a-row>
-      <a-table
-        :loading="loading"
-        :columns="columns"
-        :data="renderData"
-        :bordered="false"
-        :size="size"
-        :pagination="false"
-        :default-expand-all-rows="true"
-        row-key="id"
-      >
-        <template #index="{ rowIndex }">
-          {{ rowIndex + 1 }}
-        </template>
-        <template #name="{ record }">
-          <span class="menu-name-cell">
-            <span class="menu-name-text">{{ record.name }}</span>
-            <a-tooltip
-              v-if="showMenuVisibilityIcon(record)"
-              :content="record.isVisible ? '菜单显示' : '菜单隐藏'"
-            >
-              <icon-eye-invisible
-                v-if="!record.isVisible"
-                class="menu-visibility-icon hidden"
-              />
-            </a-tooltip>
-          </span>
-        </template>
-        <template #menuType="{ record }">
-          <a-space>
-            <DictTag
-              :type-code="DictTypeCodes.SysMenuType"
-              :value="record.menuType"
-              plain
+    <QueryTable
+      title="菜单列表"
+      row-key="id"
+      :loading="loading"
+      :columns="columns"
+      :data="renderData"
+      :pagination="false"
+      :bordered="false"
+      :default-expand-all-rows="true"
+      :show-search="false"
+      :show-refresh="false"
+      :show-density="false"
+      :show-column-setting="false"
+    >
+      <template #toolbar-left>
+        <a-button
+          type="primary"
+          v-permission="[Permissions.System.Menu.Create]"
+          @click="handleAdd(null)"
+        >
+          <template #icon>
+            <icon-plus />
+          </template>
+          新增
+        </a-button>
+      </template>
+      <template #index="{ rowIndex }">
+        {{ rowIndex + 1 }}
+      </template>
+      <template #name="{ record }">
+        <span class="menu-name-cell">
+          <span class="menu-name-text">{{ record.name }}</span>
+          <a-tooltip
+            v-if="showMenuVisibilityIcon(record)"
+            :content="record.isVisible ? '菜单显示' : '菜单隐藏'"
+          >
+            <icon-eye-invisible
+              v-if="!record.isVisible"
+              class="menu-visibility-icon hidden"
             />
-            <a-tag v-if="record.isExternal" size="small" color="arcoblue">
-              外链
-            </a-tag>
-          </a-space>
-        </template>
-        <template #icon="{ record }">
-          <div class="menu-icon-cell">
-            <IconSelector
-              v-if="record.icon"
-              :model-value="record.icon"
-              readonly
-            />
-            <span v-else class="menu-icon-empty">-</span>
-          </div>
-        </template>
-        <template #isVisible="{ record }">
-          {{ record.isVisible ? '是' : '否' }}
-        </template>
-        <template #isEnabled="{ record }">
-          <a-tag :color="record.isEnabled ? 'green' : 'red'">
-            {{ record.isEnabled ? '启用' : '禁用' }}
+          </a-tooltip>
+        </span>
+      </template>
+      <template #menuType="{ record }">
+        <a-space>
+          <DictTag
+            :type-code="DictTypeCodes.SysMenuType"
+            :value="record.menuType"
+            plain
+          />
+          <a-tag v-if="record.isExternal" size="small" color="arcoblue">
+            外链
           </a-tag>
-        </template>
-        <template #operations="{ record }">
+        </a-space>
+      </template>
+      <template #icon="{ record }">
+        <div class="menu-icon-cell">
+          <IconSelector
+            v-if="record.icon"
+            :model-value="record.icon"
+            readonly
+          />
+          <span v-else class="menu-icon-empty">-</span>
+        </div>
+      </template>
+      <template #isVisible="{ record }">
+        {{ record.isVisible ? '是' : '否' }}
+      </template>
+      <template #isEnabled="{ record }">
+        <a-tag :color="record.isEnabled ? 'green' : 'red'">
+          {{ record.isEnabled ? '启用' : '禁用' }}
+        </a-tag>
+      </template>
+      <template #operations="{ record }">
+        <a-button
+          v-if="record.menuType !== MenuType.Button"
+          type="text"
+          size="small"
+          v-permission="[Permissions.System.Menu.Create]"
+          @click="handleAdd(record)"
+        >
+          <template #icon>
+            <icon-plus />
+          </template>
+        </a-button>
+        <a-button
+          type="text"
+          size="small"
+          v-permission="[Permissions.System.Menu.Update]"
+          @click="handleEdit(record)"
+        >
+          <template #icon>
+            <icon-edit />
+          </template>
+        </a-button>
+        <a-popconfirm
+          content="确定要删除该菜单吗？"
+          @ok="handleDelete(record.id)"
+        >
           <a-button
-            v-if="record.menuType !== MenuType.Button"
             type="text"
             size="small"
-            v-permission="[Permissions.System.Menu.Create]"
-            @click="handleAdd(record)"
+            status="danger"
+            v-permission="[Permissions.System.Menu.Delete]"
           >
             <template #icon>
-              <icon-plus />
+              <icon-delete />
             </template>
           </a-button>
-          <a-button
-            type="text"
-            size="small"
-            v-permission="[Permissions.System.Menu.Update]"
-            @click="handleEdit(record)"
-          >
-            <template #icon>
-              <icon-edit />
-            </template>
-          </a-button>
-          <a-popconfirm
-            content="确定要删除该菜单吗？"
-            @ok="handleDelete(record.id)"
-          >
-            <a-button
-              type="text"
-              size="small"
-              status="danger"
-              v-permission="[Permissions.System.Menu.Delete]"
-            >
-              <template #icon>
-                <icon-delete />
-              </template>
-            </a-button>
-          </a-popconfirm>
-        </template>
-      </a-table>
-    </a-card>
+        </a-popconfirm>
+      </template>
+    </QueryTable>
     <a-modal
       v-model:visible="modalVisible"
       :title="isEdit ? '编辑菜单' : '创建菜单'"
@@ -227,6 +225,7 @@
   import { computed, ref, reactive } from 'vue';
   import useLoading from '@/hooks/loading';
   import { Message } from '@arco-design/web-vue';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import {
     queryMenus,
     addMenu,
@@ -248,15 +247,12 @@
   import { Permissions } from '@/constants/permissions';
   import type { EntityId } from '@/types/entity-id';
 
-  type SizeProps = 'mini' | 'small' | 'medium' | 'large';
-
   const showMenuVisibilityIcon = (record: MenuDto) =>
     record.menuType === MenuType.Directory ||
     record.menuType === MenuType.Menu;
 
   const { loading, setLoading } = useLoading(true);
-    const renderData = ref<MenuDto[]>([]);
-  const size = ref<SizeProps>('medium');
+  const renderData = ref<MenuDto[]>([]);
 
   const columns = computed<TableColumnData[]>(() => [
     {

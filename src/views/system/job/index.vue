@@ -1,40 +1,56 @@
 <template>
   <PageContainer>
-    <a-card class="general-card" title="定时任务">
-      <a-form :model="query" layout="inline" class="job-search">
-        <a-form-item field="keyword">
-          <a-input
-            v-model="query.keyword"
-            allow-clear
-            placeholder="编码/名称"
-          />
-        </a-form-item>
-        <a-form-item field="isEnabled">
-          <a-select
-            v-model="query.isEnabled"
-            allow-clear
-            placeholder="状态"
-            style="width: 120px"
-          >
-            <a-option :value="true">启用</a-option>
-            <a-option :value="false">禁用</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="search">
-              <template #icon><icon-search /></template>
-              查询
-            </a-button>
-            <a-button @click="resetQuery">
-              <template #icon><icon-refresh /></template>
-              重置
-            </a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-
-      <div class="job-toolbar">
+    <QueryTable
+      title="定时任务"
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      :columns="columns"
+      :data="list"
+      :search-form-model="query"
+      :scroll="{ x: 1180 }"
+      column-resizable
+      @page-change="onPageChange"
+      @refresh="search"
+    >
+      <template #search>
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item field="keyword" label="关键字">
+              <a-input
+                v-model="query.keyword"
+                allow-clear
+                placeholder="编码/名称"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item field="isEnabled" label="状态">
+              <a-select
+                v-model="query.isEnabled"
+                allow-clear
+                placeholder="状态"
+              >
+                <a-option :value="true">启用</a-option>
+                <a-option :value="false">禁用</a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-space>
+              <a-button type="primary" @click="search">
+                <template #icon><icon-search /></template>
+                查询
+              </a-button>
+              <a-button @click="resetQuery">
+                <template #icon><icon-refresh /></template>
+                重置
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
+      <template #toolbar-left>
         <a-button
           type="primary"
           v-permission="[Permissions.System.Job.Create]"
@@ -43,79 +59,66 @@
           <template #icon><icon-plus /></template>
           新增任务
         </a-button>
-      </div>
-
-      <a-table
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        :columns="columns"
-        :data="list"
-        :scroll="{ x: 1180 }"
-        column-resizable
-        :bordered="{ cell: true }"
-        @page-change="onPageChange"
-      >
-        <template #jobType="{ record }">
-          {{ record.jobType === 1 ? 'HTTP API' : record.jobType }}
-        </template>
-        <template #httpMethod="{ record }">
-          {{ httpMethodLabel(record.httpMethod) }}
-        </template>
-        <template #isEnabled="{ record }">
-          <a-tag :color="record.isEnabled ? 'green' : 'red'">
-            {{ record.isEnabled ? '启用' : '禁用' }}
+      </template>
+      <template #jobType="{ record }">
+        {{ record.jobType === 1 ? 'HTTP API' : record.jobType }}
+      </template>
+      <template #httpMethod="{ record }">
+        {{ httpMethodLabel(record.httpMethod) }}
+      </template>
+      <template #isEnabled="{ record }">
+        <a-tag :color="record.isEnabled ? 'green' : 'red'">
+          {{ record.isEnabled ? '启用' : '禁用' }}
+        </a-tag>
+      </template>
+      <template #lastRun="{ record }">
+        <div v-if="record.lastRunTime" class="last-run-cell">
+          <a-tag
+            size="small"
+            :color="record.lastRunStatus === 1 ? 'green' : 'red'"
+          >
+            {{ record.lastRunStatus === 1 ? '成功' : '失败' }}
           </a-tag>
-        </template>
-        <template #lastRun="{ record }">
-          <div v-if="record.lastRunTime" class="last-run-cell">
-            <a-tag
-              size="small"
-              :color="record.lastRunStatus === 1 ? 'green' : 'red'"
-            >
-              {{ record.lastRunStatus === 1 ? '成功' : '失败' }}
-            </a-tag>
-            <span>{{ formatTime(record.lastRunTime) }}</span>
-          </div>
-          <span v-else>-</span>
-        </template>
-        <template #operations="{ record }">
-          <a-space size="small" class="table-operations">
-            <a-button type="text" size="small" @click="openLogs(record)">
-              日志
-            </a-button>
+          <span>{{ formatTime(record.lastRunTime) }}</span>
+        </div>
+        <span v-else>-</span>
+      </template>
+      <template #operations="{ record }">
+        <a-space size="small" class="table-operations">
+          <a-button type="text" size="small" @click="openLogs(record)">
+            日志
+          </a-button>
+          <a-button
+            type="text"
+            size="small"
+            v-permission="[Permissions.System.Job.Trigger]"
+            @click="handleTrigger(record.id)"
+          >
+            执行
+          </a-button>
+          <a-tooltip content="编辑">
             <a-button
               type="text"
               size="small"
-              v-permission="[Permissions.System.Job.Trigger]"
-              @click="handleTrigger(record.id)"
+              v-permission="[Permissions.System.Job.Update]"
+              @click="handleEdit(record)"
             >
-              执行
+              <template #icon><icon-edit /></template>
             </a-button>
-            <a-tooltip content="编辑">
-              <a-button
-                type="text"
-                size="small"
-                v-permission="[Permissions.System.Job.Update]"
-                @click="handleEdit(record)"
-              >
-                <template #icon><icon-edit /></template>
-              </a-button>
-            </a-tooltip>
-            <a-popconfirm content="确定删除该任务吗？" @ok="handleDelete(record.id)">
-              <a-button
-                type="text"
-                size="small"
-                status="danger"
-                v-permission="[Permissions.System.Job.Delete]"
-              >
-                <template #icon><icon-delete /></template>
-              </a-button>
-            </a-popconfirm>
-          </a-space>
-        </template>
-      </a-table>
-    </a-card>
+          </a-tooltip>
+          <a-popconfirm content="确定删除该任务吗？" @ok="handleDelete(record.id)">
+            <a-button
+              type="text"
+              size="small"
+              status="danger"
+              v-permission="[Permissions.System.Job.Delete]"
+            >
+              <template #icon><icon-delete /></template>
+            </a-button>
+          </a-popconfirm>
+        </a-space>
+      </template>
+    </QueryTable>
 
     <a-modal
       v-model:visible="modalVisible"
@@ -289,6 +292,7 @@
   import { Message } from '@arco-design/web-vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import type { FormInstance } from '@arco-design/web-vue/es/form';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import useLoading from '@/hooks/loading';
   import { clearFormValidate } from '@/utils/form';
   import { Permissions } from '@/constants/permissions';
@@ -587,14 +591,6 @@
 </script>
 
 <style scoped lang="less">
-  .job-search {
-    margin-bottom: 12px;
-  }
-
-  .job-toolbar {
-    margin-bottom: 12px;
-  }
-
   .cron-preview {
     margin-bottom: 12px;
   }

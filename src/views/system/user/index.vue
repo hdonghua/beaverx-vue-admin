@@ -1,181 +1,108 @@
 <template>
   <PageContainer>
-    <a-card class="general-card">
-      <a-row>
-        <a-col :flex="1">
-          <a-form
-            :model="formModel"
-            :label-col-props="{ span: 6 }"
-            :wrapper-col-props="{ span: 18 }"
-            label-align="left"
+    <QueryTable
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      :columns="columns"
+      :data="renderData"
+      :search-form-model="formModel"
+      @page-change="onPageChange"
+      @refresh="search"
+    >
+      <template #search>
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item field="name" label="账号">
+              <a-input
+                v-model="formModel.userName"
+                placeholder="请输入账号"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-space :size="18">
+              <a-button type="primary" @click="search">
+                <template #icon>
+                  <icon-search />
+                </template>
+                搜索
+              </a-button>
+              <a-button @click="reset">
+                <template #icon>
+                  <icon-refresh />
+                </template>
+                重置
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
+      <template #toolbar-left>
+        <a-space>
+          <a-button
+            type="primary"
+            v-permission="[Permissions.System.User.Create]"
+            @click="handleAdd"
           >
-            <a-row :gutter="16">
-              <a-col :span="8">
-                <a-form-item field="name" label="账号">
-                  <a-input
-                    v-model="formModel.userName"
-                    placeholder="请输入账号"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-space :size="18">
-                  <a-button type="primary" @click="search">
-                    <template #icon>
-                      <icon-search />
-                    </template>
-                    搜索
-                  </a-button>
-                  <a-button @click="reset">
-                    <template #icon>
-                      <icon-refresh />
-                    </template>
-                    重置
-                  </a-button>
-                </a-space>
-              </a-col>
-            </a-row>
-          </a-form>
-        </a-col>
-      </a-row>
-      <a-divider style="margin-top: 0" />
-      <a-row style="margin-bottom: 16px">
-        <a-col :span="12">
-          <a-space>
-            <a-button
-              type="primary"
-              v-permission="[Permissions.System.User.Create]"
-              @click="handleAdd"
-            >
-              <template #icon>
-                <icon-plus />
-              </template>
-              新增
-            </a-button>
-            <a-button @click="handleExport">
-              <template #icon>
-                <icon-download />
-              </template>
-              导出
-            </a-button>
-          </a-space>
-        </a-col>
-        <a-col
-          :span="12"
-          style="display: flex; align-items: center; justify-content: end"
-        >
-          <a-tooltip :content="'刷新'">
-            <div class="action-icon" @click="search"
-              ><icon-refresh size="18"
-            /></div>
-          </a-tooltip>
-          <a-dropdown @select="handleSelectDensity">
-            <a-tooltip :content="'密度'">
-              <div class="action-icon"><icon-line-height size="18" /></div>
-            </a-tooltip>
-            <template #content>
-              <a-doption
-                v-for="item in densityList"
-                :key="item.value"
-                :value="item.value"
-                :class="{ active: item.value === size }"
-              >
-                <span>{{ item.name }}</span>
-              </a-doption>
+            <template #icon>
+              <icon-plus />
             </template>
-          </a-dropdown>
-          <a-tooltip :content="'列设置'">
-            <a-popover
-              trigger="click"
-              position="bl"
-              @popup-visible-change="popupVisibleChange"
+            新增
+          </a-button>
+          <a-button @click="handleExport">
+            <template #icon>
+              <icon-download />
+            </template>
+            导出
+          </a-button>
+        </a-space>
+      </template>
+      <template #index="{ rowIndex }">
+        {{ rowIndex + 1 + (pagination.current - 1) * pagination.pageSize }}
+      </template>
+      <template #roleNames="{ record }">
+        {{ record.roleNames?.join('、') || '-' }}
+      </template>
+      <template #isEnabled="{ record }">
+        <a-switch
+          :model-value="record.isEnabled"
+          :loading="togglingUserId === record.id"
+          @change="(value) => handleToggleEnabled(record, value)"
+        />
+      </template>
+      <template #creationTime="{ record }">
+        {{ dayjs(record.creationTime).format('YYYY-MM-DD HH:mm:ss') }}
+      </template>
+      <template #operations="{ record }">
+        <a-space>
+          <a-tooltip content="分配角色">
+            <a-button
+              type="text"
+              size="small"
+              v-permission="[Permissions.System.User.AssignRoles]"
+              @click="handleAssignRole(record.id)"
             >
-              <div class="action-icon"><icon-settings size="18" /></div>
-              <template #content>
-                <div id="tableSetting">
-                  <div
-                    v-for="(item, index) in showColumns"
-                    :key="item.dataIndex"
-                    class="setting"
-                  >
-                    <div style="margin-right: 4px; cursor: move">
-                      <icon-drag-arrow />
-                    </div>
-                    <div>
-                      <a-checkbox
-                        v-model="item.checked"
-                        @change="
-                          handleChange($event, item as TableColumnData, index)
-                        "
-                      >
-                      </a-checkbox>
-                    </div>
-                    <div class="title">
-                      {{ item.title === '#' ? '序列号' : item.title }}
-                    </div>
-                  </div>
-                </div>
+              <template #icon>
+                <icon-safe />
               </template>
-            </a-popover>
+            </a-button>
           </a-tooltip>
-        </a-col>
-      </a-row>
-      <a-table
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        :columns="(cloneColumns as TableColumnData[])"
-        :data="renderData"
-        :bordered="false"
-        :size="size"
-        @page-change="onPageChange"
-      >
-        <template #index="{ rowIndex }">
-          {{ rowIndex + 1 + (pagination.current - 1) * pagination.pageSize }}
-        </template>
-        <template #roleNames="{ record }">
-          {{ record.roleNames?.join('、') || '-' }}
-        </template>
-        <template #isEnabled="{ record }">
-          <a-switch
-            :model-value="record.isEnabled"
-            :loading="togglingUserId === record.id"
-            @change="(value) => handleToggleEnabled(record, value)"
-          />
-        </template>
-        <template #creationTime="{ record }">
-          {{ dayjs(record.creationTime).format('YYYY-MM-DD HH:mm:ss') }}
-        </template>
-        <template #operations="{ record }">
-          <a-space>
-            <a-tooltip content="分配角色">
-              <a-button
-                type="text"
-                size="small"
-                v-permission="[Permissions.System.User.AssignRoles]"
-                @click="handleAssignRole(record.id)"
-              >
-                <template #icon>
-                  <icon-safe />
-                </template>
-              </a-button>
-            </a-tooltip>
-            <a-tooltip content="重置密码">
-              <a-button
-                type="text"
-                size="small"
-                @click="handleResetPassword(record)"
-                v-permission="[Permissions.System.User.ResetPassword]"
-              >
-                <template #icon>
-                  <icon-lock />
-                </template>
-              </a-button>
-            </a-tooltip>
-          </a-space>
-        </template>
-      </a-table>
-    </a-card>
+          <a-tooltip content="重置密码">
+            <a-button
+              type="text"
+              size="small"
+              @click="handleResetPassword(record)"
+              v-permission="[Permissions.System.User.ResetPassword]"
+            >
+              <template #icon>
+                <icon-lock />
+              </template>
+            </a-button>
+          </a-tooltip>
+        </a-space>
+      </template>
+    </QueryTable>
     <a-modal
       v-model:visible="modalVisible"
       title="创建用户"
@@ -269,6 +196,7 @@
 <script lang="ts" setup>
   import { computed, ref, reactive, watch, nextTick } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import useLoading from '@/hooks/loading';
   import {
     queryUserPage,

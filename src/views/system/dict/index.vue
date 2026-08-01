@@ -2,29 +2,51 @@
   <PageContainer>
     <a-row :gutter="16">
       <a-col :span="9">
-        <a-card class="general-card" title="字典类型">
-          <a-form :model="typeQuery" layout="inline" class="dict-search">
-            <a-form-item field="keyword">
-              <a-input
-                v-model="typeQuery.keyword"
-                allow-clear
-                placeholder="编码/名称"
-              />
-            </a-form-item>
-            <a-form-item>
-              <a-space>
-                <a-button type="primary" @click="searchTypes">
-                  <template #icon><icon-search /></template>
-                  查询
-                </a-button>
-                <a-button @click="resetTypeQuery">
-                  <template #icon><icon-refresh /></template>
-                  重置
-                </a-button>
-              </a-space>
-            </a-form-item>
-          </a-form>
-          <div class="dict-toolbar">
+        <QueryTable
+          title="字典类型"
+          row-key="id"
+          :loading="typeLoading"
+          :pagination="typePagination"
+          :columns="typeColumns"
+          :data="typeList"
+          v-model:selected-keys="selectedTypeKeys"
+          :row-selection="{ type: 'radio', showCheckedAll: false }"
+          :row-class="getTypeRowClass"
+          :search-form-model="typeQuery"
+          :show-refresh="false"
+          :show-density="false"
+          :show-column-setting="false"
+          @row-click="handleTypeRowClick"
+          @selection-change="handleTypeSelectionChange"
+          @page-change="onTypePageChange"
+          @refresh="searchTypes"
+        >
+          <template #search>
+            <a-row :gutter="16">
+              <a-col :span="14">
+                <a-form-item field="keyword" label="关键字">
+                  <a-input
+                    v-model="typeQuery.keyword"
+                    allow-clear
+                    placeholder="编码/名称"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="10">
+                <a-space>
+                  <a-button type="primary" @click="searchTypes">
+                    <template #icon><icon-search /></template>
+                    查询
+                  </a-button>
+                  <a-button @click="resetTypeQuery">
+                    <template #icon><icon-refresh /></template>
+                    重置
+                  </a-button>
+                </a-space>
+              </a-col>
+            </a-row>
+          </template>
+          <template #toolbar-left>
             <a-button
               type="primary"
               v-permission="[Permissions.System.Dict.Type.Create]"
@@ -33,84 +55,84 @@
               <template #icon><icon-plus /></template>
               新增类型
             </a-button>
-          </div>
-          <a-table
-            class="dict-type-table"
-            row-key="id"
-            :loading="typeLoading"
-            :pagination="typePagination"
-            :columns="typeColumns"
-            :data="typeList"
-            v-model:selected-keys="selectedTypeKeys"
-            :row-selection="{ type: 'radio', showCheckedAll: false }"
-            :row-class="getTypeRowClass"
-            @row-click="handleTypeRowClick"
-            @selection-change="handleTypeSelectionChange"
-            @page-change="onTypePageChange"
-          >
-            <template #isEnabled="{ record }">
-              <a-tag :color="record.isEnabled ? 'green' : 'red'">
-                {{ record.isEnabled ? '启用' : '禁用' }}
-              </a-tag>
-            </template>
-            <template #typeOps="{ record }">
-              <a-space @click.stop>
+          </template>
+          <template #isEnabled="{ record }">
+            <a-tag :color="record.isEnabled ? 'green' : 'red'">
+              {{ record.isEnabled ? '启用' : '禁用' }}
+            </a-tag>
+          </template>
+          <template #typeOps="{ record }">
+            <a-space @click.stop>
+              <a-button
+                type="text"
+                size="small"
+                v-permission="[Permissions.System.Dict.Type.Update]"
+                @click.stop="handleEditType(record)"
+              >
+                <template #icon><icon-edit /></template>
+              </a-button>
+              <a-popconfirm
+                content="确定删除该字典类型吗？"
+                @ok="handleDeleteType(record.id)"
+              >
                 <a-button
                   type="text"
                   size="small"
-                  v-permission="[Permissions.System.Dict.Type.Update]"
-                  @click.stop="handleEditType(record)"
+                  status="danger"
+                  v-permission="[Permissions.System.Dict.Type.Delete]"
+                  @click.stop
                 >
-                  <template #icon><icon-edit /></template>
+                  <template #icon><icon-delete /></template>
                 </a-button>
-                <a-popconfirm
-                  content="确定删除该字典类型吗？"
-                  @ok="handleDeleteType(record.id)"
-                >
-                  <a-button
-                    type="text"
-                    size="small"
-                    status="danger"
-                    v-permission="[Permissions.System.Dict.Type.Delete]"
-                    @click.stop
-                  >
-                    <template #icon><icon-delete /></template>
-                  </a-button>
-                </a-popconfirm>
-              </a-space>
-            </template>
-          </a-table>
-        </a-card>
+              </a-popconfirm>
+            </a-space>
+          </template>
+        </QueryTable>
       </a-col>
       <a-col :span="15">
-        <a-card class="general-card" :title="dataCardTitle">
-          <a-form :model="dataQuery" layout="inline" class="dict-search">
-            <a-form-item field="keyword">
-              <a-input
-                v-model="dataQuery.keyword"
-                allow-clear
-                placeholder="标签/值"
-                :disabled="!selectedType"
-              />
-            </a-form-item>
-            <a-form-item>
-              <a-space>
-                <a-button
-                  type="primary"
-                  :disabled="!selectedType"
-                  @click="fetchDataList"
-                >
-                  <template #icon><icon-search /></template>
-                  查询
-                </a-button>
-                <a-button :disabled="!selectedType" @click="resetDataQuery">
-                  <template #icon><icon-refresh /></template>
-                  重置
-                </a-button>
-              </a-space>
-            </a-form-item>
-          </a-form>
-          <div class="dict-toolbar">
+        <QueryTable
+          :title="dataCardTitle"
+          row-key="id"
+          :loading="dataLoading"
+          :pagination="false"
+          :columns="dataColumns"
+          :data="dataList"
+          :show-refresh="false"
+          :show-density="false"
+          :show-column-setting="false"
+          :search-form-model="dataQuery"
+        >
+          <template #search>
+            <a-row :gutter="16">
+              <a-col :span="14">
+                <a-form-item field="keyword" label="关键字">
+                  <a-input
+                    v-model="dataQuery.keyword"
+                    allow-clear
+                    placeholder="标签/值"
+                    :disabled="!selectedType"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="10">
+                <a-space>
+                  <a-button
+                    type="primary"
+                    :disabled="!selectedType"
+                    @click="fetchDataList"
+                  >
+                    <template #icon><icon-search /></template>
+                    查询
+                  </a-button>
+                  <a-button :disabled="!selectedType" @click="resetDataQuery">
+                    <template #icon><icon-refresh /></template>
+                    重置
+                  </a-button>
+                </a-space>
+              </a-col>
+            </a-row>
+          </template>
+          <template #toolbar-left>
             <a-button
               type="primary"
               :disabled="!selectedType"
@@ -120,52 +142,44 @@
               <template #icon><icon-plus /></template>
               新增数据
             </a-button>
-          </div>
-          <a-table
-            row-key="id"
-            :loading="dataLoading"
-            :pagination="false"
-            :columns="dataColumns"
-            :data="dataList"
-          >
-            <template #isEnabled="{ record }">
-              <a-tag :color="record.isEnabled ? 'green' : 'red'">
-                {{ record.isEnabled ? '启用' : '禁用' }}
-              </a-tag>
-            </template>
-            <template #listClass="{ record }">
-              <a-tag v-if="record.listClass" :color="record.listClass" size="small">
-                {{ record.label }}
-              </a-tag>
-              <span v-else>-</span>
-            </template>
-            <template #dataOps="{ record }">
-              <a-space>
+          </template>
+          <template #isEnabled="{ record }">
+            <a-tag :color="record.isEnabled ? 'green' : 'red'">
+              {{ record.isEnabled ? '启用' : '禁用' }}
+            </a-tag>
+          </template>
+          <template #listClass="{ record }">
+            <a-tag v-if="record.listClass" :color="record.listClass" size="small">
+              {{ record.label }}
+            </a-tag>
+            <span v-else>-</span>
+          </template>
+          <template #dataOps="{ record }">
+            <a-space>
+              <a-button
+                type="text"
+                size="small"
+                v-permission="[Permissions.System.Dict.Data.Update]"
+                @click="handleEditData(record)"
+              >
+                <template #icon><icon-edit /></template>
+              </a-button>
+              <a-popconfirm
+                content="确定删除该字典数据吗？"
+                @ok="handleDeleteData(record.id)"
+              >
                 <a-button
                   type="text"
                   size="small"
-                  v-permission="[Permissions.System.Dict.Data.Update]"
-                  @click="handleEditData(record)"
+                  status="danger"
+                  v-permission="[Permissions.System.Dict.Data.Delete]"
                 >
-                  <template #icon><icon-edit /></template>
+                  <template #icon><icon-delete /></template>
                 </a-button>
-                <a-popconfirm
-                  content="确定删除该字典数据吗？"
-                  @ok="handleDeleteData(record.id)"
-                >
-                  <a-button
-                    type="text"
-                    size="small"
-                    status="danger"
-                    v-permission="[Permissions.System.Dict.Data.Delete]"
-                  >
-                    <template #icon><icon-delete /></template>
-                  </a-button>
-                </a-popconfirm>
-              </a-space>
-            </template>
-          </a-table>
-        </a-card>
+              </a-popconfirm>
+            </a-space>
+          </template>
+        </QueryTable>
       </a-col>
     </a-row>
 
@@ -273,6 +287,7 @@
   import { Message } from '@arco-design/web-vue';
   import type { TableColumnData, TableData } from '@arco-design/web-vue/es/table/interface';
   import type { FormInstance } from '@arco-design/web-vue/es/form';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import useLoading from '@/hooks/loading';
   import { clearFormValidate } from '@/utils/form';
   import {

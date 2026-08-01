@@ -1,66 +1,74 @@
 <template>
   <PageContainer>
-    <a-card class="general-card" title="退款记录">
-      <a-form :model="query" layout="inline" class="search-form">
-        <a-form-item field="orderNo">
-          <a-input v-model="query.orderNo" allow-clear placeholder="订单号" />
-        </a-form-item>
-        <a-form-item field="refundNo">
-          <a-input v-model="query.refundNo" allow-clear placeholder="退款单号" />
-        </a-form-item>
-        <a-form-item field="status">
-          <a-select v-model="query.status" allow-clear placeholder="退款状态">
-            <a-option
-              v-for="item in statusOptions"
-              :key="item.value"
-              :value="item.value"
-            >
-              {{ item.label }}
-            </a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="search">
-              <template #icon><icon-search /></template>
-              查询
-            </a-button>
-            <a-button @click="resetQuery">
-              <template #icon><icon-refresh /></template>
-              重置
-            </a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-      <a-table
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        :columns="columns"
-        :data="list"
-        @page-change="onPageChange"
-        column-resizable
-        :bordered="{ cell: true }"
-      >
-        <template #amount="{ record }">
-          ¥ {{ (record.amount / 100).toFixed(2) }}
-        </template>
-        <template #totalAmount="{ record }">
-          ¥ {{ (record.totalAmount / 100).toFixed(2) }}
-        </template>
-        <template #status="{ record }">
-          <a-tag :color="statusColor(record.status)">
-            {{ statusLabel(record.status) }}
-          </a-tag>
-        </template>
-      </a-table>
-    </a-card>
+    <QueryTable
+      title="退款记录"
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      :columns="columns"
+      :data="list"
+      :search-form-model="query"
+      @page-change="onPageChange"
+      @refresh="fetchData"
+    >
+      <template #search>
+        <a-row :gutter="16">
+          <a-col :span="6">
+            <a-form-item field="orderNo" label="订单号">
+              <a-input v-model="query.orderNo" allow-clear placeholder="订单号" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item field="refundNo" label="退款单号">
+              <a-input v-model="query.refundNo" allow-clear placeholder="退款单号" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item field="status" label="退款状态">
+              <a-select v-model="query.status" allow-clear placeholder="退款状态">
+                <a-option
+                  v-for="item in statusOptions"
+                  :key="item.value"
+                  :value="item.value"
+                >
+                  {{ item.label }}
+                </a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-space :size="18">
+              <a-button type="primary" @click="search">
+                <template #icon><icon-search /></template>
+                查询
+              </a-button>
+              <a-button @click="resetQuery">
+                <template #icon><icon-refresh /></template>
+                重置
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
+      <template #amount="{ record }">
+        ¥ {{ (record.amount / 100).toFixed(2) }}
+      </template>
+      <template #totalAmount="{ record }">
+        ¥ {{ (record.totalAmount / 100).toFixed(2) }}
+      </template>
+      <template #status="{ record }">
+        <a-tag :color="statusColor(record.status)">
+          {{ statusLabel(record.status) }}
+        </a-tag>
+      </template>
+    </QueryTable>
   </PageContainer>
 </template>
 
 <script lang="ts" setup>
   import { onMounted, reactive, ref } from 'vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import useLoading from '@/hooks/loading';
   import {
     PaymentRefundDto,
@@ -144,9 +152,3 @@
 
   onMounted(fetchData);
 </script>
-
-<style scoped lang="less">
-  .search-form {
-    margin-bottom: 12px;
-  }
-</style>

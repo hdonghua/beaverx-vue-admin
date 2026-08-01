@@ -10,6 +10,7 @@ import {
   GraphicComponent,
 } from 'echarts/components';
 import Chart from './chart/index.vue';
+import QueryTable from './common/QueryTable.vue';
 import PageContainer from './page-container/index.vue';
 
 // Manually introduce ECharts modules to reduce packing size
@@ -30,6 +31,7 @@ use([
 export default {
   install(Vue: App) {
     Vue.component('Chart', Chart);
+    Vue.component('QueryTable', QueryTable);
     Vue.component('PageContainer', PageContainer);
   },
 };

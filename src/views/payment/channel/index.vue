@@ -1,30 +1,46 @@
 <template>
   <PageContainer>
-    <a-card class="general-card" title="支付渠道">
-      <a-form :model="query" layout="inline" class="search-form">
-        <a-form-item field="keyword">
-          <a-input v-model="query.keyword" allow-clear placeholder="编码/名称" />
-        </a-form-item>
-        <a-form-item field="isEnabled">
-          <a-select v-model="query.isEnabled" allow-clear placeholder="状态">
-            <a-option :value="true">启用</a-option>
-            <a-option :value="false">禁用</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="search">
-              <template #icon><icon-search /></template>
-              查询
-            </a-button>
-            <a-button @click="resetQuery">
-              <template #icon><icon-refresh /></template>
-              重置
-            </a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-      <div class="toolbar">
+    <QueryTable
+      title="支付渠道"
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      :columns="columns"
+      :data="list"
+      :search-form-model="query"
+      @page-change="onPageChange"
+      @refresh="fetchData"
+    >
+      <template #search>
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item field="keyword" label="关键字">
+              <a-input v-model="query.keyword" allow-clear placeholder="编码/名称" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item field="isEnabled" label="状态">
+              <a-select v-model="query.isEnabled" allow-clear placeholder="状态">
+                <a-option :value="true">启用</a-option>
+                <a-option :value="false">禁用</a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-space :size="18">
+              <a-button type="primary" @click="search">
+                <template #icon><icon-search /></template>
+                查询
+              </a-button>
+              <a-button @click="resetQuery">
+                <template #icon><icon-refresh /></template>
+                重置
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
+      <template #toolbar-left>
         <a-button
           v-if="canCreate"
           type="primary"
@@ -33,48 +49,37 @@
           <template #icon><icon-plus /></template>
           新增渠道
         </a-button>
-      </div>
-      <a-table
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        :columns="columns"
-        :data="list"
-        @page-change="onPageChange"
-        column-resizable
-        :bordered="{ cell: true }"
-      >
-        <template #providerType="{ record }">
-          {{ providerTypeLabel(record.providerType) }}
-        </template>
-        <template #isEnabled="{ record }">
-          <a-tag :color="record.isEnabled ? 'green' : 'red'">
-            {{ record.isEnabled ? '启用' : '禁用' }}
-          </a-tag>
-        </template>
-        <template #operations="{ record }">
-          <a-space>
-            <a-button
-              v-if="canUpdate"
-              type="text"
-              size="small"
-              @click="handleEdit(record)"
-            >
-              <template #icon><icon-edit /></template>
+      </template>
+      <template #providerType="{ record }">
+        {{ providerTypeLabel(record.providerType) }}
+      </template>
+      <template #isEnabled="{ record }">
+        <a-tag :color="record.isEnabled ? 'green' : 'red'">
+          {{ record.isEnabled ? '启用' : '禁用' }}
+        </a-tag>
+      </template>
+      <template #operations="{ record }">
+        <a-space>
+          <a-button
+            v-if="canUpdate"
+            type="text"
+            size="small"
+            @click="handleEdit(record)"
+          >
+            <template #icon><icon-edit /></template>
+          </a-button>
+          <a-popconfirm
+            v-if="canDelete"
+            content="确定删除该渠道吗？"
+            @ok="handleDelete(record.id)"
+          >
+            <a-button type="text" size="small" status="danger">
+              <template #icon><icon-delete /></template>
             </a-button>
-            <a-popconfirm
-              v-if="canDelete"
-              content="确定删除该渠道吗？"
-              @ok="handleDelete(record.id)"
-            >
-              <a-button type="text" size="small" status="danger">
-                <template #icon><icon-delete /></template>
-              </a-button>
-            </a-popconfirm>
-          </a-space>
-        </template>
-      </a-table>
-    </a-card>
+          </a-popconfirm>
+        </a-space>
+      </template>
+    </QueryTable>
 
     <a-modal
       v-model:visible="modalVisible"
@@ -167,6 +172,7 @@
   import { Message } from '@arco-design/web-vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import type { FormInstance } from '@arco-design/web-vue/es/form';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import useLoading from '@/hooks/loading';
   import usePermission from '@/hooks/permission';
   import { clearFormValidate } from '@/utils/form';
@@ -364,14 +370,6 @@
 </script>
 
 <style scoped lang="less">
-  .search-form {
-    margin-bottom: 12px;
-  }
-
-  .toolbar {
-    margin-bottom: 12px;
-  }
-
   .channel-modal-form {
     :deep(.arco-divider) {
       margin: 8px 0 12px;

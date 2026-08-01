@@ -1,120 +1,127 @@
 <template>
   <PageContainer>
-    <a-card class="general-card" title="支付订单">
-      <a-form :model="query" layout="inline" class="search-form">
-        <a-form-item field="orderNo">
-          <a-input v-model="query.orderNo" allow-clear placeholder="订单号" />
-        </a-form-item>
-        <a-form-item field="channelCode">
-          <a-select
-            v-model="query.channelCode"
-            allow-clear
-            placeholder="支付渠道"
-            :loading="channelLoading"
-          >
-            <a-option
-              v-for="item in channelList"
-              :key="item.channelCode"
-              :value="item.channelCode"
-            >
-              {{ item.channelName }}
-            </a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item field="status">
-          <a-select v-model="query.status" allow-clear placeholder="订单状态">
-            <a-option
-              v-for="item in statusOptions"
-              :key="item.value"
-              :value="item.value"
-            >
-              {{ item.label }}
-            </a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="search">
-              <template #icon><icon-search /></template>
-              查询
-            </a-button>
-            <a-button @click="resetQuery">
-              <template #icon><icon-refresh /></template>
-              重置
-            </a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-      <div class="toolbar">
+    <QueryTable
+      title="支付订单"
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      :columns="columns"
+      :data="list"
+      :search-form-model="query"
+      @page-change="onPageChange"
+      @refresh="fetchData"
+    >
+      <template #search>
+        <a-row :gutter="16">
+          <a-col :span="6">
+            <a-form-item field="orderNo" label="订单号">
+              <a-input v-model="query.orderNo" allow-clear placeholder="订单号" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item field="channelCode" label="支付渠道">
+              <a-select
+                v-model="query.channelCode"
+                allow-clear
+                placeholder="支付渠道"
+                :loading="channelLoading"
+              >
+                <a-option
+                  v-for="item in channelList"
+                  :key="item.channelCode"
+                  :value="item.channelCode"
+                >
+                  {{ item.channelName }}
+                </a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item field="status" label="订单状态">
+              <a-select v-model="query.status" allow-clear placeholder="订单状态">
+                <a-option
+                  v-for="item in statusOptions"
+                  :key="item.value"
+                  :value="item.value"
+                >
+                  {{ item.label }}
+                </a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-space :size="18">
+              <a-button type="primary" @click="search">
+                <template #icon><icon-search /></template>
+                查询
+              </a-button>
+              <a-button @click="resetQuery">
+                <template #icon><icon-refresh /></template>
+                重置
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
+      <template #toolbar-left>
         <a-button v-if="canCreate" type="primary" @click="openCreateModal">
           <template #icon><icon-plus /></template>
           创建支付订单
         </a-button>
-      </div>
-      <a-table
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        :columns="columns"
-        :data="list"
-        @page-change="onPageChange"
-        column-resizable
-        :bordered="{ cell: true }"
-      >
-        <template #amount="{ record }">
-          ¥ {{ (record.amount / 100).toFixed(2) }}
-        </template>
-        <template #status="{ record }">
-          <a-tag :color="statusColor(record.status)">
-            {{ statusLabel(record.status) }}
-          </a-tag>
-        </template>
-        <template #operations="{ record }">
-          <a-space>
-            <a-button
-              v-if="canShowAppPay(record)"
-              type="text"
-              size="small"
-              @click="showAppPay(record)"
-            >
-              App参数
-            </a-button>
-            <a-button
-              v-if="canShowQr(record)"
-              type="text"
-              size="small"
-              @click="showQr(record)"
-            >
-              二维码
-            </a-button>
-            <a-button
-              v-if="canQuery"
-              type="text"
-              size="small"
-              @click="handleSync(record.id)"
-            >
-              同步
-            </a-button>
-            <a-button
-              v-if="canClose(record) && canCloseOrder"
-              type="text"
-              size="small"
-              @click="handleClose(record.id)"
-            >
-              关闭
-            </a-button>
-            <a-button
-              v-if="canRefund(record) && canRefundOrder"
-              type="text"
-              size="small"
-              @click="openRefundModal(record)"
-            >
-              退款
-            </a-button>
-          </a-space>
-        </template>
-      </a-table>
-    </a-card>
+      </template>
+      <template #amount="{ record }">
+        ¥ {{ (record.amount / 100).toFixed(2) }}
+      </template>
+      <template #status="{ record }">
+        <a-tag :color="statusColor(record.status)">
+          {{ statusLabel(record.status) }}
+        </a-tag>
+      </template>
+      <template #operations="{ record }">
+        <a-space>
+          <a-button
+            v-if="canShowAppPay(record)"
+            type="text"
+            size="small"
+            @click="showAppPay(record)"
+          >
+            App参数
+          </a-button>
+          <a-button
+            v-if="canShowQr(record)"
+            type="text"
+            size="small"
+            @click="showQr(record)"
+          >
+            二维码
+          </a-button>
+          <a-button
+            v-if="canQuery"
+            type="text"
+            size="small"
+            @click="handleSync(record.id)"
+          >
+            同步
+          </a-button>
+          <a-button
+            v-if="canClose(record) && canCloseOrder"
+            type="text"
+            size="small"
+            @click="handleClose(record.id)"
+          >
+            关闭
+          </a-button>
+          <a-button
+            v-if="canRefund(record) && canRefundOrder"
+            type="text"
+            size="small"
+            @click="openRefundModal(record)"
+          >
+            退款
+          </a-button>
+        </a-space>
+      </template>
+    </QueryTable>
 
     <a-modal
       v-model:visible="createVisible"
@@ -203,6 +210,7 @@
   import { Message } from '@arco-design/web-vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import type { FormInstance } from '@arco-design/web-vue/es/form';
+  import QueryTable from '@/components/common/QueryTable.vue';
   import useLoading from '@/hooks/loading';
   import usePermission from '@/hooks/permission';
   import { Permissions } from '@/constants/permissions';
@@ -504,16 +512,6 @@
 </script>
 
 <style scoped lang="less">
-  .search-form {
-    margin-bottom: 12px;
-  }
-
-  .toolbar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
   .channel-tip {
     margin-bottom: 12px;
   }
