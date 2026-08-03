@@ -133,8 +133,11 @@ function toPageRoute(
     path: toChildRoutePath(menu.path, parentFullPath),
     name: menuRouteName(menu.id),
     component: loader,
-    meta: buildMenuMeta(menu),
-  };
+    meta: {
+      ...buildMenuMeta(menu),
+      ignoreCache: !menu.isCache,
+    },
+  } as RouteRecordRaw;
 }
 
 function buildMenuRoutesFromServer(

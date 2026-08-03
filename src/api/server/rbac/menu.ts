@@ -19,6 +19,7 @@ export interface MenuDto {
   isVisible: boolean;
   isEnabled: boolean;
   isExternal: boolean;
+  isCache: boolean;
   children?: MenuDto[];
 }
 
@@ -34,6 +35,7 @@ export interface CreateMenuRequest {
   isVisible?: boolean;
   isEnabled?: boolean;
   isExternal?: boolean;
+  isCache?: boolean;
 }
 
 export interface UpdateMenuRequest {
@@ -49,6 +51,7 @@ export interface UpdateMenuRequest {
   isVisible?: boolean;
   isEnabled?: boolean;
   isExternal?: boolean;
+  isCache?: boolean;
 }
 
 export interface QueryMenuRequest {

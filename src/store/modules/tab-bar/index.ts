@@ -6,6 +6,10 @@ import {
   REDIRECT_ROUTE_NAME,
 } from '@/router/constants';
 import { isString } from '@/utils/is';
+import {
+  bumpRouteCacheVersion,
+  clearRouteCacheVersions,
+} from '@/utils/route-cache';
 import { TabBarState, TagProps } from './types';
 
 const formatTag = (route: RouteLocationNormalized): TagProps => {
@@ -53,6 +57,14 @@ const useTabBarStore = defineStore('tabBar', {
   },
 
   actions: {
+    removeCacheByName(name?: string) {
+      if (!isString(name) || name === '') {
+        return;
+      }
+
+      this.cacheTabList.delete(name);
+      bumpRouteCacheVersion(name);
+    },
     updateTabList(route: RouteLocationNormalized) {
       if (BAN_LIST.includes(route.name as string)) return;
       const tag = formatTag(route);
@@ -72,17 +84,19 @@ const useTabBarStore = defineStore('tabBar', {
       this.ensureHomeTab();
       if (!route.meta.ignoreCache) {
         this.cacheTabList.add(route.name as string);
+      } else {
+        this.removeCacheByName(route.name as string);
       }
     },
     deleteTag(idx: number, tag: TagProps) {
       this.tagList.splice(idx, 1);
-      this.cacheTabList.delete(tag.name);
+      this.removeCacheByName(tag.name);
     },
     addCache(name: string) {
       if (isString(name) && name !== '') this.cacheTabList.add(name);
     },
     deleteCache(tag: TagProps) {
-      this.cacheTabList.delete(tag.name);
+      this.removeCacheByName(tag.name);
     },
     syncCacheFromTagList() {
       this.cacheTabList.clear();
@@ -91,6 +105,11 @@ const useTabBarStore = defineStore('tabBar', {
         .forEach((el) => this.cacheTabList.add(el.name));
     },
     freshTabList(tags: TagProps[]) {
+      const nextNames = new Set(tags.map((tag) => tag.name));
+      const removedCacheNames = this.tagList
+        .filter((tag) => !tag.ignoreCache && !nextNames.has(tag.name))
+        .map((tag) => tag.name);
+      clearRouteCacheVersions(removedCacheNames);
       this.tagList = tags;
       this.syncCacheFromTagList();
     },
@@ -109,6 +128,10 @@ const useTabBarStore = defineStore('tabBar', {
       }
     },
     resetTabList() {
+      const removedCacheNames = this.tagList
+        .filter((tag) => !tag.ignoreCache && tag.name !== DEFAULT_ROUTE_NAME)
+        .map((tag) => tag.name);
+      clearRouteCacheVersions(removedCacheNames);
       this.tagList = [DEFAULT_ROUTE];
       this.cacheTabList.clear();
       this.cacheTabList.add(DEFAULT_ROUTE_NAME);

@@ -73,6 +73,12 @@
           {{ record.isEnabled ? '启用' : '禁用' }}
         </a-tag>
       </template>
+      <template #isCache="{ record }">
+        <span v-if="showCacheBadge(record)">
+          {{ record.isCache ? '是' : '否' }}
+        </span>
+        <span v-else>-</span>
+      </template>
       <template #operations="{ record }">
         <a-button
           v-if="record.menuType !== MenuType.Button"
@@ -215,6 +221,11 @@
               <a-switch v-model="operationForm.isEnabled" />
             </a-form-item>
           </a-col>
+          <a-col v-if="showCache" :span="12">
+            <a-form-item field="isCache" label="是否缓存">
+              <a-switch v-model="operationForm.isCache" />
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
     </a-modal>
@@ -250,6 +261,8 @@
   const showMenuVisibilityIcon = (record: MenuDto) =>
     record.menuType === MenuType.Directory ||
     record.menuType === MenuType.Menu;
+  const showCacheBadge = (record: MenuDto) =>
+    record.menuType === MenuType.Menu && !record.isExternal;
 
   const { loading, setLoading } = useLoading(true);
   const renderData = ref<MenuDto[]>([]);
@@ -305,6 +318,12 @@
       width: 90,
     },
     {
+      title: '缓存',
+      dataIndex: 'isCache',
+      slotName: 'isCache',
+      width: 80,
+    },
+    {
       title: '操作',
       dataIndex: 'operations',
       slotName: 'operations',
@@ -328,6 +347,7 @@
     isVisible: true,
     isEnabled: true,
     isExternal: false,
+    isCache: true,
   });
 
   const showPath = computed(
@@ -354,6 +374,10 @@
   );
   const showVisible = computed(
     () => operationForm.menuType !== MenuType.Button
+  );
+  const showCache = computed(
+    () =>
+      operationForm.menuType === MenuType.Menu && !operationForm.isExternal
   );
 
   const pathRules = computed(() => {
@@ -397,14 +421,17 @@
       operationForm.component = '';
       operationForm.icon = '';
       operationForm.isVisible = false;
+      operationForm.isCache = false;
     } else if (menuType === MenuType.Directory) {
       operationForm.component = '';
       operationForm.perms = '';
+      operationForm.isCache = false;
       if (isExternalUrl(operationForm.path)) {
         operationForm.path = '';
       }
     } else if (operationForm.isExternal) {
       operationForm.component = '';
+      operationForm.isCache = false;
     } else if (isExternalUrl(operationForm.path)) {
       operationForm.path = '';
     }
@@ -422,6 +449,7 @@
   const handleExternalChange = (value: boolean | string | number) => {
     if (value) {
       operationForm.component = '';
+      operationForm.isCache = false;
     } else if (isExternalUrl(operationForm.path)) {
       operationForm.path = '';
     }
@@ -441,6 +469,7 @@
       icon: showIcon.value ? operationForm.icon || '' : '',
       isVisible: showVisible.value ? operationForm.isVisible : false,
       isExternal: showExternalSwitch.value ? operationForm.isExternal : false,
+      isCache: showCache.value ? operationForm.isCache : false,
     };
     return payload;
   };
@@ -485,6 +514,7 @@
     operationForm.isVisible = true;
     operationForm.isEnabled = true;
     operationForm.isExternal = false;
+    operationForm.isCache = true;
     clearFormValidate(operationFormRef.value);
   };
 
@@ -514,6 +544,7 @@
     operationForm.isVisible = record.isVisible;
     operationForm.isEnabled = record.isEnabled;
     operationForm.isExternal = record.isExternal;
+    operationForm.isCache = record.isCache;
     modalVisible.value = true;
     clearFormValidate(operationFormRef.value);
   };
@@ -548,6 +579,10 @@
         menu.menuType === undefined || menu.menuType === null
           ? MenuType.Directory
           : Number(menu.menuType),
+      isCache:
+        menu.isCache === undefined || menu.isCache === null
+          ? Number(menu.menuType) === MenuType.Menu && !menu.isExternal
+          : Boolean(menu.isCache),
       children: menu.children?.length
         ? normalizeMenuTree(menu.children)
         : menu.children,
