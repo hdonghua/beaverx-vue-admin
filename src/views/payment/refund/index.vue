@@ -1,7 +1,6 @@
 <template>
   <PageContainer>
     <QueryTable
-      title="退款记录"
       row-key="id"
       :loading="loading"
       :pagination="pagination"

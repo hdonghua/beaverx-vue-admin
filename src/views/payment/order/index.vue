@@ -1,7 +1,6 @@
 <template>
   <PageContainer>
     <QueryTable
-      title="支付订单"
       row-key="id"
       :loading="loading"
       :pagination="pagination"

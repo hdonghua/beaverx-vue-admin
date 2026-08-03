@@ -503,6 +503,7 @@
   fetchData();
   const reset = () => {
     formModel.value = generateFormModel();
+    search();
   };
 
   const handleSelectDensity = (
