@@ -5,5 +5,6 @@ export interface QueryPageRequest {
 
 export interface PagedResultDto<T> {
   total: number;
+  totalCount?: number;
   items: T[];
 }

@@ -5,6 +5,8 @@ export interface Msg<T = unknown> {
 }
 
 export interface ApiResponse<T = unknown> {
+  code?: number;
+  msg?: string;
   data: T;
 }
 

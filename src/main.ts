@@ -7,6 +7,8 @@ import store from './store/pinia';
 import directive from './directive';
 import App from './App.vue';
 import Vue3Dragscroll from "vue3-dragscroll";
+import AddNode from '@/components/flow/AddNode.vue';
+import NodeWrap from '@/components/flow/NodeWrap.vue';
 import "@/styles/index.less";
 import "virtual:svg-icons-register";
 // Styles are imported via arco-plugin. See config/plugin/arcoStyleImport.ts in the directory for details
@@ -25,6 +27,8 @@ app.use(globalComponents);
 app.use(directive);
 
 app.use(Vue3Dragscroll);
+app.component('AddNode', AddNode);
+app.component('NodeWrap', NodeWrap);
 
 // 需在 pinia 初始化后再注册 axios 拦截器（token 从 auth store 读取）
 import '@/utils/request';

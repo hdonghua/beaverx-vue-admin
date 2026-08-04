@@ -103,9 +103,9 @@ axios.interceptors.response.use(
         });
         return Promise.reject(new Error(wrapped.msg || 'Error'));
       }
-      return { data: wrapped.data };
+      return { code: 1, msg: wrapped.msg || '', data: wrapped.data };
     }
-    return { data: payload };
+    return { code: 1, msg: '', data: payload };
   },
   async (error) => {
     const status = error.response?.status;
