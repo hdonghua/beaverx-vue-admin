@@ -87,7 +87,8 @@ export function filterConditionWidgets(startNode: FlowNode | undefined, conditio
  * @param name - 组件名称
  * @returns 匹配的组件
  */
-const filterFormAuth = (widgets: Widget[], name: string): Widget | null => {
+const filterFormAuth = (widgets: Array<Widget | FormAuth> | undefined, name: string): Widget | FormAuth | null => {
+  if (!widgets) return null;
   for (let i = 0; i < widgets.length; i++) {
     const widget = widgets[i];
     if (widget.type === WIDGET.DETAIL) {
@@ -151,14 +152,14 @@ export function initNodeFormAuth(node: FlowNode, widgets: Widget[], conditionWid
       if (type === WIDGET.DETAIL) {
         formAuth = { name, type, label };
         formAuth.details = (widget.details || []).map((detail) => {
-          const item = filterFormAuth(widgets, detail.name) as FormAuth | null;
+          const item = filterFormAuth(formAuths, detail.name) as FormAuth | null;
           const readable = item ? item.readable ?? true : true;
           let editable = item ? item.editable ?? false : false;
           if (conditionWidgets.includes(detail.name)) editable = false;
           return { name: detail.name, type: detail.type, label: detail.label, readable, editable };
         });
       } else {
-        const item = filterFormAuth(widgets, name) as FormAuth | null;
+        const item = filterFormAuth(formAuths, name) as FormAuth | null;
         const readable = item ? item.readable ?? true : true;
         let editable = item ? item.editable ?? false : false;
         if (conditionWidgets.includes(name)) editable = false;

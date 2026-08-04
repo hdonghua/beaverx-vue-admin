@@ -138,6 +138,20 @@
                     <span v-else class="secondary">兼岗</span>
                   </template>
                 </a-table-column>
+                <a-table-column title="直属上级" :width="180">
+                  <template #cell="{ record }">
+                    <a-space size="mini">
+                      <span>{{ record.managerName || '未设置' }}</span>
+                      <a-button
+                        v-if="record.isPrimary"
+                        type="text"
+                        size="mini"
+                        v-permission="[Permissions.System.Organization.Manage]"
+                        @click="openManagerDialog(record)"
+                      >设置</a-button>
+                    </a-space>
+                  </template>
+                </a-table-column>
                 <a-table-column title="手机号" data-index="phone" />
                 <a-table-column title="邮箱" data-index="email" />
                 <a-table-column title="操作" align="right" :width="100">
@@ -175,6 +189,38 @@
             <a-option v-for="user in userOptions" :key="user.id" :value="user.id">
               {{ user.name }}（{{ user.userName }}）
             </a-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <a-modal
+      v-model:visible="managerVisible"
+      title="设置直属上级"
+      @before-ok="submitManager"
+      @close="resetManagerDialog"
+    >
+      <a-form :model="{ managerUserId }" layout="vertical">
+        <a-form-item label="员工">
+          <a-input :model-value="managingMember?.name" disabled />
+        </a-form-item>
+        <a-form-item label="直属上级">
+          <a-select
+            v-model="managerUserId"
+            allow-clear
+            allow-search
+            :filter-option="false"
+            :loading="userSearching"
+            placeholder="从全公司用户中搜索，留空则清除"
+            @search="handleUserSearch"
+            @popup-visible-change="(visible) => visible && handleUserSearch('')"
+          >
+            <a-option
+              v-for="user in managerOptions"
+              :key="user.id"
+              :value="user.id"
+              :disabled="user.id === managingMember?.userId"
+            >{{ user.name }}（{{ user.userName }}）</a-option>
           </a-select>
         </a-form-item>
       </a-form>
@@ -233,6 +279,7 @@
     removeDepartmentMember,
     searchCompanyUsers,
     setDepartmentLeader,
+    setMemberManager,
     updateDepartment,
     UserOption,
   } from '@/api/server/oa/organization';
@@ -248,11 +295,15 @@
   const leaderSaving = ref(false);
   const userSearching = ref(false);
   const userOptions = ref<UserOption[]>([]);
+  const managerOptions = ref<UserOption[]>([]);
   const members = ref<DepartmentMember[]>([]);
   const membersLoading = ref(false);
   const memberKeyword = ref('');
   const addVisible = ref(false);
   const selectedUserIds = ref<EntityId[]>([]);
+  const managerVisible = ref(false);
+  const managingMember = ref<DepartmentMember>();
+  const managerUserId = ref<EntityId>();
   const pagination = reactive({ current: 1, pageSize: 20, total: 0 });
   const departmentVisible = ref(false);
   const editingDepartmentId = ref<EntityId>();
@@ -314,6 +365,7 @@
       const { data } = await searchCompanyUsers(keyword);
       userOptions.value = data;
       leaderOptions.value = data;
+      managerOptions.value = data;
     } finally {
       userSearching.value = false;
     }
@@ -427,6 +479,38 @@
     await removeDepartmentMember(selectedDepartmentId.value, member.userId);
     Message.success('成员已移除');
     await Promise.all([loadDetails(), loadMembers()]);
+  };
+
+  const openManagerDialog = (member: DepartmentMember) => {
+    managingMember.value = member;
+    managerUserId.value = member.managerUserId || undefined;
+    managerOptions.value = member.managerUserId
+      ? [{ id: member.managerUserId, name: member.managerName || '', userName: '' }]
+      : [];
+    managerVisible.value = true;
+  };
+  const resetManagerDialog = () => {
+    managingMember.value = undefined;
+    managerUserId.value = undefined;
+    managerOptions.value = [];
+  };
+  const submitManager = async (done: (closed: boolean) => void) => {
+    if (!selectedDepartmentId.value || !managingMember.value) {
+      done(false);
+      return;
+    }
+    try {
+      await setMemberManager(
+        selectedDepartmentId.value,
+        managingMember.value.userId,
+        managerUserId.value
+      );
+      Message.success('直属上级已更新');
+      done(true);
+      await loadMembers();
+    } catch {
+      done(false);
+    }
   };
 
   watch(selectedDepartmentId, async () => {

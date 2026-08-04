@@ -33,6 +33,8 @@ export interface DepartmentMember {
   avatar?: string | null;
   isPrimary: boolean;
   isLeader: boolean;
+  managerUserId?: EntityId | null;
+  managerName?: string | null;
 }
 
 export interface UserOption {
@@ -86,3 +88,11 @@ export const removeDepartmentMember = (departmentId: EntityId, userId: EntityId)
 
 export const setDepartmentLeader = (departmentId: EntityId, leaderUserId?: EntityId) =>
   axios.put(`${baseUrl}/departments/${departmentId}/leader`, { leaderUserId: leaderUserId || null });
+
+export const setMemberManager = (
+  departmentId: EntityId,
+  userId: EntityId,
+  managerUserId?: EntityId
+) => axios.put(`${baseUrl}/departments/${departmentId}/members/${userId}/manager`, {
+  managerUserId: managerUserId || null,
+});

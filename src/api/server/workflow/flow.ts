@@ -80,6 +80,8 @@ export interface FlowNodeInfo {
   approvalType: number;
   multiInstanceApprovalType: number;
   flowNodeNoAuditorType: number;
+  flowNodeNoAuditorAssignee?: string;
+  flowNodeAuditAdmin?: string;
   userIds: string[];
   roleIds: string[];
   initatorChoice: boolean;

@@ -1,7 +1,7 @@
 <template>
   <!-- 表单信息 -->
   <div class="flow-form-box">
-    <template v-for="formWidget in onlyValue ? filteredFormWidgets : formWidgets">
+    <template v-for="formWidget in onlyValue ? filteredFormWidgets : visibleFormWidgets">
       <template
         v-if="
           [
@@ -23,7 +23,7 @@
         ">
         <div class="form-item">
           <div class="label">{{ formWidget.label }}</div>
-          <div class="value">{{ formValue0[formWidget.name] }}</div>
+          <div class="value">{{ formatWidgetValue(formWidget, formValue0[formWidget.name]) }}</div>
         </div>
       </template>
       <!-- 多行文本 -->
@@ -113,7 +113,7 @@
               :bordered="{ cell: true }">
               <template #columns>
                 <a-table-column
-                  v-for="subWidget in formWidget.details.filter((i) => i.type != WIDGET.DESCRIBE)"
+                  v-for="subWidget in formWidget.details.filter((i) => i.type != WIDGET.DESCRIBE && i.readable !== false)"
                   :title="subWidget.label"
                   :width="subWidget.type == WIDGET.FLOW_INST ? 300 : 100">
                   <template #cell="{ record }">
@@ -137,7 +137,7 @@
                           WIDGET.FORMULA,
                         ].includes(subWidget.type)
                       ">
-                      {{ record[subWidget.name] }}
+                      {{ formatWidgetValue(subWidget, record[subWidget.name]) }}
                     </template>
                     <!-- 多行文本 -->
                     <template v-else-if="[WIDGET.MULTILINE_TEXT].includes(subWidget.type)">
@@ -199,11 +199,12 @@
 
 <script lang="ts" setup>
 // @ts-nocheck
-import { FILE_DOWNLOAD_URL } from "@/api/FileApi";
+import FileApi, { FILE_DOWNLOAD_URL } from "@/api/FileApi";
 // import FlowManApi from "@/api/FlowManApi";
 import { WIDGET } from "@/components/flow/common/FlowConstant";
 import { formFormulaDetailCalc } from "@/components/flow/common/FlowFormula";
 import ObjectUtil from "@/components/flow/common/ObjectUtil";
+import { useOrganStore } from "@/store";
 import { newline } from "@/utils/format";
 import { computed, onMounted, ref, toRaw, watch } from "vue";
 import FlowCard from "./flow-card.vue";
@@ -216,10 +217,13 @@ const props = defineProps({
   onlyValue: { type: Boolean, default: false }, // 只展示表单值相关的组件
 });
 
-// const organStore = useOrganStore();
-// const { getDeptById, getUserById } = organStore;
+const { getDeptById, getUserById } = useOrganStore();
 const formWidgetMap = ref({});
 const formValue0 = ref({});
+
+const visibleFormWidgets = computed(() =>
+  (props.formWidgets || []).filter((widget) => widget.readable !== false)
+);
 
 // 过滤出表单值所涉及的组件列表
 const filteredFormWidgets = computed(() => {
@@ -234,41 +238,58 @@ const filteredFormWidgets = computed(() => {
       });
     }
   }
-  let widgets = ObjectUtil.copy(props.formWidgets);
+  let widgets = ObjectUtil.copy(visibleFormWidgets.value);
   widgets = widgets.filter((widget) => {
     let { name, details } = widget;
     let ok = keys.includes(name);
-    if (ok && details) widget.details = details.filter((detail) => keys.includes(detail.name));
+    if (ok && details)
+      widget.details = details.filter(
+        (detail) => detail.readable !== false && keys.includes(detail.name)
+      );
     return ok;
   });
   return widgets;
 });
 
-// 格式化表单
-const formatFormValue = () => {
-  // for (let name in formValue0.value) {
-  //   let type = (formWidgetMap.value[name] || {}).type;
-  //   if ([WIDGET.ATTACHMENT].includes(type)) {
-  //     let ids = formValue0.value[name];
-  //     ids = ids.filter((i) => !!i);
-  //     if (ids && ids.length > 0) {
-  //       FileApi.batchMetadata({ ids: ids.join(",") }).then((resp) => (formValue0.value[name] = resp.data || []));
-  //     }
-  //   } else if (type == WIDGET.DETAIL) {
-  //     (formValue0.value[name] || []).forEach((detailValue) => {
-  //       for (let detailName in detailValue) {
-  //         let detailType = formWidgetMap.value[detailName].type;
-  //         if ([WIDGET.ATTACHMENT].includes(detailType)) {
-  //           let ids = detailValue[detailName];
-  //           ids = ids.filter((i) => !!i);
-  //           if (ids && ids.length > 0) {
-  //             FileApi.batchMetadata({ ids: ids.join(",") }).then((resp) => (detailValue[detailName] = resp.data || []));
-  //           }
-  //         }
-  //       }
-  //     });
-  //   }
-  // }
+const asArray = (value) => (Array.isArray(value) ? value : value == null ? [] : [value]);
+
+const formatWidgetValue = (widget, value) => {
+  if (value == null || value === "") return "-";
+  if (widget.type == WIDGET.DEPARTMENT)
+    return asArray(value).map((id) => getDeptById(String(id)).name || id).join("、");
+  if (widget.type == WIDGET.EMPLOYEE)
+    return asArray(value).map((id) => getUserById(String(id)).name || id).join("、");
+  if (widget.type == WIDGET.DATE_RANGE) return asArray(value).join(" 至 ");
+  if ([WIDGET.MULTI_CHOICE, WIDGET.AREA].includes(widget.type))
+    return asArray(value).join("、");
+  if (widget.type == WIDGET.MONEY && widget.comma) return ObjectUtil.comma(value);
+  return Array.isArray(value) ? value.join("、") : value;
+};
+
+const hydrateAttachments = async (form) => {
+  const requests = [];
+  for (const name in form) {
+    const widget = formWidgetMap.value[name];
+    if (!widget) continue;
+    if (widget.type == WIDGET.ATTACHMENT) {
+      const ids = asArray(form[name])
+        .map((item) => (typeof item === "string" ? item : item?.id))
+        .filter(Boolean);
+      if (ids.length)
+        requests.push(
+          FileApi.batchMetadata({ ids: ids.join(",") }).then(
+            (resp) => (form[name] = resp.data || [])
+          )
+        );
+    } else if (widget.type == WIDGET.DETAIL) {
+      for (const row of form[name] || []) requests.push(hydrateAttachments(row));
+    }
+  }
+  await Promise.all(requests);
+};
+
+const formatFormValue = async () => {
+  await hydrateAttachments(formValue0.value);
 };
 
 // 文件预览
@@ -284,13 +305,14 @@ const onImgPreview = (idx, idList) => {
 // 附件下载
 const onAttachmentDownload = (attachment, evt) => {
   evt.stopPropagation();
-  window.open(`${FILE_DOWNLOAD_URL}?id=${attachment.id}`, "_blank");
+  const id = typeof attachment === "string" ? attachment : attachment?.id;
+  if (id) window.open(`${FILE_DOWNLOAD_URL}?id=${encodeURIComponent(id)}`, "_blank");
 };
 
 watch(
   () => props.formValue,
   (nv) => {
-    formValue0.value = nv;
+    formValue0.value = ObjectUtil.copy(nv || {});
     formatFormValue();
   }
 );
@@ -299,14 +321,14 @@ watch(
   () => props.formWidgets,
   () => {
     formWidgetMap.value = formWidgetListToMap(props.formWidgets);
-    formValue0.value = toRaw(props.formValue);
+    formValue0.value = ObjectUtil.copy(toRaw(props.formValue || {}));
     formatFormValue();
   }
 );
 
 onMounted(() => {
   formWidgetMap.value = formWidgetListToMap(props.formWidgets);
-  formValue0.value = props.formValue;
+  formValue0.value = ObjectUtil.copy(props.formValue || {});
   formatFormValue();
 });
 </script>
