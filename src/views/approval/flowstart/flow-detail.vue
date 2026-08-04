@@ -12,7 +12,7 @@
 
       <!-- 基本信息 -->
       <div class="flow-header-box">
-        <div class="flow-no">编号：{{ flowInst.id }}</div>
+        <div class="flow-no">编号：{{ flowInst.instanceNo }}</div>
         <div class="action-area">
           <div class="action-item" @click="onPrintClicked()"
             ><icon-printer :size="16"

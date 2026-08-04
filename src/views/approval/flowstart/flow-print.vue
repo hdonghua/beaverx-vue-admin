@@ -6,7 +6,7 @@
     <div id="flow-print-area" class="flow-print-area">
       <div class="flow-status-stamp"><FlowStatusStamp :status="flowInst.status" :size="120" /></div>
       <h2 class="block title">{{ flowInst.name }}</h2>
-      <div class="block no">审批编号：{{ flowInst.id }}</div>
+      <div class="block no">审批编号：{{ flowInst.instanceNo }}</div>
       <div class="block create-time">提交时间：{{ formatUtcDateTime(flowInst.beginTime) }}</div>
       <div class="block flow-info">
         <table class="flow-info-table">

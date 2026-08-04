@@ -141,6 +141,7 @@ export interface QuerypendingMyApprovalTaskResponse {
   groupId: string;
   cancelable: boolean;
   id: string;
+  instanceNo: string;
   initiatorId: string;
   beginTime?: string;
   status: number;

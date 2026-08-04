@@ -120,8 +120,8 @@
           <template #columns>
             <a-table-column
               title="编号"
-              data-index="id"
-              :width="185"
+              data-index="instanceNo"
+              :width="150"
             ></a-table-column>
             <a-table-column
               title="名称"

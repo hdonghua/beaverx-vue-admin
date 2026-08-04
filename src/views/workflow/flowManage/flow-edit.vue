@@ -9,21 +9,26 @@
         </div>
       </div>
       <div class="fd-nav-mid">
-        <div class="steps">
-          <a-steps changeable :current="step" @change="hanldeStepClick">
-            <a-step>基础信息 <template #icon>1</template></a-step>
-            <a-step>表单设计 <template #icon>2</template></a-step>
-            <a-step>流程设计 <template #icon>3</template></a-step>
-            <a-step>更多设置 <template #icon>4</template></a-step>
-          </a-steps>
-        </div>
+        <nav class="steps" aria-label="流程设计步骤">
+          <template v-for="(item, index) in stepItems" :key="item.value">
+            <button
+              type="button"
+              :class="['step-item', { active: step === item.value, completed: step > item.value }]"
+              @click="hanldeStepClick(item.value)"
+            >
+              <span class="step-number">{{ item.value }}</span>
+              <span class="step-label">{{ item.label }}</span>
+            </button>
+            <span v-if="index < stepItems.length - 1" class="step-line"></span>
+          </template>
+        </nav>
       </div>
       <div class="fd-nav-right">
         <a-button @click="deploy()" :disabled="launching">发 布</a-button>
       </div>
     </div>
 
-    <div class="flow-edit-box">
+    <div class="flow-edit-content">
       <div class="fd-main">
         <transition name="fade-transform" mode="out-in">
           <template v-if="step == 1" :key="1">
@@ -97,6 +102,12 @@
   let flowBox = ref(); // 流程组件
   let settingBox = ref(); // 更多设置组件
   let step = ref(1);
+  const stepItems = [
+    { value: 1, label: '基础信息' },
+    { value: 2, label: '表单设计' },
+    { value: 3, label: '流程设计' },
+    { value: 4, label: '更多设置' },
+  ];
   const hanldeStepClick = (nStep: number) => {
     if (step.value == 1) {
       baseBox.value.validate();
@@ -196,6 +207,11 @@
   @header-height: 70px;
   @canvas-bg: @MainContentBg;
 
+  .flow-edit-box {
+    height: 100%;
+    overflow: hidden;
+  }
+
   .fd-nav {
     // position: fixed;
     // top: 0;
@@ -204,16 +220,22 @@
     // z-index: 1;
     width: 100%;
     height: @header-height;
-    box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid var(--color-border-2);
+    box-shadow: 0 2px 8px rgba(29, 33, 41, 0.08);
     font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 16px;
+    box-sizing: border-box;
+    background: #fff;
     user-select: none;
 
     .fd-nav-left {
-      flex: 1;
+      width: 240px;
+      flex: 0 0 240px;
       display: flex;
       align-items: center;
       height: 100%;
@@ -262,15 +284,79 @@
     }
 
     .fd-nav-mid {
-      flex: 2;
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+
+      .steps {
+        width: min(720px, 100%);
+        display: flex;
+        align-items: center;
+      }
+
+      .step-item {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--color-text-2);
+        cursor: pointer;
+        white-space: nowrap;
+        font: inherit;
+
+        .step-number {
+          width: 30px;
+          height: 30px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background: var(--color-fill-2);
+          color: var(--color-text-2);
+          font-size: 14px;
+        }
+
+        &.active {
+          color: var(--color-text-1);
+
+          .step-number {
+            color: #fff;
+            background: rgb(var(--primary-6));
+          }
+        }
+
+        &.completed .step-number {
+          color: rgb(var(--primary-6));
+          background: rgb(var(--primary-1));
+        }
+      }
+
+      .step-line {
+        flex: 1;
+        min-width: 32px;
+        max-width: 104px;
+        height: 1px;
+        margin: 0 16px;
+        background: var(--color-border-2);
+      }
     }
 
     .fd-nav-right {
-      flex: 1;
+      width: 240px;
+      flex: 0 0 240px;
       display: flex;
       align-items: center;
       justify-content: flex-end;
     }
+  }
+
+  .flow-edit-content {
+    height: calc(100% - @header-height);
+    overflow: hidden;
   }
 
   .fd-main {
@@ -279,13 +365,27 @@
     // left: 0;
     // right: 0;
     // bottom: 0;
-    height: calc(100% - @header-height);
+    height: 100%;
     background-color: @canvas-bg;
     overflow: hidden;
 
     .fd-main-box {
       height: 100%;
       overflow-y: auto;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .fd-nav {
+      .fd-nav-left,
+      .fd-nav-right {
+        width: 180px;
+        flex-basis: 180px;
+      }
+
+      .fd-nav-mid .step-line {
+        margin: 0 8px;
+      }
     }
   }
 </style>

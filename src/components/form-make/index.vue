@@ -332,7 +332,7 @@
 
     <!-- 右侧控件设置 -->
     <a-drawer
-      :width="360"
+      :width="320"
       popup-container=".form-setting-box"
       :mask="false"
       :closable="false"
