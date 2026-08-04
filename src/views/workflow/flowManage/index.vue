@@ -337,7 +337,9 @@
   .fd-main-box {
     user-select: none;
     width: 100%;
-    height: calc(100vh - @AppHeaderHeight - @AppBreadcrumbHeight);
+    height: 100%;
+    box-sizing: border-box;
+    padding: @Gap;
     // overflow: hidden auto;
     // overflow: hidden;
     // padding: 0 @Gap;
@@ -345,7 +347,7 @@
     .search-area {
       display: flex;
       justify-content: space-between;
-      margin: 0 @LayoutGap @LayoutGap;
+      margin-bottom: @LayoutGap;
       border-radius: @BorderRadius;
       height: @SearchHeight;
       padding: 0 @Gap;
@@ -361,12 +363,8 @@
     }
 
     .flow-groups-area {
-      height: calc(
-        100vh - @AppHeaderHeight - @AppBreadcrumbHeight - @SearchHeight -
-          @LayoutGap
-      );
+      height: calc(100% - @SearchHeight - @LayoutGap);
       overflow: hidden auto;
-      padding: 0 @LayoutGap;
 
       .empty-flow-box {
         border-radius: @BorderRadius;

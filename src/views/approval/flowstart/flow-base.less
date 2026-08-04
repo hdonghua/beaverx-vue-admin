@@ -7,11 +7,12 @@
 
 .flow-approve-box {
   width: 100%;
-  height: calc(100vh - @AppHeaderHeight - @AppBreadcrumbHeight);
+  height: 100%;
+  box-sizing: border-box;
   overflow: hidden;
-  padding: 0 @LayoutGap;
+  padding: @Gap;
   display: flex;
-  gap: @LayoutGap;
+  gap: @Gap;
 
   .flow-content {
     width: @SiderWidth;
@@ -41,7 +42,8 @@
   .flow-list-box {
     background-color: #fff;
     padding: 0 @GapSmall;
-    height: calc(100vh - @AppHeaderHeight - @AppBreadcrumbHeight - @SearchBoxHeight);
+    height: calc(100% - @SearchBoxHeight);
+    box-sizing: border-box;
     overflow: hidden auto;
     scroll-snap-type: y mandatory;
     will-change: scroll-position;

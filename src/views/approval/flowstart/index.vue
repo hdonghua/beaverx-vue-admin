@@ -146,7 +146,9 @@
 
   .flow-start-box {
     width: 100%;
-    // height: calc(100vh - @AppHeaderHeight - @AppBreadcrumbHeight);
+    height: 100%;
+    box-sizing: border-box;
+    padding: @Gap;
     overflow: hidden;
 
     .search-wrapper {
@@ -157,16 +159,12 @@
       display: flex;
       align-items: center;
       height: @SearchBoxHeigth;
-      margin: 0 @LayoutGap @LayoutGap;
+      margin-bottom: @LayoutGap;
     }
 
     .flow-group-wrapper {
-      height: calc(
-        100vh - @AppHeaderHeight - @AppBreadcrumbHeight - @SearchBoxHeigth -
-          @LayoutGap
-      );
+      height: calc(100% - @SearchBoxHeigth - @LayoutGap);
       overflow: hidden auto;
-      padding: 0 @LayoutGap;
     }
 
     .empty-flow-box {

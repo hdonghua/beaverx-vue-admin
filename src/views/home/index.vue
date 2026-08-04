@@ -35,12 +35,19 @@
 
 <style scoped lang="less">
   .home-page {
-    padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 16px;
   }
 
   .welcome-card {
-    min-height: calc(100vh - 180px);
+    height: 100%;
     border-radius: 8px;
+
+    :deep(.arco-card-body) {
+      height: 100%;
+      box-sizing: border-box;
+    }
   }
 
   .welcome-content {
@@ -48,7 +55,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 420px;
+    height: 100%;
     text-align: center;
   }
 

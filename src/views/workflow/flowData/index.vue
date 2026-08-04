@@ -498,8 +498,9 @@
 
   .flow-data-container {
     user-select: none;
-    height: calc(100vh - @AppHeaderHeight - @AppBreadcrumbHeight);
-    margin: 0 @LayoutGap;
+    height: calc(100% - @Gap * 2);
+    box-sizing: border-box;
+    margin: @Gap;
     padding: 0 @Gap;
     background: #fff;
     border-radius: @BorderRadius;
@@ -533,9 +534,7 @@
     }
 
     .flow-inst-area {
-      height: calc(
-        100vh - @AppHeaderHeight - @AppBreadcrumbHeight - @SearchHeight
-      );
+      height: calc(100% - @SearchHeight);
       overflow: hidden;
       border-top: 1px solid var(--color-neutral-3);
 
