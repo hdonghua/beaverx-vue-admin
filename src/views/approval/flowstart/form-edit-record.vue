@@ -13,7 +13,7 @@
       <div class="form-edit-box" v-for="record in formEditRecords">
         <div class="header">
           <flow-node-avatar :size="16" :id="record.creatorId" />
-          <div class="modify-time">{{ record.createTime }} 前表单</div>
+          <div class="modify-time">{{ formatUtcDateTime(record.createTime) }} 前表单</div>
         </div>
         <div class="content">
           <FlowFormDetail :form-widgets="formWidgets" :form-value="JSON.parse(record.formValue)" :only-value="true" />
@@ -27,6 +27,7 @@
 // @ts-nocheck
 import FlowInstApi from "@/api/FlowInstApi";
 import FlowNodeAvatar from "@/components/common/FlowNodeAvatar.vue";
+import { formatUtcDateTime } from "@/utils/date";
 import { ref, watch } from "vue";
 import FlowFormDetail from "./flow-form-detail.vue";
 

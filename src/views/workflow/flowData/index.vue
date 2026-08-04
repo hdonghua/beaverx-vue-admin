@@ -180,12 +180,16 @@
               title="提交时间"
               data-index="beginTime"
               :width="170"
-            ></a-table-column>
+            >
+              <template #cell="{ record }">{{ formatUtcDateTime(record.beginTime) }}</template>
+            </a-table-column>
             <a-table-column
               title="完成时间"
               data-index="endTime"
               :width="170"
-            ></a-table-column>
+            >
+              <template #cell="{ record }">{{ formatUtcDateTime(record.endTime) }}</template>
+            </a-table-column>
             <a-table-column title="操作" :width="140" fixed="right">
               <template #cell="{ record }">
                 <div class="btn-box">
@@ -334,6 +338,7 @@
   import FlowDetail from '@/views/approval/flowstart/flow-detail.vue';
   import { loadOrgan } from '@/api/server/organ';
   import { queryFlowInstsData } from '@/api/server/workflow/approveManagement';
+  import { formatUtcDateTime } from '@/utils/date';
 
   const organStore = useOrganStore();
   const users = computed(() => organStore.users);

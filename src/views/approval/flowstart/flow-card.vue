@@ -22,7 +22,7 @@
       <div class="initiator">
         <flow-node-avatar :size="20" :id="inst.initiatorId" />
       </div>
-      <div class="begin-time">提交于 {{ inst.beginTime }}</div>
+      <div class="begin-time">提交于 {{ formatUtcDateTime(inst.beginTime) }}</div>
     </div>
 
     <!-- 流程详情侧边栏 -->
@@ -46,6 +46,7 @@
 import FlowInstApi from "@/api/FlowInstApi";
 import FlowNodeAvatar from "@/components/common/FlowNodeAvatar.vue";
 import { STATUS_LIST } from "@/components/flow/common/FlowConstant";
+import { formatUtcDateTime } from "@/utils/date";
 import { ref, watch } from "vue";
 import FlowDetail from "./flow-detail.vue";
 

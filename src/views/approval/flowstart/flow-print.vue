@@ -7,7 +7,7 @@
       <div class="flow-status-stamp"><FlowStatusStamp :status="flowInst.status" :size="120" /></div>
       <h2 class="block title">{{ flowInst.name }}</h2>
       <div class="block no">审批编号：{{ flowInst.id }}</div>
-      <div class="block create-time">提交时间：{{ flowInst.beginTime }}</div>
+      <div class="block create-time">提交时间：{{ formatUtcDateTime(flowInst.beginTime) }}</div>
       <div class="block flow-info">
         <table class="flow-info-table">
           <colgroup>
@@ -210,7 +210,8 @@ import ArrayUtil from "@/components/flow/common/ArrayUtil";
 import { CMD, STATUS_LIST, WIDGET } from "@/components/flow/common/FlowConstant";
 import { useOrganStore, useUserStore } from "@/store";
 import { newline } from "@/utils/format";
-import moment from "moment";
+import { formatUtcDateTime } from "@/utils/date";
+import dayjs from "dayjs";
 import { computed, onMounted } from "vue";
 import print from "vue3-print-nb";
 import FlowStatusStamp from "./flow-status-stamp.vue";
@@ -229,7 +230,7 @@ let props = defineProps({
 let emits = defineEmits(["update:visible"]);
 
 const timestamp = () => {
-  return moment().format("YYYY-MM-DD HH:mm:ss");
+  return dayjs().format("YYYY-MM-DD HH:mm:ss");
 };
 const filteredFlowNodes = computed(() => {
   return props.flowNodes.filter(

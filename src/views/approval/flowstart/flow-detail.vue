@@ -53,7 +53,7 @@
           </div>
           <div class="initiator-info">
             <flow-node-avatar :size="24" :id="flowInst.initiatorId" />
-            <div class="begin-time">{{ flowInst.beginTime }} 提交</div>
+            <div class="begin-time">{{ formatUtcDateTime(flowInst.beginTime) }} 提交</div>
           </div>
         </div>
 
@@ -85,7 +85,7 @@
           <a-timeline mode="left" labelPosition="relative">
             <!-- 审批完成和审批进行中的节点 -->
             <template v-for="node in flowNodes">
-              <a-timeline-item :label="node.auditTime">
+              <a-timeline-item :label="formatUtcDateTime(node.auditTime)">
                 <template #dot>
                   <div class="assignee-container">
                     <template v-if="node.underway">
@@ -845,6 +845,7 @@
   import ObjectUtil from '@/components/flow/common/ObjectUtil';
   import { useOrganStore } from '@/store';
   import { getToken } from '@/utils/auth';
+  import { formatUtcDateTime } from '@/utils/date';
   import { Message } from '@arco-design/web-vue';
   import {
     IconAttachment,
