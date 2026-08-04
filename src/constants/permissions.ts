@@ -11,6 +11,10 @@ export const Permissions = {
       AssignRoles: 'system:user:assign_roles',
       ResetPassword: 'system:user:reset_password',
     },
+    Organization: {
+      List: 'system:organization:list',
+      Manage: 'system:organization:manage',
+    },
     Role: {
       List: 'system:role:list',
       Create: 'system:role:create',
