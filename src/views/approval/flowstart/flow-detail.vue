@@ -922,7 +922,7 @@
         formValue: _formValue,
         formWidgets: _formWidgets,
       } = resp.data;
-      flowNodes.value = nodes || [];
+      flowNodes.value = (nodes || []).filter((node) => node.type != NODE.END);
       flowFutureNodes.value = futureNodes || [];
 
       //表单

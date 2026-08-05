@@ -419,12 +419,21 @@
                 <div class="node-name">{{ node.name }}</div>
                 <div class="node-content">
                   <div class="node-cc">
-                    <template v-if="node.userIds.length > 0">
+                    <template
+                      v-if="node.userIds.length > 0 || node.roleIds.length > 0"
+                    >
                       <flow-node-avatar
                         v-for="userId in node.userIds"
                         :key="userId"
                         :size="20"
                         :id="userId"
+                        class="assignee-item"
+                      />
+                      <flow-node-role-avatar
+                        v-for="roleId in node.roleIds"
+                        :key="roleId"
+                        :size="20"
+                        :id="roleId"
                         class="assignee-item"
                       />
                     </template>

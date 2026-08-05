@@ -314,18 +314,18 @@ const onTransactorTypeChanged = (assignee) => {
     assignee.layerType = 0;
     assignee.layer = 0;
     delete assignee.roles;
-    delete assignee.transactors;
+    delete assignee.assignees;
   } else if ([0, 7].includes(transactorType)) {
     delete assignee.layerType;
     delete assignee.layer;
     delete assignee.roles;
-    delete assignee.transactors;
+    delete assignee.assignees;
   } else if ([3].includes(transactorType)) {
     delete assignee.layerType;
     delete assignee.layer;
-    delete assignee.transactors;
+    delete assignee.assignees;
   } else if ([4].includes(transactorType)) {
-    assignee.transactors = [];
+    assignee.assignees = [];
     delete assignee.layerType;
     delete assignee.layer;
     delete assignee.roles;
