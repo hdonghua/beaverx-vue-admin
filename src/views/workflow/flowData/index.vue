@@ -131,17 +131,13 @@
             <a-table-column title="摘要" data-index="summary" :width="300">
               <template #cell="{ record }">
                 <div class="summary-list">
-                  <div v-if="typeof record.summary === 'string'">
-                    {{ record.summary || '-' }}
-                  </div>
                   <div
-                    v-else
                     class="summary-item"
-                    v-for="(value, label) in record.summary"
-                    :key="label"
+                    v-for="(item, index) in (record.summary || []).slice(0, 2)"
+                    :key="`${item.label}-${index}`"
                   >
-                    <div class="label">{{ label }}：</div>
-                    <div class="value">{{ value }}</div>
+                    <div class="label">{{ item.label }}：</div>
+                    <div class="value" :title="item.value">{{ item.value || '-' }}</div>
                   </div>
                 </div>
               </template>
@@ -543,10 +539,13 @@
 
         .summary-list {
           margin-top: 10px;
+          min-width: 0;
 
           .summary-item {
             display: flex;
+            align-items: center;
             min-height: 20px;
+            min-width: 0;
 
             .label {
               color: #9ba5b3;
@@ -558,7 +557,8 @@
 
             .value {
               color: #232730;
-              // max-width: calc(100% - @FlowCardFieldLabelWidth);
+              flex: 1;
+              min-width: 0;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;

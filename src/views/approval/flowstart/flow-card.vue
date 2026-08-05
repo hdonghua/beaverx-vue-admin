@@ -10,12 +10,13 @@
       </div>
     </div>
     <div class="summary-list">
-      <div v-if="typeof inst.summary === 'string'" class="summary-item">
-        <div class="value">{{ inst.summary || '-' }}</div>
-      </div>
-      <div v-else class="summary-item" v-for="(value, label) in inst.summary" :key="label">
-        <div class="label">{{ label }}：</div>
-        <div class="value">{{ value }}</div>
+      <div
+        v-for="(item, index) in (inst.summary || []).slice(0, 2)"
+        :key="`${item.label}-${index}`"
+        class="summary-item"
+      >
+        <div class="label">{{ item.label }}：</div>
+        <div class="value" :title="item.value">{{ item.value || '-' }}</div>
       </div>
     </div>
     <div class="footer">
@@ -109,10 +110,13 @@ const onDetailClose = () => {
 
   .summary-list {
     margin-top: 10px;
+    min-width: 0;
 
     .summary-item {
       display: flex;
+      align-items: center;
       min-height: 20px;
+      min-width: 0;
 
       .label {
         color: #9ba5b3;
@@ -124,7 +128,8 @@ const onDetailClose = () => {
 
       .value {
         color: #232730;
-        // max-width: calc(100% - @FlowCardFieldLabelWidth);
+        flex: 1;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
