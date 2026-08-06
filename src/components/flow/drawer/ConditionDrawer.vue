@@ -152,6 +152,28 @@ let selectedGroupCondition = ref({}); // 当前选中的分组条件
 
 let showOrganChooseBox = ref(false); // 是否显示organ对话框
 let selectedOrgan = ref([]); // 对话框选中的组织人员
+const numericOperators = [0, 1, 2, 3, 4, 5];
+
+const normalizeConditionValue = (condition) => {
+  if ([20, 21].includes(condition.operator)) {
+    return Array.isArray(condition.val)
+      ? condition.val
+      : condition.val == null
+        ? []
+        : [condition.val];
+  }
+
+  const value = Array.isArray(condition.val)
+    ? condition.val[0] ?? null
+    : condition.val;
+  if (!numericOperators.includes(condition.operator) || value == null || value === "") {
+    return value;
+  }
+
+  const numericValue = Number(value);
+  return Number.isNaN(numericValue) ? null : numericValue;
+};
+
 const onOpenOrganChooseBox = (condition) => {
   showOrganChooseBox.value = true;
   selectedOrgan.value = condition.val || [];
@@ -179,11 +201,7 @@ const initCondition = () => {
   flowNodeConfig.value = gatewayConfig.value.conditionNodes[priorityLevel - 1];
   (flowNodeConfig.value.conditionGroups || []).forEach((group) => {
     (group.conditions || []).forEach((condition) => {
-      if ([20, 21].includes(condition.operator)) {
-        condition.val = Array.isArray(condition.val) ? condition.val : condition.val == null ? [] : [condition.val];
-      } else if (Array.isArray(condition.val)) {
-        condition.val = condition.val[0] ?? null;
-      }
+      condition.val = normalizeConditionValue(condition);
     });
   });
 
