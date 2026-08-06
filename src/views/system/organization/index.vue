@@ -353,7 +353,7 @@
         pageSize: pagination.pageSize,
       });
       members.value = data.items;
-      pagination.total = data.total ?? data.totalCount ?? 0;
+      pagination.total = data.total ?? 0;
     } finally {
       membersLoading.value = false;
     }

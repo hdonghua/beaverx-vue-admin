@@ -207,7 +207,7 @@
 
 <script lang="ts" setup>
 // @ts-nocheck
-import FileApi, { FILE_DOWNLOAD_URL, FILE_UPLOAD_URL, normalizeUploadResponse } from "@/api/FileApi";
+import FileApi, { FILE_DOWNLOAD_URL, FILE_UPLOAD_URL, isUploadSuccessResponse, normalizeUploadResponse } from "@/api/FileApi";
 import FlowInstApi from "@/api/FlowInstApi";
 // import FlowManApi from "@/api/FlowManApi";
 import RichText from "@/components/common/RichText.vue";
@@ -323,7 +323,7 @@ const handleFileListChange = (fileList, fileItem) => {
   let { response: resp } = fileItem;
   if (!!!resp) return;
   const data = normalizeUploadResponse(resp);
-  if (resp.code === undefined || resp.code == 1 || resp.code == 10000) {
+  if (isUploadSuccessResponse(resp)) {
     // 上传成功转换数据
     if (!data.id) {
       Message.error(data.message || data.msg || "文件上传失败：响应中缺少文件标识");

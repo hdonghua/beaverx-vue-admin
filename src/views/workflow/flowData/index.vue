@@ -372,7 +372,7 @@
     queryFlowInstsData(query.value)
       .then((resp) => {
         flowInsts.value = resp.data.items || [];
-        query.value.total = resp.data.totalCount || 0;
+        query.value.total = resp.data.total || 0;
         tableLoading.value = false;
       })
       .catch(() => (tableLoading.value = false));

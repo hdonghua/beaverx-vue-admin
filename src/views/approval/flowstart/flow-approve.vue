@@ -132,10 +132,10 @@ const onSearchReset = () => {
 const loadFlowInsts = () => {
   query.value.current++;
   queryPendingMyApprovalTasks(query.value).then((resp) => {
-      let { items = [], totalCount = 0 } = resp.data;
+      let { items = [], total = 0 } = resp.data;
       flowInsts.value.push(...(items || []));
-      query.value.total = totalCount || 0;
-      if (flowInsts.value.length >= totalCount) {
+      query.value.total = total || 0;
+      if (flowInsts.value.length >= total) {
         haveMore.value = false;
       }
   });

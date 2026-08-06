@@ -192,7 +192,7 @@
 
 <script lang="ts" setup>
 // @ts-nocheck
-import { FILE_DOWNLOAD_URL, normalizeUploadResponse } from "@/api/FileApi";
+import { FILE_DOWNLOAD_URL, isUploadSuccessResponse, normalizeUploadResponse } from "@/api/FileApi";
 import ArrayUtil from "@/components/flow/common/ArrayUtil";
 import CHINA_AREA from "@/components/flow/common/ChinaArea";
 import { WIDGET } from "@/components/flow/common/FlowConstant";
@@ -279,7 +279,7 @@ const handleFileListChange = (fileList, fileItem) => {
   let { response: resp } = fileItem;
   if (!!!resp) return;
   const data = normalizeUploadResponse(resp);
-  if (resp.code === undefined || resp.code == 1 || resp.code == 10000) {
+  if (isUploadSuccessResponse(resp)) {
     // 上传成功转换数据
     if (!data.id) {
       Message.error(data.message || data.msg || "文件上传失败：响应中缺少文件标识");

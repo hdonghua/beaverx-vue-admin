@@ -17,6 +17,7 @@ export { refreshAccessToken } from './refresh-token';
 interface ProblemDetails {
   message?: string;
   title?: string;
+  msg?: string;
 }
 
 type RequestConfig = AxiosRequestConfig & {
@@ -95,13 +96,15 @@ axios.interceptors.response.use(
       'code' in payload &&
       'data' in payload
     ) {
-      const wrapped = payload as { code: number; msg: string; data: unknown };
-      if (wrapped.code !== 10000) {
+      const wrapped = payload as { code: number; msg?: string; message?: string; data: unknown };
+      const success = wrapped.code === 0 || wrapped.code === 10000;
+      const message = wrapped.msg || wrapped.message || 'Error';
+      if (!success) {
         Message.error({
-          content: wrapped.msg || 'Error',
+          content: message,
           duration: 5 * 1000,
         });
-        return Promise.reject(new Error(wrapped.msg || 'Error'));
+        return Promise.reject(new Error(message));
       }
       return { code: 1, msg: wrapped.msg || '', data: wrapped.data };
     }
@@ -112,6 +115,7 @@ axios.interceptors.response.use(
     const originalRequest = error.config as RequestConfig | undefined;
     const problem = error.response?.data as ProblemDetails | undefined;
     const content =
+      problem?.msg ||
       problem?.message ||
       problem?.title ||
       error.message ||

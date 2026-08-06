@@ -193,10 +193,10 @@
   const loadFlowInsts = () => {
     query.value.current++;
     queryMyApplyFlowInstances(query.value).then((resp) => {
-      let { items, totalCount } = resp.data;
+      let { items, total } = resp.data;
       flowInsts.value.push(...(items || []));
-      query.value.total = totalCount;
-      if (flowInsts.value.length >= totalCount) {
+      query.value.total = total;
+      if (flowInsts.value.length >= total) {
         haveMore.value = false;
       }
     });

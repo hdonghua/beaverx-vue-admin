@@ -7,6 +7,9 @@ export const FILE_PREVIEW_URL = FILE_DOWNLOAD_URL;
 
 export function normalizeUploadResponse(response: any) {
   let source = response?.data ?? response ?? {};
+  if (source && typeof source === 'object' && 'code' in source && 'data' in source) {
+    source = source.data ?? {};
+  }
   if (typeof source === 'string') {
     try {
       source = JSON.parse(source);
@@ -21,6 +24,11 @@ export function normalizeUploadResponse(response: any) {
     name: source.fileName || source.name || id,
     url: source.proxyUrl || `${FILE_DOWNLOAD_URL}?id=${encodeURIComponent(id)}`,
   };
+}
+
+export function isUploadSuccessResponse(response: any) {
+  const code = response?.code;
+  return code === undefined || code === 0 || code === 1 || code === 10000;
 }
 
 const FileApi = {
