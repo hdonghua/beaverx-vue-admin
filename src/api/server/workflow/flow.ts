@@ -231,15 +231,24 @@ export function formWidgetListToMap(flowWidgets) {
 }
 
 export interface CommentRequest {
-  instanceId: string;
+  instanceId?: string;
+  flowInstId?: string;
   taskId?: string;
-  content: string;
-  attachment: string;
+  content?: string;
+  comment?: string;
+  attachment?: string;
+  fileIds?: string[];
 }
 
 // 评论
 export function comment(req: CommentRequest) {
-  return axios.post<CommentRequest, ApiResponse<void>>('/api/workflow/comment', req);
+  const payload = {
+    instanceId: req.instanceId || req.flowInstId,
+    taskId: req.taskId,
+    content: req.content || req.comment,
+    attachment: req.attachment || (req.fileIds?.length ? JSON.stringify(req.fileIds) : undefined),
+  };
+  return axios.post<typeof payload, ApiResponse<void>>('/api/workflow/comment', payload);
 }
 
 export interface AssignRequest {
