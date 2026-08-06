@@ -137,7 +137,7 @@
                     :key="`${item.label}-${index}`"
                   >
                     <div class="label">{{ item.label }}：</div>
-                    <div class="value" :title="item.value">{{ item.value || '-' }}</div>
+                    <div class="value" :title="formatFlowSummaryItem(item, organStore)">{{ formatFlowSummaryItem(item, organStore) }}</div>
                   </div>
                 </div>
               </template>
@@ -320,6 +320,7 @@
   import FlowNodeAvatar from '@/components/common/FlowNodeAvatar.vue';
   import SvgIcon from '@/components/svg-icon/index.vue';
   import { STATUS, STATUS_LIST } from '@/components/flow/common/FlowConstant';
+  import { formatFlowSummaryItem } from '@/views/approval/flowstart/flow-summary';
   import { useOrganStore } from '@/store';
   import { Message } from '@arco-design/web-vue';
   import {

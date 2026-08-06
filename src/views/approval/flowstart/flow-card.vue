@@ -16,7 +16,7 @@
         class="summary-item"
       >
         <div class="label">{{ item.label }}：</div>
-        <div class="value" :title="item.value">{{ item.value || '-' }}</div>
+        <div class="value" :title="formatFlowSummaryItem(item, organStore)">{{ formatFlowSummaryItem(item, organStore) }}</div>
       </div>
     </div>
     <div class="footer">
@@ -46,10 +46,12 @@
 // @ts-nocheck
 import FlowInstApi from "@/api/FlowInstApi";
 import FlowNodeAvatar from "@/components/common/FlowNodeAvatar.vue";
+import { useOrganStore } from "@/store";
 import { STATUS_LIST } from "@/components/flow/common/FlowConstant";
 import { formatUtcDateTime } from "@/utils/date";
 import { ref, watch } from "vue";
 import FlowDetail from "./flow-detail.vue";
+import { formatFlowSummaryItem } from "./flow-summary";
 
 const props = defineProps({
   flowInst: { type: Object, default: null },
@@ -57,6 +59,8 @@ const props = defineProps({
   clickable: { type: Boolean, default: false },
   hoverable: { type: Boolean, default: true },
 });
+
+const organStore = useOrganStore();
 
 const inst = ref(null);
 watch(

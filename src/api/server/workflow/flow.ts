@@ -155,7 +155,14 @@ export interface QuerypendingMyApprovalTaskResponse {
   backable: boolean;
   signature: boolean;
   nodeType: number;
-  summary: Array<{ label: string; value: string }>;
+  summary: Array<{
+    label: string;
+    value: unknown;
+    type: number;
+    options: string[];
+    format?: string;
+    comma: boolean;
+  }>;
 }
 
 export interface QuerypendingMyApprovalTaskRequest extends QueryPageRequest {
