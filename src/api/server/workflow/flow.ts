@@ -88,9 +88,13 @@ export interface FlowNodeInfo {
 }
 
 /** 查看流程图 */
-export function viewProcessChart(defId: string) {
-  return axios.get<void, ApiResponse<FlowNodeInfo[]>>(
-    '/api/workflow/viewProcessChart?defId=' + defId
+export function viewProcessChart(defId: string, flowValue: Record<string, any>) {
+  return axios.post<void, ApiResponse<FlowNodeInfo[]>>(
+    '/api/workflow/viewProcessChart',
+    {
+      flowDefId: defId,
+      flowValue: JSON.stringify(flowValue || {}),
+    }
   );
 }
 

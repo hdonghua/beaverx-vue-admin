@@ -504,7 +504,7 @@
   import { getToken } from '@/utils/auth';
   import { Message } from '@arco-design/web-vue';
   import { IconInfoCircle, IconPlus } from '@arco-design/web-vue/es/icon';
-  import { onBeforeMount, reactive, ref, watch } from 'vue';
+  import { nextTick, onBeforeMount, reactive, ref, watch } from 'vue';
   import FlowCard from './flow-card.vue';
   import FlowInstSelect from './flow-inst-select.vue';
   import FlowLaunchWidgetDetail from './flow-launch-widget-detail.vue';
@@ -530,6 +530,8 @@
   let formErrors = ref([]); // 流程表单校验错误
   let launching = ref(false); // 流程发起中
   let flowInstSelectVisible = ref(false); // 是否显示流程选择框
+  let flowPreviewTimer = null;
+  let flowPreviewSeq = 0;
 
   let flowTimeLineDotColors = reactive({}); // 时间线点的颜色
   flowTimeLineDotColors[NODE.START] = { color: NODE_COLOR.START };
@@ -539,7 +541,7 @@
   flowTimeLineDotColors[NODE.END] = { color: NODE_COLOR.END };
 
   watch(
-    () => flowForm,
+    flowForm,
     () => flowPreview(),
     { deep: true }
   );
@@ -640,17 +642,34 @@
 
   // 流程预览
   const flowPreview = () => {
-    // 表单公式计算结果
-    formFormulaAutoCalc(flowForm.value, props.flowWidgets || []);
-    // 校验表单
-    validFlowForm();
-    if (formValidated.value) {
+    if (flowPreviewTimer) {
+      clearTimeout(flowPreviewTimer);
+    }
+
+    flowPreviewTimer = setTimeout(async () => {
+      await nextTick();
+      // 表单公式计算结果
+      formFormulaAutoCalc(flowForm.value, props.flowWidgets || []);
+      // 校验表单
+      validFlowForm();
+      if (!formValidated.value) {
+        flowNodes.value = [];
+        flowPreviewed.value = false;
+        return;
+      }
+
+      const currentSeq = ++flowPreviewSeq;
+      const previewValue = handleFormValue(
+        props.flowWidgets,
+        ObjectUtil.copy(flowForm.value)
+      );
       flowPreviewed.value = false;
-      viewProcessChart(props.flow.id).then((resp) => {
+      viewProcessChart(props.flow.id, previewValue).then((resp) => {
+        if (currentSeq !== flowPreviewSeq) return;
         flowNodes.value = resp.data || [];
         flowPreviewed.value = true;
       });
-    }
+    }, 80);
   };
 
   // 处理表单值

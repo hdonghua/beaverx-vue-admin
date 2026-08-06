@@ -29,6 +29,17 @@ export const names: Record<number, string> = {
 
 type ExpFunc = (v: string, t: string | string[]) => string;
 
+const toConditionValues = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.filter((item) => item !== null && item !== undefined).map(String);
+  if (value === null || value === undefined || value === "") return [];
+  return [String(value)];
+};
+
+const quoteExpressionValue = (value: string) => JSON.stringify(value);
+
+const anyExpression = (values: string[], predicate: (value: string) => string) =>
+  values.length ? values.map(predicate).join(" || ") : "false";
+
 export const exps: Record<number, ExpFunc> = {
   // 数值操作
   0: (v, t) => `${v}==${t}`,
@@ -38,27 +49,25 @@ export const exps: Record<number, ExpFunc> = {
   4: (v, t) => `${v}>${t}`,
   5: (v, t) => `${v}>=${t}`,
   // 字符串操作
-  10: (v, t) => `fx.in0(${v},"${t}")`,
-  11: (v, t) => `!fx.in0(${v},"${t}")`,
-  12: (v, t) => `fx.eq0(${v},"${t}")`,
-  13: (v, t) => `!fx.eq0(${v},"${t}")`,
-  14: (v, t) => `fx.contain0(${v},"${t}")`,
-  15: (v, t) => `!fx.contain0(${v},"${t}")`,
+  10: (v, t) => `${quoteExpressionValue(String(t))}.Contains(${v})`,
+  11: (v, t) => `!${quoteExpressionValue(String(t))}.Contains(${v})`,
+  12: (v, t) => `${v} == ${quoteExpressionValue(String(t))}`,
+  13: (v, t) => `${v} != ${quoteExpressionValue(String(t))}`,
+  14: (v, t) => `${v}.Contains(${quoteExpressionValue(String(t))})`,
+  15: (v, t) => `!${v}.Contains(${quoteExpressionValue(String(t))})`,
   // 数组操作
   20: (v, t) => {
     if (Array.isArray(t)) {
-      const prams = t.map((v) => `"${v}"`).join(",");
-      return `fx.has0(${v},${prams})`;
+      return anyExpression(t, (value) => `${v}.Contains(${quoteExpressionValue(value)})`);
     } else {
-      return `fx.has0(${v},"${t}")`;
+      return `${v}.Contains(${quoteExpressionValue(String(t))})`;
     }
   },
   21: (v, t) => {
     if (Array.isArray(t)) {
-      const prams = t.map((v) => `"${v}"`).join(",");
-      return `!fx.has0(${v},${prams})`;
+      return `!(${anyExpression(t, (value) => `${v}.Contains(${quoteExpressionValue(value)})`)})`;
     } else {
-      return `!fx.has0(${v},"${t}")`;
+      return `!${v}.Contains(${quoteExpressionValue(String(t))})`;
     }
   },
 };
@@ -67,13 +76,11 @@ export const exps: Record<number, ExpFunc> = {
 export const INITIATOR_VAR_NAME = "initiator";
 
 const initiatorIn = (v: string, t: string[]): string => {
-  const prams = t.map((v) => `"${v}"`).join(",");
-  return `CustomRuleUtils.HasIntersection(${v},new string[] { ${prams} })`;
+  return anyExpression(t, (value) => `${v}.Contains(${quoteExpressionValue(value)})`);
 };
 
 const initiatorNotIn = (v: string, t: string[]): string => {
-  const prams = t.map((v) => `"${v}"`).join(",");
-  return `!CustomRuleUtils.HasIntersection(${v},new string[] { ${prams} })`;
+  return `!(${initiatorIn(v, t)})`;
 };
 
 // ========== 类型定义 ==========
@@ -152,23 +159,23 @@ export const showExpNodeContent = (branchNode: BranchNode, flowWidgets: Widget[]
             if (condition.varName === INITIATOR_VAR_NAME) {
               name = "发起人";
               operatorName = names[condition.operator as number];
-              newVal = (condition.val as string[]).map((i) => getById(i).name).join("/");
+              newVal = toConditionValues(condition.val).map((i) => getById(i).name).join("/");
             } else {
               const widget = lookupWidget(flowWidgets, condition.varName as string);
               name = lookupWidgetLabel(widget);
               operatorName = names[condition.operator as number];
               if (widget && widget.type === WIDGET.DEPARTMENT) {
                 newVal = ObjectUtil.isArray(condition.val)
-                  ? (condition.val as string[]).map((id) => getDeptById(id).name).join("/")
+                  ? toConditionValues(condition.val).map((id) => getDeptById(id).name).join("/")
                   : getDeptById(condition.val as string).name;
               } else if (widget && widget.type === WIDGET.EMPLOYEE) {
                 newVal = ObjectUtil.isArray(condition.val)
-                  ? (condition.val as string[]).map((id) => getUserById(id).name).join("/")
+                  ? toConditionValues(condition.val).map((id) => getUserById(id).name).join("/")
                   : getUserById(condition.val as string).name;
               } else {
                 newVal = [20, 21].includes(condition.operator as number)
-                  ? (condition.val as string[]).join("/")
-                  : (condition.val as string[]).join("");
+                  ? toConditionValues(condition.val).join("/")
+                  : toConditionValues(condition.val).join("");
               }
             }
             return `${name} ${operatorName} ${newVal}`;
@@ -221,15 +228,17 @@ export const initExp = (branchNode: Record<string, any>): void => {
         .filter((e) => ObjectUtil.isNotNull(e.varName) && ObjectUtil.isNotNull(e.operator) && ObjectUtil.isNotNull(e.val))
         .map((condition) => {
           let fun: ExpFunc;
-          let newVal: string[];
+          const values = toConditionValues(condition.val);
+          condition.val = values;
+          let newVal: string | string[];
           let segexp: string;
           if (condition.varName === INITIATOR_VAR_NAME) {
             fun = condition.operator === 20 ? initiatorIn : initiatorNotIn;
-            newVal = [...(condition.val as string[])];
+            newVal = values;
             segexp = fun(condition.varName, newVal);
           } else {
             fun = exps[condition.operator as number];
-            newVal = [...(condition.val as string[])];
+            newVal = [20, 21].includes(condition.operator as number) ? values : values[0] || "";
             segexp = fun(condition.varName as string, newVal);
           }
           return segexp;

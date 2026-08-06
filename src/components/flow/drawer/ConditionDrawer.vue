@@ -177,6 +177,15 @@ const initCondition = () => {
   priorityLevel = val.priorityLevel;
   gatewayConfig.value = val.value;
   flowNodeConfig.value = gatewayConfig.value.conditionNodes[priorityLevel - 1];
+  (flowNodeConfig.value.conditionGroups || []).forEach((group) => {
+    (group.conditions || []).forEach((condition) => {
+      if ([20, 21].includes(condition.operator)) {
+        condition.val = Array.isArray(condition.val) ? condition.val : condition.val == null ? [] : [condition.val];
+      } else if (Array.isArray(condition.val)) {
+        condition.val = condition.val[0] ?? null;
+      }
+    });
+  });
 
   // 初始化分组条件选项
   conditionOptions.value = [{ name: INITIATOR_VAR_NAME, label: "发起人", operators: [20, 21] }];
