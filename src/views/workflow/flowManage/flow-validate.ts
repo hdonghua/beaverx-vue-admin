@@ -66,7 +66,20 @@ const verifyFormInfo = (flowWidgets: Widget[]): string[] => {
 
     // 校验选项空间是否合法
     let flowWidgetNameLabelKv: Record<string, string> = {}; // 组件name:label键值对
+    const fieldKeys = new Set<string>();
+    const validateFieldKey = (flowWidget: Widget): void => {
+      const fieldKey = flowWidget.name;
+      if (!isString(fieldKey) || !/^[A-Za-z][A-Za-z0-9_]*$/.test(fieldKey)) {
+        errs.push(`${prefix} 控件（${flowWidget.label || ""}）的字段标识格式不正确`);
+      } else if (fieldKeys.has(fieldKey)) {
+        errs.push(`${prefix} 字段标识不能重复：${fieldKey}`);
+      } else {
+        fieldKeys.add(fieldKey);
+      }
+    };
+
     flowWidgets.forEach((flowWidget) => {
+      validateFieldKey(flowWidget);
       flowWidgetNameLabelKv[flowWidget.name] = flowWidget.label || "";
       if ([WIDGET.DETAIL].includes(flowWidget.type)) {
         // 校验明细组件
@@ -75,6 +88,7 @@ const verifyFormInfo = (flowWidgets: Widget[]): string[] => {
           errs.push(`${prefix} 请为明细控件（${flowWidget.label}）添加控件`);
         } else {
           details.forEach((detail) => {
+            validateFieldKey(detail);
             flowWidgetNameLabelKv[detail.name] = detail.label || "";
             valifySelectWidgetOptions(detail);
           });

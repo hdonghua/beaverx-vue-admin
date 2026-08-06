@@ -132,9 +132,9 @@ export const initWidgetFormula = (widgets: Widget[]): void => {
  */
 export const listFormulaWidgetNames = (formula: unknown): string[] => {
   if (!ObjectUtil.isNotEmpty(formula)) return [];
-  const regex = /[A-Z]+_\d{18}/g;
+  const regex = /\b[A-Za-z][A-Za-z0-9_]*\b/g;
   const matches = String(formula).match(regex);
-  return matches || [];
+  return [...new Set(matches || [])];
 };
 
 /**

@@ -355,6 +355,18 @@
           >
             <a-input v-model="widget.label" :max-length="16" />
           </a-form-item>
+          <a-form-item
+            field="fieldKey"
+            label="字段标识"
+            v-if="![WIDGET.DESCRIBE].includes(widget.type)"
+          >
+            <a-input
+              :model-value="widget.name"
+              :max-length="100"
+              placeholder="请输入英文字母、数字或下划线"
+              @update:model-value="handleWidgetNameChange"
+            />
+          </a-form-item>
           <!-- 组件提示 -->
           <a-form-item
             field="placeholder"
@@ -710,6 +722,65 @@
     });
     widget.value = {};
     showSettingDetail.value = false;
+  };
+  const fieldKeyPattern = /^[A-Za-z][A-Za-z0-9_]*$/;
+  const getAllWidgets = (sourceWidgets, result = []) => {
+    (sourceWidgets || []).forEach((item) => {
+      result.push(item);
+      if (item.type == WIDGET.DETAIL) getAllWidgets(item.details, result);
+    });
+    return result;
+  };
+  const updateNodeFieldReferences = (node, oldName, newName) => {
+    if (!node) return;
+    (node.formAuths || []).forEach((auth) => {
+      if (auth.name == oldName) auth.name = newName;
+      updateNodeFieldReferences({ formAuths: auth.details }, oldName, newName);
+    });
+    (node.conditionGroups || []).forEach((group) =>
+      (group.conditions || []).forEach((condition) => {
+        if (condition.varName == oldName) condition.varName = newName;
+      })
+    );
+    (node.conditionNodes || []).forEach((child) =>
+      updateNodeFieldReferences(child, oldName, newName)
+    );
+    updateNodeFieldReferences(node.childNode, oldName, newName);
+  };
+  const updateFormulaReferences = (sourceWidgets, oldName, newName) => {
+    (sourceWidgets || []).forEach((item) => {
+      (item.formulaItems || []).forEach((formulaItem) => {
+        if (formulaItem.value == oldName) formulaItem.value = newName;
+      });
+      if (typeof item.formula == 'string') {
+        item.formula = item.formula.split(oldName).join(newName);
+      }
+      if (item.type == WIDGET.DETAIL) {
+        updateFormulaReferences(item.details, oldName, newName);
+      }
+    });
+  };
+  const handleWidgetNameChange = (newName) => {
+    const currentName = widget.value.name;
+    if (newName == currentName) return;
+    if (!newName || !fieldKeyPattern.test(newName)) {
+      Message.error('字段标识必须以英文字母开头，只能包含英文字母、数字和下划线');
+      return;
+    }
+    const duplicated = getAllWidgets(widgets.value).some(
+      (item) => item !== widget.value && item.name == newName
+    );
+    if (duplicated) {
+      Message.error('字段标识不能重复');
+      return;
+    }
+    updateNodeFieldReferences(
+      flowDefinition.nodeConfig,
+      currentName,
+      newName
+    );
+    updateFormulaReferences(widgets.value, currentName, newName);
+    widget.value.name = newName;
   };
   const handleWidgetChange = (evt) => {
     let added = evt.added;
