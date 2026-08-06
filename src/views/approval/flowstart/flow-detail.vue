@@ -339,12 +339,20 @@
                       />
                     </div>
                     <!-- 审批意见 -->
-                    <div class="comment" v-if="node.comment || node.files">
+                    <div
+                      class="comment"
+                      v-if="node.comment?.trim() || node.files?.length"
+                    >
                       <!-- <div class="commnet-title">审批意见</div> -->
-                      <div class="comment-content" v-if="node.comment">{{
-                        node.comment
-                      }}</div>
-                      <div class="comment-attachment" v-if="node.files">
+                      <div
+                        class="comment-content"
+                        v-if="node.comment?.trim()"
+                        >{{ node.comment }}</div
+                      >
+                      <div
+                        class="comment-attachment"
+                        v-if="node.files?.length"
+                      >
                         <div
                           class="comment-attachment-list"
                           v-for="attachment in node.files"
@@ -1069,8 +1077,13 @@
         req = assign(handleModalFormValue);
         break;
       case CMD.TRANSACT:
-        // req = transact(handleModalFormValue);
+        req = approve(handleModalFormValue);
         break;
+    }
+    if (!req) {
+      loading.value = false;
+      Message.error('不支持的流程操作');
+      return;
     }
     req
       .then((resp) => {
