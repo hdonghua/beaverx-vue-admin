@@ -36,6 +36,15 @@ const createDefaultDept = (deptId: string): DeptItem => ({ id: deptId, name: "" 
 const createDefaultRole = (roleId: string): RoleItem => ({ id: roleId, name: "" });
 const createDefaultUser = (userId: string): UserItem => ({ id: userId, name: "" });
 
+const findDepartment = (departments: DeptItem[], departmentId: string): DeptItem | undefined => {
+  for (const department of departments) {
+    if (String(department.id) === String(departmentId)) return department;
+    const child = findDepartment(department.children || [], departmentId);
+    if (child) return child;
+  }
+  return undefined;
+};
+
 const useOrganStore = defineStore("organ", {
   state: (): OrganState => ({
     depts: [],
@@ -49,7 +58,7 @@ const useOrganStore = defineStore("organ", {
     },
     getDeptById: (state) => {
       return (deptId: string): DeptItem =>
-        state.depts.find((dept) => dept.id === deptId) || createDefaultDept(deptId);
+        findDepartment(state.depts, deptId) || createDefaultDept(deptId);
     },
     getRoleById: (state) => {
       return (roleId: string): RoleItem =>
@@ -58,10 +67,22 @@ const useOrganStore = defineStore("organ", {
     getById: (state) => {
       return (id: string): DeptItem | RoleItem | UserItem => {
         let item: DeptItem | RoleItem | UserItem | undefined;
-        item = state.depts.find((dept) => dept.id === id);
-        if (item == null) item = state.roles.find((role) => role.id === id);
-        if (item == null) item = state.users.find((user) => user.id === id);
+        item = findDepartment(state.depts, id);
+        if (item == null) item = state.roles.find((role) => String(role.id) === String(id));
+        if (item == null) item = state.users.find((user) => String(user.id) === String(id));
         return item || ({ id: id, name: "未知" } as DeptItem);
+      };
+    },
+    getByType: (state) => {
+      return (id: string, type: number): DeptItem | RoleItem | UserItem => {
+        if (type === 0) return findDepartment(state.depts, id) || createDefaultDept(id);
+        if (type === 1) {
+          return state.roles.find((role) => String(role.id) === String(id)) || createDefaultRole(id);
+        }
+        if (type === 2) {
+          return state.users.find((user) => String(user.id) === String(id)) || createDefaultUser(id);
+        }
+        return { id, name: "未知" } as DeptItem;
       };
     },
   },

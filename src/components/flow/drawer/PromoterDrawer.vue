@@ -30,7 +30,7 @@
             <template v-if="flowPermission.type == 1">
               <div class="selected-content">
                 <div class="selected-list">
-                  <a-tag v-for="item in selected">{{ getById(item.id).name }}</a-tag>
+                  <a-tag v-for="item in selected">{{ getByType(item.id, item.type).name || "未知" }}</a-tag>
                 </div>
                 <div class="btn" @click="openInitiatorChooseBox()">
                   <a-link>
@@ -58,7 +58,7 @@ let initiatorChooseBoxVisible = ref(false);
 let selected = ref([]); // 发起人选项
 
 let flowStore = useFlowStore();
-let { getById } = useOrganStore();
+let { getByType } = useOrganStore();
 let { showPromoterDrawer, setPromoterConfig } = flowStore;
 let isPromoterDrawerOpened = computed(() => flowStore.isPromoterDrawerOpened);
 let promoterConfig0 = computed(() => flowStore.promoterConfig0);

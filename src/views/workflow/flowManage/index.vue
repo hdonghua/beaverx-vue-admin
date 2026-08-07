@@ -188,13 +188,14 @@
   const router = useRouter();
   const flowStore = useFlowStore();
   const userStore = useUserStore();
-  const { getById } = useOrganStore();
+  const { getByType } = useOrganStore();
   const loading = ref(false);
 
   /** 流程发起人 */
   interface FlowInitiatorItem {
     id: string;
-    organId: string;
+    type: number;
+    organId?: string;
   }
 
   /** 流程定义对象 */
@@ -229,8 +230,8 @@
   const formatFlowInitiator = (flowInitiators: FlowInitiatorItem[]) => {
     return (flowInitiators || [])
       .map((item) => {
-        item.id = item.organId;
-        return getById(item.id).name;
+        const id = item.id || item.organId;
+        return getByType(id, item.type).name || '未知';
       })
       .join('，');
   };

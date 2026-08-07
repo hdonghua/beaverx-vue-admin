@@ -140,7 +140,7 @@ let props = defineProps({
 });
 
 let emits = defineEmits(["update:flowPermission", "update:nodeConfig"]);
-let { roles: allRoles, users: allUsers, getById } = useOrganStore();
+let { roles: allRoles, users: allUsers, getByType } = useOrganStore();
 let flowStore = useFlowStore();
 let {
   flowDefinition,
@@ -184,7 +184,7 @@ let showNodeContent = computed(() => {
     let { type, flowInitiators } = props.flowPermission;
     if (type == 0) return "全员可提交";
     else if (type == 2) return "均不可提交";
-    else return flowInitiators?.map((i) => getById(i.id).name).join(", ");
+    else return flowInitiators?.map((i) => getByType(i.id, i.type).name || "未知").join(", ");
   } else if (nodeType == NODE.APPROVE) {
     // 审批人节点
     let { assignees, approvalType } = props.nodeConfig;

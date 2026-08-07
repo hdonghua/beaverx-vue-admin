@@ -27,7 +27,7 @@
               :multiple="true"
               checked-strategy="all"
               @check="(checkedKeys, data) => onTreeNodeChecked(checkedKeys, data, type)">
-              <template #switcher-icon="node, { isLeaf, expanded }">
+              <template #switcher-icon="{ isLeaf, expanded }">
                 <template v-if="!isLeaf">
                   <span v-if="expanded" class="arco-tree-node-minus-icon" />
                   <span v-else class="arco-tree-node-plus-icon" />
@@ -107,7 +107,7 @@ let organTypes = computed(() => {
 const deptTreeData = ref([]); // 部门树形数据
 const deptCheckedKeys = ref([]); // 选择的部门Key
 const deptIds = ref([]); // 选中的部门ids
-const deptTreefieldNames = ref({ key: "id", title: "name" }); // 部门树形数据的字段名
+const deptTreefieldNames = ref({ key: "id", title: "name", children: "children" }); // 部门树形数据的字段名
 
 let isOpened = computed({
   get: () => props.visible,
@@ -214,19 +214,18 @@ const onTreeNodeChecked = (checkedKeys, data, type) => {
 
 // 将数组转换成树形结构
 const convertToTree = (data) => {
-  let map = {};
-  let tree = [];
-  let ids = [];
-  data.forEach((item) => {
-    map[item.id] = item;
-    item.children = [];
+  const map = {};
+  const tree = [];
+  const ids = [];
+  (data || []).forEach((item) => {
+    map[item.id] = { ...item, children: [] };
     ids.push(item.id);
   });
-  data.forEach((item) => {
-    if (item.pid && map[item.pid]) {
-      map[item.pid].children.push(item);
+  (data || []).forEach((item) => {
+    if (item.parentId != null && map[item.parentId]) {
+      map[item.parentId].children.push(map[item.id]);
     } else {
-      tree.push(item);
+      tree.push(map[item.id]);
     }
   });
   deptIds.value = ids;

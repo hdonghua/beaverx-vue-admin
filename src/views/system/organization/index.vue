@@ -525,13 +525,13 @@
   .organization-container { height: 100%; min-height: 0; }
   .organization-container :deep(.page-container-body) { height: 100%; min-height: 0; }
   .organization-page { height: 100%; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; background: transparent; }
-  .department-panel { height: 100%; min-height: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; background: #fff; border: 1px solid var(--color-border-2); border-radius: 6px; }
+  .department-panel { height: 100%; min-height: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; background: var(--color-bg-2); border: none; border-radius: var(--border-radius-medium); }
   .panel-header, .member-toolbar, .summary-heading, .leader-setting { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   .panel-title, .section-title { font-size: 16px; font-weight: 600; color: var(--color-text-1); }
   .secondary { font-size: 12px; color: var(--color-text-3); }
   .tree-area, .tree-spin { flex: 1; min-height: 0; overflow: auto; }
   .department-content { min-width: 0; min-height: 0; overflow: auto; background: transparent; }
-  .department-summary, .member-section { padding: 20px; background: #fff; border: 1px solid var(--color-border-2); border-radius: 6px; }
+  .department-summary, .member-section { padding: 20px; background: var(--color-bg-2); border: none; border-radius: var(--border-radius-medium); }
   .department-summary h2 { margin: 0 0 8px; font-size: 20px; letter-spacing: 0; }
   .leader-setting { justify-content: flex-start; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--color-border-1); }
   .leader-setting .setting-label { width: 88px; color: var(--color-text-2); }
