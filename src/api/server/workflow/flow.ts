@@ -314,6 +314,7 @@ export interface ApproveRequest {
   flowCmd: number;
   fileIds?: string[];
   comment?: string;
+  base64SignatureData?: string;
 }
 
 // 审批（通过/拒绝）

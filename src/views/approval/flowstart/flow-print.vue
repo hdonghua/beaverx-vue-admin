@@ -181,8 +181,8 @@
                     <template v-else-if="node.flowCmd == CMD.CANCELED">撤销</template>
                   </div>
                 </div>
-                <div class="signature-file-box" v-if="node.signatureFile && node.signatureFile.id">
-                  <img :src="`${FILE_BASE_URL}/download?id=${node.signatureFile.id}`" />
+                <div class="signature-file-box" v-if="node.signatureData">
+                  <img :src="node.signatureData" />
                 </div>
               </td>
             </template>

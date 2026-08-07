@@ -341,11 +341,10 @@
                       </template>
                     </div>
                     <!-- 审批签字图片 -->
-                    <div class="signature" v-if="node.signatureFile">
-                      <!-- <img :src="`${FILE_PREVIEW_URL}?id=${node.signatureFile.id}`" /> -->
+                    <div class="signature" v-if="node.signatureData">
                       <a-image
                         height="100"
-                        :src="`${FILE_PREVIEW_URL}?id=${node.signatureFile.id}`"
+                        :src="node.signatureData"
                       />
                     </div>
                     <!-- 审批意见 -->
