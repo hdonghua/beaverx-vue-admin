@@ -144,6 +144,7 @@ export interface FlowConditionGroup {
 /** 流程定义 */
 export interface WorkflowDef {
   id: string | null;
+  processKey?: string;
   icon: string;
   name: string;
   groupId: string;
@@ -180,6 +181,11 @@ export interface AddProcessRequest {
   workFlowDef: WorkflowDef;
   flowPermission: FlowPermission;
   flowDefJson?: string;
+}
+
+export interface WorkflowKeyOption {
+  key: string;
+  name: string;
 }
 
 /** 添加流程 */
@@ -219,6 +225,13 @@ export function getProcessEditData(defId: string) {
 export function getServiceTaskHandlers() {
   return axios.get<void, ApiResponse<ServiceTaskHandler[]>>(
     '/api/approveManagement/getServiceTaskHandlers'
+  );
+}
+
+/** 业务代码中预定义的流程 Key */
+export function getWorkflowKeyOptions() {
+  return axios.get<void, ApiResponse<WorkflowKeyOption[]>>(
+    '/api/approveManagement/getWorkflowKeyOptions'
   );
 }
 

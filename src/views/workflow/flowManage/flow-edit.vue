@@ -82,6 +82,7 @@
   interface FlowDefType {
     workFlowDef: {
       id: string | null;
+      processKey?: string;
       icon: string;
       name: string;
       groupId: string;

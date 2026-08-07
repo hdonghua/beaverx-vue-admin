@@ -67,7 +67,7 @@ export interface LaunchFlowRequest {
 
 /** 发起流程 */
 export function launchFlow(req: LaunchFlowRequest) {
-  return axios.post<LaunchFlowRequest, ApiResponse<void>>('/api/workflow/lanunch', req);
+  return axios.post<LaunchFlowRequest, ApiResponse<string>>('/api/workflow/lanunch', req);
 }
 
 // ========== 流程图 ==========

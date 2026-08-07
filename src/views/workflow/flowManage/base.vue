@@ -49,6 +49,18 @@
         <a-form-item field="name" label="名称" required>
           <a-input v-model="flowDef.name" :max-length="16" />
         </a-form-item>
+        <a-form-item field="processKey" label="流程 Key">
+          <a-select
+            v-model="flowDef.processKey"
+            allow-clear
+            allow-create
+            allow-search
+            placeholder="选择或输入流程 Key，留空自动生成">
+            <a-option v-for="item in workflowKeyOptions" :key="item.key" :value="item.key">
+              {{ item.name }}（{{ item.key }}）
+            </a-option>
+          </a-select>
+        </a-form-item>
         <a-form-item field="remark" label="说明">
           <a-textarea v-model="flowDef.remark" :max-length="64" />
         </a-form-item>
@@ -116,7 +128,11 @@
   import { IconPlus } from '@arco-design/web-vue/es/icon';
   import { onBeforeMount, onMounted, ref } from 'vue';
   import FlowGroupEdit from './flow-gorup-edit.vue';
-  import { getFlowGroups } from '@/api/server/workflow/approveManagement';
+  import {
+    getFlowGroups,
+    getWorkflowKeyOptions,
+    type WorkflowKeyOption,
+  } from '@/api/server/workflow/approveManagement';
   import { getIconSvgs } from '@/api/icon';
 
   let { flowDefinition } = useFlowStore();
@@ -127,6 +143,13 @@
   const loadGroups = () => {
     getFlowGroups().then((resp) => {
       groups.value = resp.data;
+    });
+  };
+
+  const workflowKeyOptions = ref<WorkflowKeyOption[]>([]);
+  const loadWorkflowKeyOptions = () => {
+    getWorkflowKeyOptions().then((resp) => {
+      workflowKeyOptions.value = resp.data || [];
     });
   };
 
@@ -145,6 +168,7 @@
   interface FlowDefType {
     icon?: string;
     name?: string;
+    processKey?: string;
     groupId?: string;
     flowAdminIds?: string[];
     [key: string]: any;
@@ -198,6 +222,7 @@
   onBeforeMount(() => {
     loadGroups();
     loadIcons();
+    loadWorkflowKeyOptions();
   });
 
   defineExpose({
