@@ -90,6 +90,12 @@ export interface FlowNode extends WorkFlowNodeBase {
   signable?: boolean;
   assignable?: boolean;
   signature?: boolean;
+  serviceTaskHandlers?: string[];
+}
+
+export interface ServiceTaskHandler {
+  key: string;
+  name: string;
 }
 
 /** 流程条件节点 */
@@ -206,6 +212,13 @@ export function getProcessEditData(defId: string) {
         defId: defId,
       },
     }
+  );
+}
+
+/** 可用于服务任务节点的代码处理器 */
+export function getServiceTaskHandlers() {
+  return axios.get<void, ApiResponse<ServiceTaskHandler[]>>(
+    '/api/approveManagement/getServiceTaskHandlers'
   );
 }
 

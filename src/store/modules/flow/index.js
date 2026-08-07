@@ -20,6 +20,9 @@ const useFlowStore = defineStore("flow", {
     // 设置办理人
     isTransactorDrawerOpened: false,
     transactorConfig0: {},
+    // 设置服务任务
+    isServiceTaskDrawerOpened: false,
+    serviceTaskConfig0: {},
 
     // 流程分组
     flowGroups: [],
@@ -70,6 +73,13 @@ const useFlowStore = defineStore("flow", {
     },
     setTransactorConfig(transactorConfig) {
       this.transactorConfig0 = transactorConfig;
+    },
+
+    showServiceTaskDrawer(isOpened) {
+      this.isServiceTaskDrawerOpened = isOpened;
+    },
+    setServiceTaskConfig(serviceTaskConfig) {
+      this.serviceTaskConfig0 = serviceTaskConfig;
     },
 
     setFlowGroups(flowGroups) {

@@ -182,6 +182,7 @@ interface FlowOperateNode extends FlowNodeBase {
   flowNodeNoAuditorType?: number;
   flowNodeNoAuditorAssignee?: string;
   flowNodeAuditAdmin?: string;
+  serviceTaskHandlers?: string[];
 }
 
 /** 开始节点 */
@@ -305,6 +306,11 @@ const verifyFlowNodeInfo = (
         if (!isString(flowNodeAuditAdmin) || validator.isEmpty(flowNodeAuditAdmin)) {
           errs.push(`${prefix} 请为${name}节点选择办理人为空时的审批管理员`);
         }
+      }
+    } else if (type == NODE.SERVICE_TASK) {
+      const { serviceTaskHandlers } = flowNode as FlowOperateNode;
+      if (!(isArray(serviceTaskHandlers) && serviceTaskHandlers.length > 0)) {
+        errs.push(`${prefix} 请为${name}节点选择处理器`);
       }
     }
 

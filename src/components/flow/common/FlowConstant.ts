@@ -9,6 +9,7 @@ export const NODE = {
   EXCLUSIVE_GATEWANY: 4, // 排他网关
   TRANSACT: 5, // 办理
   TRIGGER: 6, // 触发器
+  SERVICE_TASK: 7, // 服务任务
   END: 9, // 结束
 };
 
@@ -59,6 +60,7 @@ export const CMD = {
   COMMENT: 14, // 评论
   TRANSACT: 15, // 办理
   TRANSFER: 16, // 转办
+  SERVICE_TASK: 19, // 服务任务
 };
 
 // 流程状态
@@ -103,5 +105,6 @@ export const NODE_COLOR = {
   APPROVE: "#ff943e",
   COPY: "#3296fa",
   TRANSACT: "#926bd5",
+  SERVICE_TASK: "#14c9c9",
   END: "#a9b4cd",
 };

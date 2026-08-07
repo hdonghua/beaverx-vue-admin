@@ -27,6 +27,10 @@
               <div class="node-icon"><span class="iconfont-approval-admin" v-html="icons[NODE.EXCLUSIVE_GATEWANY].icon"></span></div>
               <div class="node-text">条件分支</div>
             </div>
+            <div class="add-node-popover-item service-task" @click="onNodeAddClicked(NODE.SERVICE_TASK)">
+              <div class="node-icon"><icon-code /></div>
+              <div class="node-text">服务任务</div>
+            </div>
           </div>
         </template>
         <button class="btn" type="button"><icon-plus /></button>
@@ -37,7 +41,7 @@
 
 <script setup>
 import { useFlowStore } from "@/store/index";
-import { IconPlus } from "@arco-design/web-vue/es/icon";
+import { IconCode, IconPlus } from "@arco-design/web-vue/es/icon";
 import { computed, reactive, ref, toRaw } from "vue";
 import { NODE } from "./common/FlowConstant";
 import { filterConditionWidgets, initNodeFormAuth } from "./common/FormAuth";
@@ -119,6 +123,13 @@ const onNodeAddClicked = (type) => {
         childNode: props.childNodeP,
       };
       setFormAuth(newNode); // 设置节点的表单权限
+    } else if (type == NODE.SERVICE_TASK) {
+      newNode = {
+        name: "服务任务",
+        type: NODE.SERVICE_TASK,
+        serviceTaskHandlers: [],
+        childNode: props.childNodeP,
+      };
     }
     emits("update:childNodeP", newNode);
   } else {
@@ -277,6 +288,14 @@ const onNodeAddClicked = (type) => {
     .transactor {
       .iconfont-approval-admin {
         color: #926bd5;
+      }
+    }
+
+    .service-task {
+      .node-icon {
+        color: #fff;
+        background-color: #14c9c9;
+        font-size: 25px;
       }
     }
   }

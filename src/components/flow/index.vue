@@ -32,6 +32,7 @@
     <CopyerDrawer></CopyerDrawer>
     <ConditionDrawer></ConditionDrawer>
     <TransactDrawer></TransactDrawer>
+    <ServiceTaskDrawer></ServiceTaskDrawer>
   </div>
 </template>
 
@@ -41,6 +42,7 @@ import ConditionDrawer from "@/components/flow/drawer/ConditionDrawer.vue";
 import CopyerDrawer from "@/components/flow/drawer/CopyerDrawer.vue";
 import PromoterDrawer from "@/components/flow/drawer/PromoterDrawer.vue";
 import TransactDrawer from "@/components/flow/drawer/TransactDrawer.vue";
+import ServiceTaskDrawer from "@/components/flow/drawer/ServiceTaskDrawer.vue";
 import { useFlowStore } from "@/store/index";
 import { IconMinus, IconPlus } from "@arco-design/web-vue/es/icon";
 import { onMounted, ref, watch } from "vue";

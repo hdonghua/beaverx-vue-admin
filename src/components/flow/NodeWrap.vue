@@ -1,6 +1,6 @@
 <template>
   <!-- 非网关节点 -->
-  <div class="node-wrap" v-if="[NODE.START, NODE.APPROVE, NODE.COPY, NODE.TRANSACT].includes(nodeConfig.type)">
+  <div class="node-wrap" v-if="[NODE.START, NODE.APPROVE, NODE.COPY, NODE.TRANSACT, NODE.SERVICE_TASK].includes(nodeConfig.type)">
     <div class="node-wrap-box" :class="{ 'start-node': nodeConfig.type == NODE.START }">
       <div class="title" :style="{ background: nodeBgColor }">
         <!-- 开始节点 -->
@@ -32,7 +32,7 @@
           <span class="text">{{ nodeDefaultName }}：{{ showNodeContent }}</span>
         </a-tooltip>
         <!-- 审核人、抄送人、办理人节点 -->
-        <template v-else-if="[NODE.APPROVE, NODE.COPY, NODE.TRANSACT].includes(nodeConfig.type)">
+        <template v-else-if="[NODE.APPROVE, NODE.COPY, NODE.TRANSACT, NODE.SERVICE_TASK].includes(nodeConfig.type)">
           <span class="placeholder" v-if="!showNodeContent">请选择{{ nodeDefaultName }}</span>
           <a-tooltip v-else mini :content="showNodeContent" content-class="node-content-tooltip">
             <span class="text">{{ nodeDefaultName }}：{{ showNodeContent }} </span>
@@ -149,17 +149,20 @@ let {
   showCopyerDrawer,
   showConditionDrawer,
   showTransactorDrawer,
+  showServiceTaskDrawer,
   setPromoterConfig,
   setApproverConfig,
   setCopyerConfig,
   setConditionsConfig,
   setTransactorConfig,
+  setServiceTaskConfig,
 } = flowStore;
 let promoterConfig0 = computed(() => flowStore.promoterConfig0);
 let approverConfig0 = computed(() => flowStore.approverConfig0);
 let copyerConfig0 = computed(() => flowStore.copyerConfig0);
 let conditionsConfig0 = computed(() => flowStore.conditionsConfig0);
 let transactorConfig0 = computed(() => flowStore.transactorConfig0);
+let serviceTaskConfig0 = computed(() => flowStore.serviceTaskConfig0);
 
 // 节点基本信息
 let nodeSettings = reactive({
@@ -167,6 +170,7 @@ let nodeSettings = reactive({
   [NODE.APPROVE]: { placeholder: "审批人", bgColor: NODE_COLOR.APPROVE },
   [NODE.COPY]: { placeholder: "抄送人", bgColor: NODE_COLOR.COPY },
   [NODE.TRANSACT]: { placeholder: "办理人", bgColor: NODE_COLOR.TRANSACT },
+  [NODE.SERVICE_TASK]: { placeholder: "处理器", bgColor: NODE_COLOR.SERVICE_TASK },
 });
 let nodeDefaultName = computed(() => nodeSettings[props.nodeConfig.type].placeholder);
 let nodeBgColor = computed(() => nodeSettings[props.nodeConfig.type].bgColor);
@@ -253,6 +257,9 @@ let showNodeContent = computed(() => {
         }
       })
       .join(", ");
+  } else if (nodeType == NODE.SERVICE_TASK) {
+    const count = props.nodeConfig.serviceTaskHandlers?.length || 0;
+    return count > 0 ? `${count} 个处理器` : null;
   }
   return null;
 });
@@ -284,6 +291,11 @@ watch(approverConfig0, (approver) => {
 watch(transactorConfig0, (transactor) => {
   if (transactor.flag && transactor.id === _uid) {
     emits("update:nodeConfig", transactor.value);
+  }
+});
+watch(serviceTaskConfig0, (serviceTask) => {
+  if (serviceTask.flag && serviceTask.id === _uid) {
+    emits("update:nodeConfig", serviceTask.value);
   }
 });
 watch(copyerConfig0, (copyer) => {
@@ -401,6 +413,13 @@ const onNodeCardClick = (priorityLevel) => {
     // 办理人
     showTransactorDrawer(true);
     setTransactorConfig({
+      value: JSON.parse(JSON.stringify(props.nodeConfig)),
+      flag: false,
+      id: _uid,
+    });
+  } else if (type == NODE.SERVICE_TASK) {
+    showServiceTaskDrawer(true);
+    setServiceTaskConfig({
       value: JSON.parse(JSON.stringify(props.nodeConfig)),
       flag: false,
       id: _uid,

@@ -443,6 +443,13 @@
                   </div>
                 </div>
               </div>
+              <!-- 服务任务节点 -->
+              <div class="node-box" v-else-if="node.nodeType == NODE.SERVICE_TASK">
+                <div class="node-name">
+                  {{ node.name }}
+                  <div class="node-type">自动执行</div>
+                </div>
+              </div>
               <!-- 结束节点 -->
               <div class="node-box" v-else-if="node.nodeType == NODE.END">
                 <div class="node-name">{{ node.name }}</div>
@@ -538,6 +545,7 @@
   flowTimeLineDotColors[NODE.APPROVE] = { color: NODE_COLOR.APPROVE };
   flowTimeLineDotColors[NODE.COPY] = { color: NODE_COLOR.COPY };
   flowTimeLineDotColors[NODE.TRANSACT] = { color: NODE_COLOR.TRANSACT };
+  flowTimeLineDotColors[NODE.SERVICE_TASK] = { color: NODE_COLOR.SERVICE_TASK };
   flowTimeLineDotColors[NODE.END] = { color: NODE_COLOR.END };
 
   watch(

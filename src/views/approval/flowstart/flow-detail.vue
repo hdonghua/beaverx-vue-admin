@@ -147,6 +147,10 @@
                       /></a-avatar>
                       <div class="badge"><svg-icon icon-class="reject" /></div>
                     </template>
+                    <template v-else-if="node.flowCmd == CMD.SERVICE_TASK">
+                      <a-avatar :size="36" style="background: #14c9c9"><icon-robot /></a-avatar>
+                      <div class="badge"><svg-icon icon-class="approval" /></div>
+                    </template>
                     <template v-else>
                       <flow-node-avatar
                         :size="36"
@@ -207,6 +211,9 @@
                       >
                       <template v-else-if="node.flowCmd == CMD.TRANSFER"
                         >转办</template
+                      >
+                      <template v-else-if="node.flowCmd == CMD.SERVICE_TASK"
+                        >自动处理</template
                       >
                       <template v-else-if="node.underway">
                         <div class="in-approval">
@@ -269,7 +276,10 @@
                         </div>
                       </template>
                       <template v-else>
-                        <template v-if="node.flowCmd == CMD.COPY">
+                        <template v-if="node.flowCmd == CMD.SERVICE_TASK">
+                          <div class="node-sign-assignee">{{ node.comment }}</div>
+                        </template>
+                        <template v-else-if="node.flowCmd == CMD.COPY">
                           <!-- <div class="node-sign-assignee">抄送{{ node.userIds.length }}人</div> -->
                           <div
                             v-if="node.flowCmd == CMD.COPY"
@@ -403,6 +413,9 @@
                         ><svg-icon icon-class="copy" color="#fff"
                       /></a-avatar>
                     </template>
+                    <template v-else-if="node.nodeType == NODE.SERVICE_TASK">
+                      <a-avatar :size="36" style="background: #14c9c9"><icon-robot :size="24" /></a-avatar>
+                    </template>
                     <div class="badge"
                       ><svg-icon icon-class="underway" color="#2a5eff"
                     /></div>
@@ -420,6 +433,9 @@
                         >
                         <template v-else-if="node.nodeType == NODE.COPY"
                           >待抄送</template
+                        >
+                        <template v-else-if="node.nodeType == NODE.SERVICE_TASK"
+                          >待自动处理</template
                         >
                       </div>
                       <template v-if="!!node.name">
