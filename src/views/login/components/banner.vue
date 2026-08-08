@@ -4,7 +4,7 @@
       class="carousel"
       animation-name="fade"
       indicator-type="dot"
-      show-arrow="always"
+      show-arrow="never"
       :auto-play="true"
       :move-speed="600"
     >
@@ -83,32 +83,6 @@
       width: 22px;
       border-radius: 999px;
       background: rgb(var(--primary-6));
-    }
-
-    :deep(.arco-carousel-arrow) {
-      z-index: 3;
-    }
-
-    :deep(.arco-carousel-arrow > div) {
-      width: 40px;
-      height: 40px;
-      color: #fff;
-      background: rgb(var(--primary-6));
-      box-shadow: 0 8px 20px rgba(22, 93, 255, 0.28);
-      opacity: 0.92;
-
-      &:hover {
-        opacity: 1;
-        background: rgb(var(--primary-5));
-      }
-    }
-
-    :deep(.arco-carousel-arrow-left) {
-      left: 8px;
-    }
-
-    :deep(.arco-carousel-arrow-right) {
-      right: 8px;
     }
   }
 
