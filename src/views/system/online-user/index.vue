@@ -3,7 +3,7 @@
     <a-card class="general-card">
       <div class="online-user-summary">
         <a-statistic title="在线用户数" :value="list.length" />
-        <a-statistic title="连接数" :value="totalConnections" />
+        <a-statistic title="在线设备数" :value="totalConnections" />
         <a-button type="outline" @click="loadData">
           <template #icon><icon-refresh /></template>
           刷新
@@ -93,7 +93,7 @@
       width: 160,
     },
     {
-      title: '连接数',
+      title: '设备数',
       dataIndex: 'connectionCount',
       width: 120,
     },
