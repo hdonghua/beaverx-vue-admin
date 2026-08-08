@@ -1,7 +1,6 @@
 <template>
   <PageContainer>
     <QueryTable
-      title="菜单列表"
       row-key="id"
       :loading="loading"
       :columns="columns"
