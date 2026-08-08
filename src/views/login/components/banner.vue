@@ -5,7 +5,7 @@
       animation-name="fade"
       indicator-type="dot"
       show-arrow="never"
-      :auto-play="true"
+      :auto-play="{ interval: 2000 }"
       :move-speed="600"
     >
       <a-carousel-item v-for="item in carouselItem" :key="item.slogan">
