@@ -98,7 +98,7 @@ const zoomSize = (type) => {
 
 <style lang="less">
 // @canvas-bg: #f5f5f7;
-@canvas-bg: #f2f3f5;
+@canvas-bg: var(--color-fill-2);
 
 .flow-desgin {
   height: 100%;
@@ -130,14 +130,14 @@ const zoomSize = (type) => {
     .zoom-out {
       width: 30px;
       height: 30px;
-      background: #fff;
+      background: var(--color-bg-2);
       color: #c1c1cd;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 15px;
-      color: #111;
+      color: var(--color-text-1);
       border-radius: 50%;
       transition: all 0.5s ease;
 

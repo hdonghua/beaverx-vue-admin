@@ -305,7 +305,7 @@ onBeforeMount(() => {
     }
 
     .empty-box {
-      background-color: #fff;
+      background-color: var(--color-bg-2);
       padding: 0 16px;
       padding-top: 20%;
     }
@@ -323,7 +323,7 @@ onBeforeMount(() => {
 
       .flow-item {
         border-radius: 4px;
-        border: 1px solid #e9ebef;
+        border: 1px solid var(--color-border-2);
         display: flex;
         overflow: hidden;
         flex-shrink: 0;
@@ -332,7 +332,7 @@ onBeforeMount(() => {
         .checkbox {
           width: 8px;
           height: 100%;
-          background-color: #e9ebef;
+          background-color: var(--color-fill-3);
         }
 
         .flow-card-box {

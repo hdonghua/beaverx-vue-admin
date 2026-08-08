@@ -439,7 +439,7 @@ const onClose = () => {
             margin: 4px 4px 0 0;
 
             &:hover {
-              background-color: #fff;
+              background-color: var(--color-bg-2);
             }
           }
         }

@@ -231,7 +231,7 @@
     justify-content: space-between;
     padding: 0 16px;
     box-sizing: border-box;
-    background: #fff;
+    background: var(--color-bg-2);
     user-select: none;
 
     .fd-nav-left {

@@ -353,7 +353,7 @@ onMounted(() => {
     gap: 16px;
 
     .label {
-      color: #9ba5b3;
+      color: var(--color-text-3);
       width: @FormLabelWidth;
       overflow: hidden;
       white-space: nowrap;
@@ -364,7 +364,7 @@ onMounted(() => {
     }
 
     .value {
-      color: #1d2129;
+      color: var(--color-text-1);
       display: flex;
       align-items: flex-start;
       width: calc(100% - @FormLabelWidth - 16px);
@@ -441,7 +441,7 @@ onMounted(() => {
     gap: 8px;
 
     .attachment-list {
-      background-color: #f7f8fa;
+      background-color: var(--color-fill-2);
       display: flex;
       align-items: center;
       cursor: pointer;
@@ -453,12 +453,12 @@ onMounted(() => {
 
   .form-detail {
     margin-top: 8px;
-    border: 1px dashed #e1e1e1;
+    border: 1px dashed var(--color-border-2);
     border-radius: var(--border-radius-small);
 
     .detail-title {
       color: var(--color-text-3);
-      background-color: #f9fafa;
+      background-color: var(--color-fill-1);
       padding: 2px;
     }
 

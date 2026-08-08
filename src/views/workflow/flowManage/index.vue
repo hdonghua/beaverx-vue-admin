@@ -352,7 +352,7 @@
       border-radius: @BorderRadius;
       height: @SearchHeight;
       padding: 0 @Gap;
-      background: #fff;
+      background: var(--color-bg-2);
       display: flex;
       align-items: center;
 
@@ -370,21 +370,21 @@
       .empty-flow-box {
         border-radius: @BorderRadius;
         padding: 48px;
-        background-color: #fff;
+        background-color: var(--color-bg-2);
         border: 0;
       }
 
       .group-item-box {
         border-radius: @BorderRadius;
         // box-shadow: 0 0 3px 1px #eee;
-        background-color: #fff;
+        background-color: var(--color-bg-2);
         overflow: hidden;
         margin-bottom: @LayoutGap;
 
         .group-header {
           height: 48px;
           color: var(--color-text-2);
-          background-color: #fafafa;
+          background-color: var(--color-fill-1);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -423,7 +423,7 @@
                   text-overflow: ellipsis;
                   overflow: hidden;
                   white-space: nowrap;
-                  color: #8f959e;
+                  color: var(--color-text-3);
                   font-weight: 400;
                 }
               }

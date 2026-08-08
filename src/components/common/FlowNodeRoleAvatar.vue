@@ -43,7 +43,7 @@ let NameStyle = computed(() => {
 
 <style lang="less" scoped>
 .avatar {
-  background: #f2f4f5;
+  background: var(--color-fill-2);
   display: flex;
   align-items: center;
 

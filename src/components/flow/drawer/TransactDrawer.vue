@@ -407,7 +407,7 @@ onMounted(() => {});
 
           .header {
             padding: 0 16px;
-            background: #f5f6f7;
+            background: var(--color-fill-2);
             height: 36px;
             line-height: 36px;
             display: flex;

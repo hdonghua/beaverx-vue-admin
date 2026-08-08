@@ -186,9 +186,9 @@ const handleClose = () => {
         align-items: center;
         justify-content: center;
         padding: 0 6px;
-        color: #1f2329;
-        border: 1px solid #e1e1e1;
-        background-color: #fff;
+        color: var(--color-text-1);
+        border: 1px solid var(--color-border-2);
+        background-color: var(--color-bg-2);
         border-radius: 4px;
         user-select: none;
         font-size: 14px;

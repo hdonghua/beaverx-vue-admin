@@ -309,12 +309,12 @@ onBeforeMount(() => {
   // border: 1px solid #e5e6ec;
 
   .form-detail-val-item {
-    border: 1px solid #e5e6ec;
+    border: 1px solid var(--color-border-2);
     border-radius: 4px;
     overflow: hidden;
 
     .detail-item-title {
-      background-color: #f2f3f5;
+      background-color: var(--color-fill-2);
       padding: 4px 8px;
       color: var(--color-text-3);
       margin-bottom: 8px;
@@ -389,7 +389,7 @@ onBeforeMount(() => {
       }
 
       .amount-name {
-        color: #4e5969;
+        color: var(--color-text-2);
       }
 
       .amout-total {
@@ -397,13 +397,13 @@ onBeforeMount(() => {
         align-items: center;
 
         .money {
-          color: #1d2129;
+          color: var(--color-text-1);
           font-weight: bold;
           font-size: 16px;
         }
 
         .unit {
-          color: #1d2129;
+          color: var(--color-text-1);
           margin-left: 10px;
         }
       }

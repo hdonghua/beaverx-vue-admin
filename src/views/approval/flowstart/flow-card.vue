@@ -95,7 +95,8 @@ const onDetailClose = () => {
   user-select: none;
   border-radius: @BorderRadius;
   overflow: hidden;
-  border: 1px solid #e9ebef;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
   padding: 10px 12px;
   cursor: pointer;
   transition: box-shadow 0.2s cubic-bezier(0, 0, 1, 1);
@@ -109,6 +110,7 @@ const onDetailClose = () => {
 
     .name {
       font-size: 15px;
+      color: var(--color-text-1);
     }
   }
 
@@ -123,7 +125,7 @@ const onDetailClose = () => {
       min-width: 0;
 
       .label {
-        color: #9ba5b3;
+        color: var(--color-text-3);
         // width: @FlowCardFieldLabelWidth;
         overflow: hidden;
         white-space: nowrap;
@@ -131,7 +133,7 @@ const onDetailClose = () => {
       }
 
       .value {
-        color: #232730;
+        color: var(--color-text-1);
         flex: 1;
         min-width: 0;
         overflow: hidden;
