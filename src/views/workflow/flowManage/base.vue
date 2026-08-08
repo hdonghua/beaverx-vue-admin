@@ -308,7 +308,7 @@
     height: 100%;
 
     .base-setting-panel {
-      background-color: var(--color-bg-2);
+      background-color: #fff;
       width: 600px;
       border-radius: var(--border-radius-large);
       display: flex;

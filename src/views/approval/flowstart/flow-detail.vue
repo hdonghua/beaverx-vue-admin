@@ -1317,20 +1317,20 @@
     justify-content: center;
     gap: 2px;
     &:hover {
-      background-color: var(--color-fill-2);
+      background-color: #f2f3f5;
     }
   }
 
   .flow-header-box {
     font-weight: 400;
     font-size: 13px;
-    border-bottom: 1px solid var(--color-border-2);
+    border-bottom: 1px solid #e5e6ec;
     padding: 0 @GapLarge;
     height: calc(@DetailHeaderHeight - 1px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: var(--color-text-3);
+    color: #86909c;
 
     .action-area {
       display: flex;
@@ -1343,7 +1343,7 @@
         width: fit-content;
         height: fit-content;
         &:hover {
-          background-color: var(--color-fill-2);
+          background-color: #f2f3f5;
         }
       }
     }
@@ -1368,7 +1368,7 @@
         .title {
           font-size: 24px;
           font-family: PingFangSC-Semibold, PingFang SC;
-          color: var(--color-text-1);
+          color: #1d2129;
         }
 
         .status {
@@ -1384,7 +1384,7 @@
         .begin-time {
           margin-left: 20px;
           font-weight: 350;
-          color: var(--color-text-3);
+          color: #86909c;
           font-size: 13px;
           user-select: none;
         }
@@ -1415,8 +1415,8 @@
           bottom: @BadgeOffset;
           right: @BadgeOffset;
           z-index: 999;
-          border: 2px solid var(--color-bg-2);
-          background-color: var(--color-bg-2);
+          border: 2px solid #fff;
+          background-color: #fff;
           border-radius: 50%;
           overflow: hidden;
         }
@@ -1434,7 +1434,7 @@
 
         .node-name {
           font-weight: 400;
-          color: var(--color-text-3);
+          color: #86909c;
           display: flex;
           align-items: baseline;
           // gap: 8px;
@@ -1458,7 +1458,7 @@
           .node-sign-type,
           .node-sign-assignee {
             font-weight: 400;
-            color: var(--color-text-3);
+            color: #86909c;
             font-size: 12px;
 
             .node-sign-assignee-name {
@@ -1475,7 +1475,7 @@
           }
 
           .assignee-name {
-            color: var(--color-text-1);
+            color: #1d2129;
           }
         }
 
@@ -1485,7 +1485,7 @@
           border-radius: 4px;
           img {
             height: 100px;
-            border: 1px solid var(--color-border-2);
+            border: 1px solid #f8f8fa;
             border-radius: 4px;
           }
         }
@@ -1497,18 +1497,18 @@
           // min-height: 38px;
           padding: 6px 10px;
           // background: #f2f4f5;
-          background-color: var(--color-fill-2);
+          background-color: #f8f8fa;
           width: fit-content;
 
           .commnet-title {
             font-weight: 400;
-            color: var(--color-text-3);
+            color: #a6aab1;
             font-size: 13px;
           }
 
           .comment-content {
             font-weight: 500;
-            color: var(--color-text-1);
+            color: #1d2129;
           }
 
           .comment-attachment {

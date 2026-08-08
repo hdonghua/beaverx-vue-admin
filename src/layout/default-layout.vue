@@ -1,7 +1,7 @@
 <template>
   <a-layout class="layout" :class="{ mobile: appStore.hideMenu }">
-    <div v-if="navbar" class="layout-navbar">
-      <NavBar />
+    <div v-if="navbar" class="layout-navbar" :style="navbarStyle">
+      <NavBar :show-brand="!sideMenuVisible" />
     </div>
     <a-layout>
       <a-layout>
@@ -9,14 +9,15 @@
           v-if="renderMenu"
           v-show="!hideMenu"
           class="layout-sider"
+          :class="{ 'layout-sider-dark': menuDark }"
           breakpoint="xl"
           :collapsed="collapsed"
           :collapsible="true"
           :width="menuWidth"
-          :style="{ paddingTop: navbar ? '60px' : '' }"
           :hide-trigger="true"
           @collapse="setCollapsed"
         >
+          <MenuBrand :dark="menuDark" :collapsed="collapsed" />
           <div class="menu-wrapper">
             <Menu />
           </div>
@@ -28,6 +29,11 @@
           :footer="false"
           mask-closable
           :closable="false"
+          :drawer-style="
+            menuDark
+              ? { backgroundColor: 'var(--color-menu-dark-bg)' }
+              : undefined
+          "
           @cancel="drawerCancel"
         >
           <Menu />
@@ -51,6 +57,7 @@
   import { useAppStore, useUserStore } from '@/store';
   import NavBar from '@/components/navbar/index.vue';
   import Menu from '@/components/menu/index.vue';
+  import MenuBrand from '@/components/menu-brand/index.vue';
   import Footer from '@/components/footer/index.vue';
   import TabBar from '@/components/tab-bar/index.vue';
   import usePermission from '@/hooks/permission';
@@ -69,18 +76,32 @@
   const navbar = computed(() => appStore.navbar);
   const renderMenu = computed(() => appStore.menu && !appStore.topMenu);
   const hideMenu = computed(() => appStore.hideMenu);
+  const sideMenuVisible = computed(
+    () => renderMenu.value && !hideMenu.value
+  );
   const footer = computed(() => appStore.footer);
+  const menuDark = computed(
+    () => appStore.menuDark || appStore.theme === 'dark'
+  );
   const menuWidth = computed(() => {
     return appStore.menuCollapse ? 48 : appStore.menuWidth;
   });
   const collapsed = computed(() => {
     return appStore.menuCollapse;
   });
+  const navbarStyle = computed(() => {
+    if (!sideMenuVisible.value) {
+      return undefined;
+    }
+    return {
+      left: `${menuWidth.value}px`,
+      width: `calc(100% - ${menuWidth.value}px)`,
+    };
+  });
   const paddingStyle = computed(() => {
-    const paddingLeft =
-      renderMenu.value && !hideMenu.value
-        ? { paddingLeft: `${menuWidth.value}px` }
-        : {};
+    const paddingLeft = sideMenuVisible.value
+      ? { paddingLeft: `${menuWidth.value}px` }
+      : {};
     const paddingTop = navbar.value ? { paddingTop: navbarHeight } : {};
     return { ...paddingLeft, ...paddingTop };
   });
@@ -123,13 +144,15 @@
     z-index: 100;
     width: 100%;
     height: @nav-size-height;
+    transition: left 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+      width 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
   }
 
   .layout-sider {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 99;
+    z-index: 101;
     height: 100%;
     transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     &::after {
@@ -144,12 +167,36 @@
     }
 
     > :deep(.arco-layout-sider-children) {
-      overflow-y: hidden;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    &.layout-sider-dark {
+      background-color: var(--color-menu-dark-bg);
+      box-shadow: none !important;
+      border: none !important;
+
+      &::after {
+        display: none;
+      }
+
+      :deep(.arco-layout-sider),
+      :deep(.arco-layout-sider-children),
+      :deep(.arco-menu),
+      :deep(.arco-menu-inner),
+      :deep(.arco-menu-pop-header),
+      :deep(.menu-wrapper) {
+        background-color: var(--color-menu-dark-bg);
+        box-shadow: none;
+        border: none;
+      }
     }
   }
 
   .menu-wrapper {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     overflow: auto;
     overflow-x: hidden;
     :deep(.arco-menu) {

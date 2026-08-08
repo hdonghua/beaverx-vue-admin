@@ -26,6 +26,9 @@
       });
 
       const topMenu = computed(() => appStore.topMenu);
+      const menuTheme = computed(() =>
+        appStore.theme === 'dark' || appStore.menuDark ? 'dark' : 'light'
+      );
       const openKeys = ref<string[]>([]);
       const selectedKey = ref<string[]>([]);
 
@@ -149,6 +152,7 @@
       return () => (
         <a-menu
           mode={topMenu.value ? 'horizontal' : 'vertical'}
+          theme={menuTheme.value}
           v-model:collapsed={collapsed.value}
           v-model:open-keys={openKeys.value}
           show-collapse-button={appStore.device !== 'mobile'}

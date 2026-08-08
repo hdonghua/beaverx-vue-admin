@@ -1,6 +1,6 @@
 <template>
-  <div class="navbar">
-    <div class="left-side">
+  <div class="navbar" :class="{ 'navbar-dark': navbarDark }">
+    <div v-if="showBrand" class="left-side">
       <a-space>
         <img
           alt="logo"
@@ -20,6 +20,13 @@
         />
       </a-space>
     </div>
+    <div v-else class="left-side left-side-compact">
+      <icon-menu-fold
+        v-if="!topMenu && appStore.device === 'mobile'"
+        style="font-size: 22px; cursor: pointer"
+        @click="toggleDrawerMenu"
+      />
+    </div>
     <div class="center-side">
       <Menu v-if="topMenu" />
     </div>
@@ -38,27 +45,6 @@
           </a-button>
         </a-tooltip>
         <MenuSearch v-model:visible="menuSearchVisible" />
-      </li>
-      <li>
-        <a-tooltip
-          :content="
-            theme === 'light'
-              ? '点击切换为暗黑模式'
-              : '点击切换为亮色模式'
-          "
-        >
-          <a-button
-            class="nav-btn"
-            type="outline"
-            :shape="'circle'"
-            @click="handleToggleTheme"
-          >
-            <template #icon>
-              <icon-moon-fill v-if="theme === 'dark'" />
-              <icon-sun-fill v-else />
-            </template>
-          </a-button>
-        </a-tooltip>
       </li>
       <li>
         <a-tooltip content="导出任务">
@@ -184,8 +170,8 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, inject, onMounted } from 'vue';
-  import { useDark, useToggle, useFullscreen } from '@vueuse/core';
+  import { computed, ref, inject } from 'vue';
+  import { useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
@@ -195,7 +181,16 @@
   import useMessageUnread from '@/hooks/message-unread';
   import useExportTasks from '@/hooks/export-tasks';
   import { resolveApiUrl } from '@/utils/asset-url';
-  import Logo from '@/assets/images/beaverx-admin-logo.png'
+  import Logo from '@/assets/images/beaverx-admin-logo.png';
+
+  withDefaults(
+    defineProps<{
+      showBrand?: boolean;
+    }>(),
+    {
+      showBrand: true,
+    }
+  );
 
   const appStore = useAppStore();
   const menuSearchVisible = ref(false);
@@ -215,26 +210,12 @@
     }
     return label.length <= 2 ? label : label.slice(0, 1);
   });
-  const theme = computed(() => {
-    return appStore.theme;
-  });
   const topMenu = computed(() => appStore.topMenu && appStore.menu);
-  const isDark = useDark({
-    selector: 'body',
-    attribute: 'arco-theme',
-    valueDark: 'dark',
-    valueLight: 'light',
-    onChanged(dark: boolean) {
-      appStore.toggleTheme(dark);
-    },
-  });
-  onMounted(() => {
-    isDark.value = appStore.theme === 'dark';
-  });
-  const toggleTheme = useToggle(isDark);
-  const handleToggleTheme = () => {
-    toggleTheme();
-  };
+  // 顶部菜单栏模式下，「深色侧边栏」作用于整条顶栏
+  const navbarDark = computed(
+    () =>
+      (topMenu.value && appStore.menuDark) || appStore.theme === 'dark'
+  );
   const setVisible = () => {
     appStore.updateSettings({ globalSettings: true });
   };
@@ -275,6 +256,44 @@
     border-bottom: 1px solid var(--color-border);
   }
 
+  .navbar-dark {
+    background-color: var(--color-menu-dark-bg);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+
+    .left-side {
+      :deep(.arco-typography) {
+        color: var(--color-fill-1) !important;
+      }
+
+      :deep(.arco-icon) {
+        color: var(--color-fill-1);
+      }
+    }
+
+    .center-side {
+      :deep(.arco-menu-horizontal) {
+        background-color: transparent;
+      }
+    }
+
+    .right-side {
+      a {
+        color: var(--color-fill-1);
+      }
+
+      .nav-btn {
+        border-color: rgba(255, 255, 255, 0.18);
+        color: var(--color-fill-1);
+        background: transparent;
+
+        &:hover {
+          border-color: rgba(255, 255, 255, 0.35);
+          background: rgba(255, 255, 255, 0.08);
+        }
+      }
+    }
+  }
+
   .left-side {
     display: flex;
     align-items: center;
@@ -286,6 +305,11 @@
       object-fit: contain;
       flex-shrink: 0;
     }
+  }
+
+  .left-side-compact {
+    padding-left: 16px;
+    min-width: 16px;
   }
 
   .center-side {

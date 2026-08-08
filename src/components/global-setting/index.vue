@@ -49,6 +49,11 @@
       key: 'colorWeak',
       defaultVal: appStore.colorWeak,
     },
+    {
+      name: '深色侧边栏',
+      key: 'menuDark',
+      defaultVal: appStore.menuDark,
+    },
   ]);
 
   const layoutOpts = computed(() => [

@@ -499,7 +499,7 @@
     box-sizing: border-box;
     margin: @Gap;
     padding: 0 @Gap;
-    background: var(--color-bg-2);
+    background: #fff;
     border-radius: @BorderRadius;
 
     .search-area {

@@ -463,7 +463,7 @@ onMounted(() => {
 @node-heigth: 78px;
 @node-border-radius: 8px;
 // @canvas-bg: #f5f5f7;
-@canvas-bg: var(--color-fill-2);
+@canvas-bg: #f2f3f5;
 
 .node-wrap,
 .branch-wrap {
@@ -478,9 +478,9 @@ onMounted(() => {
     padding-left: 4px;
     font-size: 12px;
     line-height: 18px;
-    color: var(--color-text-1);
-    background-color: var(--color-bg-2);
-    border: 1px solid var(--color-border-2);
+    color: rgba(0, 0, 0, 0.65);
+    background-color: #fff;
+    border: 1px solid #d9d9d9;
     border-radius: 4px;
     transition: all 0.3s;
 
@@ -563,7 +563,7 @@ onMounted(() => {
     position: relative;
     width: @node-width;
     min-height: @node-heigth;
-    background: var(--color-bg-2);
+    background: #fff;
     border-radius: @node-border-radius;
     cursor: pointer;
     display: flex;
@@ -636,7 +636,7 @@ onMounted(() => {
       }
 
       .placeholder {
-        color: var(--color-text-3);
+        color: #a1a5ad;
       }
     }
   }
@@ -735,7 +735,7 @@ onMounted(() => {
         position: relative;
         width: @node-width;
         min-height: @node-heigth;
-        background: var(--color-bg-2);
+        background: #fff;
         border-radius: @node-border-radius;
         cursor: pointer;
         display: flex;
@@ -761,7 +761,7 @@ onMounted(() => {
           justify-content: space-between;
           padding: 0 @node-padding;
           border-radius: @node-border-radius @node-border-radius 0 0;
-          border-bottom: 1px solid var(--color-border-1);
+          border-bottom: 1px solid #f6f6f7;
 
           &:hover {
             .editable-title {
@@ -783,7 +783,7 @@ onMounted(() => {
             padding: 0 2px;
 
             &:hover {
-              background: var(--color-fill-2);
+              background: #efefef;
             }
           }
 
@@ -807,17 +807,17 @@ onMounted(() => {
             }
 
             .placeholder {
-              color: var(--color-text-3);
+              color: #a1a5ad;
             }
           }
         }
       }
 
       .default-branch-node {
-        color: var(--color-text-2) !important;
+        color: #646a73 !important;
 
         .title-wrapper {
-          color: var(--color-text-2) !important;
+          color: #646a73 !important;
         }
       }
 
@@ -833,7 +833,7 @@ onMounted(() => {
         height: 30px;
         border-radius: 15px;
         color: #3296fa;
-        background: var(--color-bg-2);
+        background: #fff;
         cursor: pointer;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
         position: absolute;

@@ -47,7 +47,7 @@
 
 <style lang="less" scoped>
   .avatar {
-    background: var(--color-fill-2);
+    background: #f2f4f5;
     display: flex;
     align-items: center;
     width: fit-content;

@@ -252,7 +252,7 @@ onBeforeMount(() => {
 
         .header {
           padding: 0 16px;
-          background: var(--color-fill-2);
+          background: #f5f6f7;
           height: 36px;
           line-height: 36px;
           display: flex;

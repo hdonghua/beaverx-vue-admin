@@ -15,6 +15,7 @@ export interface UserPreferences {
   theme: string;
   themeColor: string;
   colorWeak: boolean;
+  menuDark: boolean;
   navbar: boolean;
   menu: boolean;
   topMenu: boolean;

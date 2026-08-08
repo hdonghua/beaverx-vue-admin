@@ -154,7 +154,7 @@
     .search-wrapper {
       border: 1px solid var(--preview-color-border);
       border-radius: @BorderRadius;
-      background: var(--color-bg-2);
+      background: #fff;
       padding: 0 @Gap;
       display: flex;
       align-items: center;
@@ -170,12 +170,12 @@
     .empty-flow-box {
       border-radius: @BorderRadius;
       padding: 48px;
-      background-color: var(--color-bg-2);
+      background-color: #fff;
       border: 0;
     }
 
     .flow-group-box {
-      background-color: var(--color-bg-2);
+      background-color: #fff;
       border-radius: @BorderRadius;
       overflow: hidden;
       border: 1px solid var(--preview-color-border);
@@ -226,7 +226,7 @@
               white-space: nowrap;
               text-overflow: ellipsis;
               line-height: 17px;
-              color: var(--color-text-3);
+              color: #8f959e;
               font-weight: 400;
             }
           }

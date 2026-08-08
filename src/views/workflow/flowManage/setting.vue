@@ -43,7 +43,7 @@ onMounted(() => {
   height: 100%;
 
   .setting-main-panel {
-    background-color: var(--color-bg-2);
+    background-color: #fff;
     width: 600px;
     border-radius: var(--border-radius-large);
     display: flex;
@@ -55,7 +55,7 @@ onMounted(() => {
 
     .setting-name {
       width: 94px;
-      color: var(--color-text-1);
+      color: #1f2329;
       font-size: 14px;
       font-weight: 550;
       line-height: 22px;

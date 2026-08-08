@@ -3,6 +3,7 @@ export const userPreferenceDefaults = {
   theme: 'light',
   themeColor: '#165DFF',
   colorWeak: false,
+  menuDark: false,
   navbar: true,
   menu: true,
   topMenu: false,
