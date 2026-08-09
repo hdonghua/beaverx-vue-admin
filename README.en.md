@@ -233,43 +233,6 @@ HTTP polling for export tasks and unread messages has been removed.
 - In-app navigation to login while logged in: stay on current page
 - Direct `/login` while logged in: redirect to home
 
-## Adding a Business Page (Standard Flow)
-
-Example: **Configuration Management**.
-
-### Step 1: Static Route
-
-Add a child route in `src/router/routes/modules/system.ts` with a clear `name` (e.g. `ConfigList`):
-
-```ts
-{
-  path: 'config',
-  name: 'ConfigList',
-  component: () => import('@/views/system/config/index.vue'),
-  meta: { locale: 'menu.system.configList', requiresAuth: true, roles: ['*'] },
-}
-```
-
-Set backend menu `component` to `system/config/index`; `path` is up to you. Parent layout routes are auto-allowed.
-
-### Step 2: API
-
-Wrap CRUD in `src/api/server/system/config.ts` (or the matching module); import `ApiResponse` from `@/utils/request`.
-
-### Step 3: Page
-
-Create `src/views/system/config/index.vue`; refer to `dict` or `user` list pages.
-
-### Step 4: Copy
-
-Use Chinese text directly in page templates or route `meta.title`.
-
-### Step 5: Backend
-
-Add menu in **Menu Management** (or `RbacDataSeeder`): `component` = `system/config/index`, custom `path`, permission codes. See [BeaverX.Admin README](https://github.com/hdonghua/BeaverX.Admin).
-
-> Day-to-day: add static route + view + API on the frontend; configure `component` / permissions on the backend and assign to roles—**no changes** to `server-menu.ts` required.
-
 ## Layout & Global Settings
 
 - App name, footer: `src/config/settings.json`
@@ -286,4 +249,4 @@ Add menu in **Menu Management** (or `RbacDataSeeder`): `component` = `system/con
 
 ## Related Repositories
 
-- Backend API: [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin) (branches: `master` / `master-mysql` / `sqlsugar` / `sqlsugar-mysql`; frontend is shared)
+- Backend API: [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)

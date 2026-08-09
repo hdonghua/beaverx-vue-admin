@@ -215,43 +215,6 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 实体主键为雪花 ID，后端 JSON 序列化为 `string`，前端使用 `EntityId`（`src/types/entity-id.ts`）。
 
-## 新增业务页面（标准流程）
-
-以「配置管理」为例，完整链路如下。
-
-### 步骤 1：静态路由
-
-`src/router/routes/modules/system.ts` 增加子路由，`name` 保持语义清晰（如 `ConfigList`）：
-
-```ts
-{
-  path: 'config',
-  name: 'ConfigList',
-  component: () => import('@/views/system/config/index.vue'),
-  meta: { locale: 'menu.system.configList', requiresAuth: true, roles: ['*'] },
-}
-```
-
-后端菜单 `component` 填 `system/config/index` 即可；`path` 可按需填写。父级 Layout 路由会自动放行。
-
-### 步骤 2：API
-
-在 `src/api/server/system/config.ts`（或对应模块目录下）封装 CRUD 接口，类型从 `@/utils/request` 引入 `ApiResponse`。
-
-### 步骤 3：页面
-
-`src/views/system/config/index.vue`，可参考 `dict`、`user` 列表页写法。
-
-### 步骤 4：文案
-
-在页面模板或路由 `meta.title` 中直接写中文标题。
-
-### 步骤 5：后端配合
-
-后端在 **菜单管理**（或 `RbacDataSeeder`）中新增菜单：`component` 填 `system/config/index`，`path` 自定，并配置权限码。详见 [BeaverX.Admin README](https://github.com/hdonghua/BeaverX.Admin)。
-
-> 日常加页面：前端补静态路由 + 视图 + API；后端在菜单管理配好 `component` / 权限并分配给角色即可，**不必改** `server-menu.ts`。
-
 ## 布局与全局配置
 
 - 系统名称、页脚：`src/config/settings.json`
