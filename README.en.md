@@ -13,6 +13,16 @@ Admin dashboard frontend based on [Arco Design Pro Vue](https://arco.design/vue/
 
 > **Demo notice**: Data is reset every **5 minutes**. Do not store important information or use this environment for production.
 
+## Implemented Features
+
+| Capability | Description |
+|------------|-------------|
+| **Realtime messaging** | SignalR for unread messages, export progress, online users, force logout; device fingerprint aggregates multi-tab presence |
+| **Async export** | Start export tasks and track progress/completion over realtime; download generated files |
+| **Full workflow** | Process / form design, launch & approve, transfer / add-sign / reduce-sign / rollback / urge / cancel, CC & print, and other approval pages |
+
+Also includes RBAC, dictionaries, system config, payment, tickets, scheduled jobs, component demos, and other admin pages.
+
 ## Screenshots
 
 The screenshots below are from the [live demo](https://beaverxadmin.com/), in sidebar order (original files in the repo `imgs/` folder).
@@ -84,31 +94,22 @@ Hangfire dashboard (`/hangfire`, separate credentials—see backend config):
 ## Requirements
 
 - Node.js >= 20.19.0 (required by Vite 8; Node 22 LTS recommended)
-- pnpm / npm / yarn
+- [pnpm](https://pnpm.io/) (recommended)
 - Backend API running locally (default `http://localhost:5216`)
 
-Backend [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin) uses Git branches for ORM / database. **This frontend needs no changes:**
-
-| Backend branch | ORM / Database | Notes |
-|----------------|----------------|-------|
-| `master` (default) | EF Core + PostgreSQL | |
-| `master-mysql` | EF Core + MySQL 8+ | |
-| `sqlsugar` | SqlSugar + PostgreSQL | Create empty DB first; tables sync on startup |
-| `sqlsugar-mysql` | SqlSugar + MySQL 8+ | Same; Hangfire needs `Allow User Variables=True` |
-
-For SQL Server / Oracle etc.: SqlSugar → change `DbType`; EF Core → implement drivers yourself (see backend README / docs).
+Backend: [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
 
 ## Quick Start
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Configure backend URL (see .env.development)
 # VITE_API_BASE_URL=http://localhost:5216
 
 # Start dev server (default http://localhost:5173)
-npm run dev
+pnpm dev
 ```
 
 Default account (from backend seed data): `admin` / `Admin@123`
@@ -117,10 +118,10 @@ Default account (from backend seed data): `admin` / `Admin@123`
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Development mode |
-| `npm run build` | Type check + production build |
-| `npm run preview` | Preview production build |
-| `npm run type:check` | TypeScript check only |
+| `pnpm dev` | Development mode |
+| `pnpm build` | Type check + production build |
+| `pnpm preview` | Preview production build |
+| `pnpm type:check` | TypeScript check only |
 
 ## Project Structure
 
@@ -186,21 +187,12 @@ Static routes in `router/routes/modules/` are mainly for **Home, component demos
 ### 3. API Calls
 
 - Base URL: `VITE_API_BASE_URL` in `.env.development`
-- Request layer: `src/utils/request/` (interceptors in `index.ts`; imported in `main.ts`)
+- Request layer: `src/utils/request/` (interceptors in `index.ts`; `import '@/utils/request'` in `main.ts`)
 - Requests include `Authorization: Bearer <token>`
 - Interceptor refreshes access token before expiry; 401 triggers refresh + retry
 - Business APIs: `src/api/server/<module>/`, return type `ApiResponse<T>`
 
-**Modules & imports:**
-
-| Module | Path | Import example |
-|--------|------|----------------|
-| Auth | `api/server/auth/` | `import { login } from '@/api/server/auth'` |
-| RBAC | `api/server/rbac/` | `import { queryUserPage } from '@/api/server/rbac/user'` |
-| System | `api/server/system/` | `import { queryConfigPage } from '@/api/server/system/config'` |
-| Message | `api/server/message/` | `import { getMessageList } from '@/api/server/message/message'` |
-| Payment | `api/server/payment/` | `import { queryPaymentOrderPage } from '@/api/server/payment/order'` |
-| Common | `api/server/common/` | `import { RealtimeEvents } from '@/api/server/common/realtime'` |
+**Import example:**
 
 ```ts
 import axios from 'axios';
@@ -290,7 +282,7 @@ Add menu in **Menu Management** (or `RbacDataSeeder`): `component` = `system/con
 | 401 / login loop | `VITE_API_BASE_URL`, backend CORS, token expiry |
 | Menu visible but 403 on page | Backend `component` matches `views/` path (e.g. `system/config/index`) |
 | 404 on refresh / deep link | `permission.ts` and `register-server-routes.ts` |
-| Build failure | Run `npm run type:check` first |
+| Build failure | Run `pnpm type:check` first |
 
 ## Related Repositories
 

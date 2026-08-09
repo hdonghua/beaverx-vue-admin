@@ -13,6 +13,29 @@
 
 > **演示环境说明**：系统每 **5 分钟** 会定时清理并覆盖数据，请勿保存重要信息或用于生产。
 
+## 实现功能
+
+| 能力 | 说明 |
+|------|------|
+| **实时消息** | SignalR 接收未读站内信、导出进度、在线用户、强制下线等推送；设备指纹聚合多标签在线态 |
+| **异步导出** | 发起导出任务后通过实时通道感知进度/完成，支持下载已生成文件 |
+| **完整工作流** | 流程 / 表单设计、发起与审批、转交 / 加签 / 减签 / 回退 / 催办 / 撤销、抄送与打印等审批页面 |
+
+另含 RBAC、字典、系统配置、支付、工单、定时任务、组件演示等管理后台页面。
+
+## 技术栈
+
+
+| 类别   | 技术                            |
+| ---- | ----------------------------- |
+| 框架   | Vue 3 + TypeScript            |
+| 构建   | Vite 8                        |
+| UI   | Arco Design Vue               |
+| 路由   | Vue Router 4                  |
+| 状态   | Pinia                         |
+| HTTP | Axios                         |
+| 实时   | SignalR（`@microsoft/signalr`） |
+
 ## 界面展示
 
 以下截图来自 [在线演示](https://beaverxadmin.com/)，顺序与系统侧边栏菜单一致（原图见仓库 `imgs/` 目录）。
@@ -69,61 +92,38 @@ Hangfire 调度面板（`/hangfire`，独立账号，见后端配置）：
 
 ![用户中心](imgs/用户中心.png)
 
-## 技术栈
-
-
-| 类别   | 技术                            |
-| ---- | ----------------------------- |
-| 框架   | Vue 3 + TypeScript            |
-| 构建   | Vite 8                        |
-| UI   | Arco Design Vue               |
-| 路由   | Vue Router 4                  |
-| 状态   | Pinia                         |
-| HTTP | Axios                         |
-| 实时   | SignalR（`@microsoft/signalr`） |
-
 
 ## 环境要求
 
 - Node.js >= 20.19.0（Vite 8 要求，推荐 22 LTS）
-- pnpm / npm / yarn 均可
+- [pnpm](https://pnpm.io/)（推荐）
 - 本地已启动后端 API（默认 `http://localhost:5216`）
 
-后端仓库 [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin) 按分支区分 ORM / 数据库，**本前端无需改动**：
-
-| 后端分支 | ORM / 数据库 | 说明 |
-|----------|--------------|------|
-| `master`（默认） | EF Core + PostgreSQL | |
-| `master-mysql` | EF Core + MySQL 8+ | |
-| `sqlsugar` | SqlSugar + PostgreSQL | 须**手动建空库**，表启动自动同步 |
-| `sqlsugar-mysql` | SqlSugar + MySQL 8+ | 同上；Hangfire 需 `Allow User Variables=True` |
-
-SQL Server / Oracle 等：SqlSugar 改 `DbType`；EF Core 需自行实现驱动（见后端 README / 文档「切换其它数据库」）。
+后端仓库：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
 
 ## 快速开始
 
 ```bash
 # 安装依赖
-npm install
+pnpm install
 
 # 配置后端地址（见 .env.development）
 # VITE_API_BASE_URL=http://localhost:5216
 
 # 启动开发服务（默认 http://localhost:5173）
-npm run dev
+pnpm dev
 ```
 
 默认账号（由后端种子数据提供）：`admin` / `Admin@123`
 
 ### 常用命令
 
-
-| 命令                   | 说明              |
-| -------------------- | --------------- |
-| `npm run dev`        | 开发模式            |
-| `npm run build`      | 类型检查 + 生产构建     |
-| `npm run preview`    | 预览生产构建          |
-| `npm run type:check` | 仅 TypeScript 检查 |
+| 命令 | 说明 |
+|------|------|
+| `pnpm dev` | 开发模式 |
+| `pnpm build` | 类型检查 + 生产构建 |
+| `pnpm preview` | 预览生产构建 |
+| `pnpm type:check` | 仅 TypeScript 检查 |
 
 
 ## 目录结构
@@ -197,16 +197,7 @@ beaverx-vue-admin/
 - Access Token 将过期时由拦截器调用 refresh；401 会尝试刷新后重试
 - 业务接口：`src/api/server/<模块>/`，返回类型为 `ApiResponse<T>`
 
-**目录与导入示例：**
-
-| 模块 | 路径 | 导入示例 |
-| ---- | ---- | -------- |
-| 认证 | `api/server/auth/` | `import { login } from '@/api/server/auth'` |
-| RBAC | `api/server/rbac/` | `import { queryUserPage } from '@/api/server/rbac/user'` |
-| 系统 | `api/server/system/` | `import { queryConfigPage } from '@/api/server/system/config'` |
-| 消息 | `api/server/message/` | `import { getMessageList } from '@/api/server/message/message'` |
-| 支付 | `api/server/payment/` | `import { queryPaymentOrderPage } from '@/api/server/payment/order'` |
-| 公共 | `api/server/common/` | `import { RealtimeEvents } from '@/api/server/common/realtime'` |
+**导入示例：**
 
 ```ts
 import axios from 'axios';
@@ -223,33 +214,6 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 ```
 
 实体主键为雪花 ID，后端 JSON 序列化为 `string`，前端使用 `EntityId`（`src/types/entity-id.ts`）。
-
-### 4. 实时通知（SignalR）
-
-登录后 `default-layout` 自动连接 `/hubs/notifications`，JWT 通过 `accessTokenFactory` 传递。
-
-
-| 文件                              | 职责                        |
-| ------------------------------- | ------------------------- |
-| `src/utils/realtime-hub.ts`     | 连接管理、`onRealtimeEvent` 订阅 |
-| `src/hooks/use-realtime-hub.ts` | 布局级连接生命周期                 |
-| `src/api/server/common/realtime.ts` | 事件名与 Payload 类型 |
-
-
-
-| 事件                       | 用途              |
-| ------------------------ | --------------- |
-| `export.task.changed`    | 顶栏导出角标、导出列表状态更新 |
-| `message.unread.changed` | 未读角标、消息列表刷新     |
-
-
-已移除导出任务与未读消息的 HTTP 轮询。
-
-### 5. 登录与跳转
-
-- 访问 `/`：已登录 → `/home`，未登录 → `/login`
-- 应用内已登录再点登录页：取消跳转，留在当前页
-- 地址栏直接打开 `/login` 且已登录：重定向到首页
 
 ## 新增业务页面（标准流程）
 
@@ -301,10 +265,10 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 | 接口 401 / 一直跳登录 | 检查 `VITE_API_BASE_URL`、后端 CORS、Token 是否过期        |
 | 有菜单但进页面 403    | 检查后端 `component` 是否与 `views/` 路径一致（如 `system/config/index`） |
 | 刷新外链/子路由 404   | 检查 `permission.ts` 与 `register-server-routes.ts` |
-| 构建失败           | 先执行 `npm run type:check` 定位 TS 错误                |
+| 构建失败           | 先执行 `pnpm type:check` 定位 TS 错误                |
 
 
 ## 相关仓库
 
-- 后端 API：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)（分支：`master` / `master-mysql` / `sqlsugar` / `sqlsugar-mysql`，前端通用）
+- 后端 API：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
 
