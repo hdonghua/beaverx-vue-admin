@@ -89,4 +89,9 @@ export const Permissions = {
       Process: 'ticket:work:process',
     },
   },
+  Oa: {
+    Approval: 'oa:approval:list',
+    WorkflowManage: 'oa:workflow:manage',
+    WorkflowData: 'oa:workflow:data',
+  },
 } as const;

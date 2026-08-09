@@ -1,86 +1,144 @@
 <template>
-  <div class="home-page">
-    <a-card class="welcome-card" :bordered="false">
-      <div class="welcome-content">
-        <div class="welcome-icon">
-          <icon-apps />
-        </div>
-        <a-typography-title :heading="3" class="welcome-title">
-          {{ welcomeTitle }}
-        </a-typography-title>
-        <a-typography-paragraph class="welcome-subtitle">
-          请从左侧菜单进入功能模块，或使用顶部搜索快速跳转
-        </a-typography-paragraph>
+  <div class="container">
+    <div class="left-side">
+      <div class="panel">
+        <Banner />
+        <DataPanel />
+        <WorkflowOverview />
       </div>
-    </a-card>
+      <a-grid :cols="24" :col-gap="16" :row-gap="16" style="margin-top: 16px">
+        <a-grid-item
+          :span="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12, xxl: 12 }"
+        >
+          <PendingApprovals />
+        </a-grid-item>
+        <a-grid-item
+          :span="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12, xxl: 12 }"
+        >
+          <TicketStatusChart />
+        </a-grid-item>
+      </a-grid>
+    </div>
+    <div class="right-side">
+      <a-grid :cols="24" :row-gap="16">
+        <a-grid-item class="panel" :span="24">
+          <OpenSource />
+        </a-grid-item>
+        <a-grid-item :span="24">
+          <div class="panel moduler-wrap">
+            <QuickOperation />
+          </div>
+        </a-grid-item>
+        <a-grid-item class="panel" :span="24">
+          <OnlineUsers />
+        </a-grid-item>
+        <a-grid-item class="panel" :span="24">
+          <RecentMessages />
+        </a-grid-item>
+      </a-grid>
+    </div>
   </div>
 </template>
 
+<script lang="ts" setup>
+  import Banner from './components/banner.vue';
+  import DataPanel from './components/data-panel.vue';
+  import WorkflowOverview from './components/workflow-overview.vue';
+  import PendingApprovals from './components/pending-approvals.vue';
+  import TicketStatusChart from './components/ticket-status-chart.vue';
+  import QuickOperation from './components/quick-operation.vue';
+  import OnlineUsers from './components/online-users.vue';
+  import RecentMessages from './components/recent-messages.vue';
+  import OpenSource from './components/open-source.vue';
+</script>
+
 <script lang="ts">
   export default {
-    name: 'HomePage',
+    name: 'Home',
   };
 </script>
 
-<script lang="ts" setup>
-  import { computed } from 'vue';
-  import { useAppStore } from '@/store';
-
-    const appStore = useAppStore();
-
-  const welcomeTitle = computed(
-    () => `欢迎使用${appStore.systemName}`
-  );
-</script>
-
-<style scoped lang="less">
-  .home-page {
-    height: 100%;
-    box-sizing: border-box;
-    padding: 16px;
+<style lang="less" scoped>
+  .container {
+    background-color: var(--color-fill-2);
+    padding: 16px 20px;
+    padding-bottom: 0;
+    display: flex;
   }
 
-  .welcome-card {
-    height: 100%;
-    border-radius: 8px;
+  .left-side {
+    flex: 1;
+    overflow: auto;
+  }
 
-    :deep(.arco-card-body) {
-      height: 100%;
-      box-sizing: border-box;
+  .right-side {
+    width: 280px;
+    margin-left: 16px;
+  }
+
+  .panel {
+    background-color: var(--color-bg-2);
+    border-radius: 4px;
+    overflow: auto;
+  }
+  :deep(.panel-border) {
+    margin-bottom: 0;
+    border-bottom: 1px solid rgb(var(--gray-2));
+  }
+  .moduler-wrap {
+    border-radius: 4px;
+    background-color: var(--color-bg-2);
+    :deep(.text) {
+      font-size: 12px;
+      text-align: center;
+      color: rgb(var(--gray-8));
+    }
+
+    :deep(.wrapper) {
+      margin-bottom: 8px;
+      text-align: center;
+      cursor: pointer;
+
+      &:last-child {
+        .text {
+          margin-bottom: 0;
+        }
+      }
+      &:hover {
+        .icon {
+          color: rgb(var(--arcoblue-6));
+          background-color: #e8f3ff;
+        }
+        .text {
+          color: rgb(var(--arcoblue-6));
+        }
+      }
+    }
+
+    :deep(.icon) {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 4px;
+      color: rgb(var(--dark-gray-1));
+      line-height: 32px;
+      font-size: 16px;
+      text-align: center;
+      background-color: rgb(var(--gray-1));
+      border-radius: 4px;
     }
   }
+</style>
 
-  .welcome-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    text-align: center;
-  }
-
-  .welcome-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 72px;
-    height: 72px;
-    margin-bottom: 24px;
-    color: rgb(var(--primary-6));
-    font-size: 36px;
-    background: rgb(var(--primary-1));
-    border-radius: 20px;
-  }
-
-  .welcome-title {
-    margin: 0 0 12px;
-    color: var(--color-text-1);
-  }
-
-  .welcome-subtitle {
-    max-width: 520px;
-    margin: 0;
-    font-size: 15px;
-    color: var(--color-text-3);
+<style lang="less" scoped>
+  .mobile {
+    .container {
+      display: block;
+    }
+    .right-side {
+      width: 100%;
+      margin-left: 0;
+      margin-top: 16px;
+    }
   }
 </style>
