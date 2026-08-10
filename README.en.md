@@ -23,17 +23,33 @@ Admin dashboard frontend based on [Arco Design Pro Vue](https://arco.design/vue/
 
 Also includes RBAC, dictionaries, system config, payment, tickets, scheduled jobs, component demos, and other admin pages.
 
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | Vue 3 + TypeScript |
+| Build | Vite 8 |
+| UI | Arco Design Vue |
+| Router | Vue Router 4 |
+| State | Pinia |
+| HTTP | Axios |
+| Realtime | SignalR (`@microsoft/signalr`) |
+
 ## Screenshots
 
 The screenshots below are from the [live demo](https://beaverxadmin.com/), in sidebar order (original files in the repo `imgs/` folder).
 
-### Home
+#### Home
 
 ![Home](imgs/首页.png)
+![Theme Switch](imgs/首页2.png)
 
-### System Management
+#### Workflow
 
-#### User Management
+![Process Design](imgs/流程设计.png)
+![Pending Approvals](imgs/待我审批.png)
+
+#### Async Export
 
 ![User Management](imgs/用户管理.png)
 
@@ -45,9 +61,9 @@ The screenshots below are from the [live demo](https://beaverxadmin.com/), in si
 
 ![Dictionary](imgs/字典管理.png)
 
-#### Configuration
+#### Organization
 
-![Configuration](imgs/配置管理.png)
+![Organization](imgs/组织架构.png)
 
 #### Scheduled Jobs
 
@@ -61,35 +77,14 @@ Hangfire dashboard (`/hangfire`, separate credentials—see backend config):
 
 ![Online Users](imgs/在线用户.png)
 
-### Payment
-
 #### Alipay
 
 ![Alipay](imgs/支付宝.png)
 
-### Components
-
-#### Rich Text Editor
+#### Rich Text
 
 ![Rich Text](imgs/富文本.png)
 
-### Profile
-
-#### User Center
-
-![User Center](imgs/用户中心.png)
-
-## Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| Framework | Vue 3 + TypeScript |
-| Build | Vite 8 |
-| UI | Arco Design Vue |
-| Router | Vue Router 4 |
-| State | Pinia |
-| HTTP | Axios |
-| Realtime | SignalR (`@microsoft/signalr`) |
 
 ## Requirements
 
@@ -122,6 +117,7 @@ Default account (from backend seed data): `admin` / `Admin@123`
 | `pnpm build` | Type check + production build |
 | `pnpm preview` | Preview production build |
 | `pnpm type:check` | TypeScript check only |
+
 
 ## Project Structure
 
@@ -170,11 +166,13 @@ When `menuFromServer: true` in `src/config/settings.json`:
 
 ### 2. Routing & Permissions
 
+
 | File | Role |
 |------|------|
 | `router/guard/userLoginInfo.ts` | Redirect unauthenticated users; handle logged-in `/login` |
 | `router/guard/permission.ts` | Route whitelist under server menu mode |
 | `router/constants.ts` | Whitelist routes like `Home`, `403` |
+
 
 Static routes in `router/routes/modules/` are mainly for **Home, component demos**, etc. when `menuFromServer: true`; business menus come from the backend.
 
@@ -208,30 +206,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 }
 ```
 
-Entity IDs are snowflake IDs serialized as `string` in JSON; use `EntityId` (`src/types/entity-id.ts`) on the frontend.
-
-### 4. Realtime Notifications (SignalR)
-
-After login, `default-layout` connects to `/hubs/notifications`; JWT is passed via `accessTokenFactory`.
-
-| File | Role |
-|------|------|
-| `src/utils/realtime-hub.ts` | Connection management, `onRealtimeEvent` subscription |
-| `src/hooks/use-realtime-hub.ts` | Layout-level connection lifecycle |
-| `src/api/server/common/realtime.ts` | Event names and payload types |
-
-| Event | Purpose |
-|-------|---------|
-| `export.task.changed` | Export badge, export list status |
-| `message.unread.changed` | Unread badge, message list refresh |
-
-HTTP polling for export tasks and unread messages has been removed.
-
-### 5. Login & Redirects
-
-- Visit `/`: logged in → `/home`, otherwise → `/login`
-- In-app navigation to login while logged in: stay on current page
-- Direct `/login` while logged in: redirect to home
+Entity IDs are GUIDs serialized as `string` in JSON; use `EntityId` (`src/types/entity-id.ts`) on the frontend.
 
 ## Layout & Global Settings
 
@@ -240,12 +215,14 @@ HTTP polling for export tasks and unread messages has been removed.
 
 ## FAQ
 
+
 | Symptom | Check |
 |---------|-------|
 | 401 / login loop | `VITE_API_BASE_URL`, backend CORS, token expiry |
 | Menu visible but 403 on page | Backend `component` matches `views/` path (e.g. `system/config/index`) |
 | 404 on refresh / deep link | `permission.ts` and `register-server-routes.ts` |
 | Build failure | Run `pnpm type:check` first |
+
 
 ## Related Repositories
 

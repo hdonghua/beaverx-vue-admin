@@ -40,13 +40,17 @@
 
 以下截图来自 [在线演示](https://beaverxadmin.com/)，顺序与系统侧边栏菜单一致（原图见仓库 `imgs/` 目录）。
 
-### 首页
+#### 首页
 
 ![首页](imgs/首页.png)
+![主题切换](imgs/首页2.png)
 
-### 系统管理
+#### 工作流
 
-#### 用户管理
+![流程设计](imgs/流程设计.png)
+![待我审批](imgs/待我审批.png)
+
+#### 异步导出
 
 ![用户管理](imgs/用户管理.png)
 
@@ -58,9 +62,9 @@
 
 ![字典管理](imgs/字典管理.png)
 
-#### 配置管理
+#### 组织架构
 
-![配置管理](imgs/配置管理.png)
+![组织架构](imgs/组织架构.png)
 
 #### 定时任务
 
@@ -74,23 +78,13 @@ Hangfire 调度面板（`/hangfire`，独立账号，见后端配置）：
 
 ![在线用户](imgs/在线用户.png)
 
-### 支付管理
-
 #### 支付宝
 
 ![支付宝](imgs/支付宝.png)
 
-### 组件概览
-
 #### 富文本
 
 ![富文本](imgs/富文本.png)
-
-### 个人中心
-
-#### 用户中心
-
-![用户中心](imgs/用户中心.png)
 
 
 ## 环境要求
@@ -213,7 +207,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 }
 ```
 
-实体主键为雪花 ID，后端 JSON 序列化为 `string`，前端使用 `EntityId`（`src/types/entity-id.ts`）。
+实体主键为 GUID，后端 JSON 序列化为 `string`，前端使用 `EntityId`（`src/types/entity-id.ts`）。
 
 ## 布局与全局配置
 
