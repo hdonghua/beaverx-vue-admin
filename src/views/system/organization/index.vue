@@ -72,7 +72,12 @@
                 @search="handleUserSearch"
                 @popup-visible-change="handleLeaderPopup"
               >
-                <a-option v-for="user in leaderOptions" :key="user.id" :value="user.id">
+                <a-option
+                  v-for="user in leaderOptions"
+                  :key="user.id"
+                  :value="user.id"
+                  :label="user.name"
+                >
                   <div class="user-option">
                     <a-avatar :size="24" :image-url="user.avatar || undefined">{{ user.name.slice(0, 1) }}</a-avatar>
                     <span>{{ user.name }}</span>

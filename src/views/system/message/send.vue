@@ -1,6 +1,6 @@
 <template>
   <PageContainer>
-    <a-card class="general-card" title="发送站内信">
+    <a-card class="general-card">
       <a-form ref="formRef" :model="form" layout="vertical" class="send-form">
         <a-form-item field="sendToAll">
           <a-checkbox v-model="form.sendToAll">

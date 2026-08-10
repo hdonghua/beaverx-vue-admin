@@ -1,7 +1,6 @@
 <template>
   <PageContainer>
     <QueryTable
-      title="定时任务"
       row-key="id"
       :loading="loading"
       :pagination="pagination"
