@@ -9,7 +9,7 @@ const COMPONENTS: AppRouteRecordRaw = {
     title: '组件概览',
     requiresAuth: true,
     icon: 'icon-apps',
-    order: 3,
+    order: 99,
     staticMenu: true,
     roles: ['*'],
   },
