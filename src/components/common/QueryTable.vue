@@ -84,11 +84,12 @@
     <a-table
       v-bind="tableAttrs"
       :loading="loading"
-      :pagination="pagination"
+      :pagination="resolvedPagination"
       :columns="(cloneColumns as TableColumnData[])"
       :data="data"
       :bordered="bordered"
       :size="size"
+      @page-size-change="handlePageSizeChange"
     >
       <template
         v-for="name in tableSlotNames"
@@ -104,6 +105,7 @@
 <script lang="ts" setup>
   import { computed, nextTick, onBeforeUnmount, ref, useAttrs, useSlots, watch } from 'vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
+  import type { PaginationProps, SelectProps } from '@arco-design/web-vue';
   import cloneDeep from 'lodash/cloneDeep';
   import Sortable from 'sortablejs';
 
@@ -226,9 +228,45 @@
     )
   );
 
+  const defaultPaginationProps = {
+    showTotal: true,
+    showPageSize: true,
+    pageSizeOptions: [10, 20, 50, 100],
+    pageSizeProps: {
+      style: { width: '110px' },
+    },
+  };
+
+  const resolvedPagination = computed(() => {
+    if (props.pagination === false || props.pagination === undefined) {
+      return props.pagination;
+    }
+    if (props.pagination === true) {
+      return { ...defaultPaginationProps };
+    }
+    return {
+      ...defaultPaginationProps,
+      ...props.pagination,
+    };
+  });
+
   const destroySortable = () => {
     sortableInstance?.destroy();
     sortableInstance = null;
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    if (props.pagination && typeof props.pagination === 'object') {
+      props.pagination.pageSize = pageSize;
+      if ('current' in props.pagination) {
+        props.pagination.current = 1;
+      }
+    }
+    const attrHandler = tableAttrs.onPageSizeChange;
+    if (typeof attrHandler === 'function') {
+      attrHandler(pageSize);
+    }
+    emit('refresh');
   };
 
   const handleSelectDensity = (

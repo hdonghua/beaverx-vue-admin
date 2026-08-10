@@ -511,11 +511,17 @@
   const search = () => {
     fetchData({
       ...basePagination,
+      pageSize: pagination.pageSize,
       ...formModel.value,
     });
   };
   const onPageChange = (current: number) => {
-    fetchData({ ...basePagination, current, ...formModel.value });
+    fetchData({
+      ...basePagination,
+      current,
+      pageSize: pagination.pageSize,
+      ...formModel.value,
+    });
   };
 
   fetchData();
