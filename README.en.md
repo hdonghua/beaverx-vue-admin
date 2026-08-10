@@ -227,3 +227,7 @@ Entity IDs are GUIDs serialized as `string` in JSON; use `EntityId` (`src/types/
 ## Related Repositories
 
 - Backend API: [BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

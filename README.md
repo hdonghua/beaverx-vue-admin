@@ -229,3 +229,7 @@ export function queryConfigPage(req: QueryConfigPageRequest) {
 
 - 后端 API：[BeaverX.Admin](https://github.com/hdonghua/BeaverX.Admin)
 
+## 开源许可
+
+本项目基于 [MIT License](LICENSE) 开源。
+

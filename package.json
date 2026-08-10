@@ -3,7 +3,7 @@
   "description": "beaverx-vue-admin",
   "version": "1.0.0",
   "private": true,
-  "author": "ArcoDesign Team",
+  "author": "hdonghua",
   "license": "MIT",
   "scripts": {
     "dev": "vite --config ./config/vite.config.dev.ts",
